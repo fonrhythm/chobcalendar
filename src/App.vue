@@ -150,6 +150,7 @@ onBeforeUnmount(() => {
         role="status"
       >
         {{ data.status === 'stale' ? lang.t.staleNote : lang.t.errorNote }}
+        <span v-if="data.error">{{ data.error }}</span>
         <button class="text-button" @click="data.sync()">{{ lang.t.retry }}</button>
       </div>
       <div

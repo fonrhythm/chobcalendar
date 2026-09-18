@@ -72,7 +72,7 @@ export const useEventsStore = defineStore('events', () => {
     status.value = 'loading'
     error.value = ''
     const controller = new AbortController(),
-      timeout = setTimeout(() => controller.abort(), 20000)
+      timeout = setTimeout(() => controller.abort(), 60000)
     try {
       records.value = await fetchRecords(controller.signal)
       preview.value = false
@@ -85,7 +85,7 @@ export const useEventsStore = defineStore('events', () => {
         )
       } catch {}
     } catch (e) {
-      error.value = e.name === 'AbortError' ? 'timeout' : 'fetch'
+      error.value = e.name === 'AbortError' ? '读取超时，请稍后重试。' : String(e.message || '读取失败。')
       status.value = preview.value ? 'demo-error' : records.value.length ? 'stale' : 'error'
     } finally {
       clearTimeout(timeout)
