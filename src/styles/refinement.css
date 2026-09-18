@@ -1,0 +1,363 @@
+/* Compact shared layouts, desktop and phone. */
+.month-heading {
+  padding-block: 18.2px;
+  min-height: 134px;
+}
+.day-modal .modal-content {
+  padding-top: 12px;
+}
+.day-summary {
+  margin: 0 0 12px;
+  font-size: 12px;
+}
+.day-tabs {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+.day-capsules {
+  display: grid;
+  gap: 12px;
+}
+.day-capsule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 5px 10px 5px 14px;
+  border: 1px solid var(--capsule-color);
+  border-radius: 999px;
+  background: var(--capsule-color);
+  color: var(--capsule-text);
+  text-align: left;
+  min-height: 40px;
+}
+.day-capsule.official {
+  background: transparent;
+  color: var(--capsule-color);
+}
+.capsule-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  font-size: 14px;
+}
+.capsule-star {
+  flex: none;
+}
+.capsule-type {
+  flex: none;
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px;
+  background: #fff;
+  color: var(--capsule-color);
+}
+.official .capsule-type {
+  background: var(--capsule-color);
+  color: #fff;
+}
+.event-modal .modal-header {
+  padding-block: 5px;
+  min-height: 0;
+}
+.event-modal .modal-header .icon-button {
+  width: 30px;
+  height: 30px;
+}
+.event-detail dl {
+  margin-block: 16px;
+  gap: 2px;
+}
+.event-detail dl > div {
+  display: grid;
+  grid-template-columns: 3.3em minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding-block: 5px;
+  align-items: start;
+}
+.event-detail dt {
+  padding: 0;
+  text-align: left;
+}
+.event-detail dd {
+  margin: 0;
+  transform: none;
+  padding: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.poster-stage {
+  position: relative;
+}
+.poster-navigation {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  pointer-events: none;
+}
+.poster-navigation button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
+  background: rgb(255 255 255 / 50%);
+  color: #222;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+}
+.poster-navigation button:first-child {
+  left: 8px;
+}
+.poster-navigation button:last-child {
+  right: 8px;
+}
+.poster-navigation > span {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgb(255 255 255 / 50%);
+  color: #222;
+}
+.poster-loading {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffffcc;
+  color: #222;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  pointer-events: none;
+}
+.poster-open {
+  min-height: 80px;
+}
+.lightbox-prev,
+.lightbox-next {
+  background: rgb(255 255 255 / 50%);
+}
+.week-agenda {
+  width: 76vw;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.week-count {
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.week-agenda .activity-tabs {
+  margin-bottom: 0;
+}
+.event-card .event-times {
+  transform: none;
+  justify-self: end;
+}
+.event-times i {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.social-footer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 24px;
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(239, 237, 233, 0.3);
+}
+.social-footer .icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  opacity: 0.6;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+.social-footer a:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.form-modal {
+  background: #efede9;
+  overflow: hidden;
+}
+.form-modal .modal-header {
+  border-bottom: 0;
+  padding: 18px 22px;
+  background: inherit;
+}
+.form-modal .modal-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.form-modal .modal-content {
+  padding: 0;
+  display: flex;
+  overflow: hidden;
+}
+.entry-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+.entry-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 18px 22px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.entry-fields label {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+.entry-fields label em {
+  color: #c63232;
+  font-style: normal;
+}
+.entry-fields input,
+.entry-fields select,
+.entry-fields textarea {
+  display: block;
+  margin-top: 8px;
+  font-weight: 400;
+  padding: 12px;
+}
+.entry-fields small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.entry-notice {
+  margin: 0;
+  padding: 8px 0;
+  background: transparent;
+}
+.entry-actions {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 22px;
+  margin: 0;
+  background: inherit;
+}
+.entry-actions button {
+  border-radius: 12px;
+  padding: 13px 4px;
+  background: #fff;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+.entry-actions .draft-button {
+  background: #999;
+  color: #fff;
+}
+.entry-actions .submit-button {
+  background: #191a18;
+  color: #fff;
+}
+.draft-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+[data-theme='dark'] .day-capsule.official {
+  color: color-mix(in srgb, var(--capsule-color), white 45%);
+  border-color: currentColor;
+}
+[data-theme='dark'] .entry-actions button:not(.draft-button):not(.submit-button) {
+  background: var(--bg);
+  color: var(--text);
+}
+@media (max-width: 720px) {
+  .month-heading {
+    padding-block: 16.5px;
+    min-height: 115px;
+  }
+  .week-agenda {
+    width: 80vw;
+    max-width: 100%;
+  }
+  .week-agenda .date-strip {
+    gap: 0;
+  }
+  .week-agenda .strip-day > span {
+    padding-inline: 3px;
+  }
+  .week-agenda .event-card {
+    padding: 14px 12px;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) 64px;
+  }
+  .week-agenda .event-artist {
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+  .week-agenda .event-times {
+    width: auto;
+  }
+  .week-agenda .activity-tabs {
+    gap: 6px;
+  }
+  .week-agenda .activity-tabs button {
+    padding: 8px 12px;
+  }
+  .event-modal .modal-header {
+    padding-block: 3px;
+  }
+  .event-detail dl > div {
+    gap: 8px;
+    padding-block: 4px;
+  }
+  .day-modal .modal-content {
+    padding-top: 10px;
+  }
+  .day-summary {
+    margin-bottom: 10px;
+  }
+  .capsule-name {
+    font-size: 12px;
+  }
+  .capsule-type {
+    font-size: 10px;
+    padding: 5px 7px;
+  }
+  .day-capsule {
+    padding-left: 10px;
+    gap: 5px;
+  }
+  .form-modal {
+    width: 88%;
+    max-height: 82dvh;
+  }
+  .form-modal .modal-header {
+    padding: 16px 18px;
+  }
+  .entry-fields {
+    padding: 12px 18px;
+  }
+  .entry-actions {
+    padding: 12px 18px;
+    gap: 8px;
+  }
+}

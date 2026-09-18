@@ -1,140 +1,232 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useLanguageStore } from '../stores/language'
-import { useViewStore } from '../stores/view'
 import { imageUrls } from '../utils/records'
-const lang = useLanguageStore(),
-  view = useViewStore()
-const form = reactive({
-  name: '',
-  region: view.currentRegion,
-  category: 'other',
-  kind: 'event',
-  activity: '',
-  type: '站台活动',
-  date: view.selectedDate,
-  end_date: '',
-  time: '',
-  end_time: '',
-  venue: '',
-  city: '',
-  company: '',
-  price: '',
-  note: '',
-  sale_date: '',
-  sale_time: '',
-  ticket_url: '',
-  contact: '',
-  picture_url: '',
-})
-const saved = ref(false),
-  message = ref('')
+import BaseModal from './BaseModal.vue'
+const emit = defineEmits(['close'])
+const lang = useLanguageStore()
+const companies = [
+  '411 Entertainment',
+  '9 Arkhan',
+  'BEC World',
+  'BOXX MUSIC',
+  'Bridge Management',
+  'CHANGE 2561',
+  'Channel 3',
+  'Copy A Bangkok',
+  'Dee Hup Hous',
+  'DoMunDi (DMD)',
+  'Genie Records',
+  'GMMTV',
+  'GNEST',
+  'Headliner Thailand',
+  'Idol Factory',
+  'iQIYIArtist TH',
+  'Kicks Records',
+  'kiddorecords',
+  'LIT Entertainment',
+  'LOOKE',
+  'LOVEiS Entertainmer',
+  'mandee',
+  'MchoiceTH',
+  'Me Mind Y',
+  'ME RECORDS',
+  'MILK!',
+  'Move Records',
+  'Muzik Move',
+  'North Star',
+  'One 31 (一台)',
+  'Open Label (一台)',
+  'Smallroom',
+  'SONAY MUSIC',
+  'Sony Music Thailand',
+  'SpicyDisc',
+  'Tero Music',
+  'TV Thunder',
+  'Wabi Sabi',
+  'Wayfer Records',
+  'What The Duck',
+  'White Fox',
+  'White Music',
+  'XOXO Entertainment',
+  '其他个人工作室',
+  '洞察娱乐 (Insight)',
+  '星猎 (Star Hunter)',
+]
+const form = reactive(
+  Object.fromEntries(
+    [
+      'name',
+      'category',
+      'activity',
+      'type',
+      'date',
+      'time',
+      'region',
+      'city',
+      'venue',
+      'company',
+      'ticket_type',
+      'sale_date',
+      'sale_time',
+      'ticket_url',
+      'participation_info',
+      'picture_url',
+      'note',
+    ].map((k) => [k, '']),
+  ),
+)
+const message = ref(''),
+  confirming = ref(false)
+const key = 'chob-entry-draft-v1'
 try {
-  const draft = JSON.parse(localStorage.getItem('chob-entry-draft-v1') || 'null')
-  if (draft)
-    for (const key of Object.keys(form)) if (typeof draft[key] === 'string') form[key] = draft[key]
+  const draft = JSON.parse(
+    localStorage.getItem(key) || localStorage.getItem('addEventDraft') || 'null',
+  )
+  if (draft) for (const k of Object.keys(form)) if (typeof draft[k] === 'string') form[k] = draft[k]
+  if (draft?.pictures && !form.picture_url) form.picture_url = draft.pictures
 } catch {}
 function save() {
-  message.value = ''
-  if (form.end_date && form.date && form.end_date < form.date) {
-    message.value = lang.t.dateOrder
-    return
-  }
   try {
-    localStorage.setItem('chob-entry-draft-v1', JSON.stringify(form))
-    saved.value = true
+    localStorage.setItem(key, JSON.stringify(form))
+    emit('close')
   } catch {
     message.value = lang.t.draftFailed
   }
 }
+function requestClose() {
+  if (Object.values(form).some((v) => v.trim())) confirming.value = true
+  else emit('close')
+}
+function discard() {
+  try {
+    localStorage.removeItem(key)
+    localStorage.removeItem('addEventDraft')
+    emit('close')
+  } catch {
+    message.value = lang.t.draftFailed
+    confirming.value = false
+  }
+}
+defineExpose({ requestClose })
 </script>
 <template>
-  <form class="entry-form" @submit.prevent="save" @input="saved = false">
-    <p class="entry-notice">{{ lang.t.entryDraftNote }}</p>
+  <form class="entry-form" @submit.prevent>
     <div class="entry-fields">
-      <label class="full"
-        >{{ lang.t.artistName }}<input v-model="form.name" maxlength="200" required
+      <label
+        >{{ lang.t.artistName }} <em>*</em
+        ><input
+          v-model="form.name"
+          maxlength="200"
+          placeholder="e.g. New (GELBOYS) / Ohm (ohmtpk)"
+          required
       /></label>
       <label
-        >{{ lang.t.region
-        }}<select v-model="form.region">
+        >{{ lang.t.category
+        }}<select v-model="form.category">
+          <option value="">{{ lang.t.choose }}</option>
+          <option
+            v-for="c in ['bl', 'gl', 'band', 'singer', 'group', 'actor', 'music', 'other']"
+            :key="c"
+            :value="c"
+          >
+            {{ lang.t[c] }}
+          </option>
+        </select></label
+      >
+      <label
+        >{{ lang.t.activityName }} <em>*</em
+        ><input v-model="form.activity" maxlength="400" required
+      /></label>
+      <label
+        >{{ lang.t.eventType
+        }}<select v-model="form.type">
+          <option value="">{{ lang.t.choose }}</option>
+          <option
+            v-for="(label, k) in {
+              brand: '站台活动',
+              series: '剧集宣传',
+              stage: '舞台演出',
+              other: '其他',
+            }"
+            :key="k"
+            :value="label"
+          >
+            {{ lang.t[k] }}
+          </option>
+        </select></label
+      >
+      <label
+        >{{ lang.t.dateLabel }} <em>*</em><input v-model="form.date" type="date" required
+      /></label>
+      <label
+        >{{ lang.t.time }}<input v-model="form.time" placeholder="13:00 / 10:00 - 21:00"
+      /></label>
+      <label
+        >{{ lang.t.region }} <em>*</em
+        ><select v-model="form.region" required>
+          <option value="">{{ lang.t.choose }}</option>
           <option value="thailand">THAILAND</option>
           <option value="china">CHINA</option>
           <option value="oversea">OVERSEA</option>
         </select></label
       >
       <label
-        >{{ lang.t.category
-        }}<select v-model="form.category">
-          <option
-            v-for="cat in ['bl', 'gl', 'band', 'singer', 'group', 'actor', 'music', 'other']"
-            :key="cat"
-            :value="cat"
-          >
-            {{ lang.t[cat] }}
-          </option>
+        >{{ lang.t.cityLabel }} <em>*</em
+        ><input v-model="form.city" :placeholder="lang.t.cityHint" required
+      /></label>
+      <label>{{ lang.t.venueLabel }}<input v-model="form.venue" /></label>
+      <label
+        >{{ lang.t.company }}<input v-model="form.company" list="entry-companies" /><datalist
+          id="entry-companies"
+        >
+          <option v-for="c in companies" :key="c" :value="c" /></datalist
+        ><small>{{ lang.t.companyHelp }}</small></label
+      >
+      <label
+        >{{ lang.t.participation }} <em>*</em
+        ><select v-model="form.ticket_type" required>
+          <option value="">{{ lang.t.choose }}</option>
+          <option v-for="t in ['buy', 'info', 'from']" :key="t" :value="t">{{ lang.t[t] }}</option>
         </select></label
       >
-      <label class="full"
-        >{{ lang.t.activityName }}<input v-model="form.activity" maxlength="400"
-      /></label>
-      <label
-        >{{ lang.t.entryKind
-        }}<select v-model="form.kind">
-          <option value="event">{{ lang.t.calendar }}</option>
-          <option value="task">{{ lang.t.task }}</option>
-        </select></label
-      >
-      <label
-        >{{ lang.t.eventType
-        }}<select v-model="form.type">
-          <option
-            v-for="(label, key) in {
-              brand: '站台活动',
-              series: '剧集宣传',
-              stage: '舞台演出',
-              other: '其他',
-            }"
-            :key="key"
-            :value="label"
-          >
-            {{ lang.t[key] }}
-          </option>
-        </select></label
-      >
-      <label>{{ lang.t.startDate }}<input v-model="form.date" type="date" required /></label>
-      <label
-        >{{ lang.t.endDate }}<input v-model="form.end_date" type="date" :min="form.date"
-      /></label>
-      <label>{{ lang.t.startTime }}<input v-model="form.time" type="time" /></label>
-      <label>{{ lang.t.endTime }}<input v-model="form.end_time" type="time" /></label>
-      <label>{{ lang.t.venueLabel }}<input v-model="form.venue" maxlength="300" /></label>
-      <label
-        >{{ lang.t.cityLabel
-        }}<input v-model="form.city" maxlength="100" :placeholder="lang.t.cityHint"
-      /></label>
-      <label>{{ lang.t.company }}<input v-model="form.company" maxlength="150" /></label>
-      <label>{{ lang.t.priceLabel }}<input v-model="form.price" maxlength="100" /></label>
-      <label>{{ lang.t.saleDate }}<input v-model="form.sale_date" type="date" /></label>
-      <label>{{ lang.t.saleTime }}<input v-model="form.sale_time" type="time" /></label>
-      <label class="full">{{ lang.t.link }}<input v-model="form.ticket_url" type="url" /></label>
-      <label class="full"
-        >{{ lang.t.contact }}<input v-model="form.contact" maxlength="250"
-      /></label>
-      <label class="full"
-        >{{ lang.t.images
-        }}<textarea v-model="form.picture_url" rows="3" :placeholder="lang.t.imageHint"></textarea
-        ><small>{{ imageUrls(form.picture_url).length }} / 9</small></label
-      >
-      <label class="full"
-        >{{ lang.t.noteLabel }}<textarea v-model="form.note" rows="3" maxlength="4000"></textarea>
+      <template v-if="['buy', 'from'].includes(form.ticket_type)">
+        <label>{{ lang.t.saleDate }}<input v-model="form.sale_date" type="date" /></label>
+        <label>{{ lang.t.saleTime }}<input v-model="form.sale_time" type="time" /></label>
+        <label
+          >{{ lang.t.link
+          }}<input v-model="form.ticket_url" type="url" placeholder="https://example.com/tickets"
+        /></label>
+      </template>
+      <label v-if="form.ticket_type === 'info'"
+        >{{ lang.t.participationInfo }}<textarea v-model="form.participation_info" rows="3" />
       </label>
+      <label
+        >{{ lang.t.images
+        }}<textarea v-model="form.picture_url" rows="3" :placeholder="lang.t.imageHint" /><small
+          >{{ imageUrls(form.picture_url).length }} / 9</small
+        ></label
+      >
+      <label
+        >{{ lang.t.noteLabel }}<textarea v-model="form.note" rows="3" maxlength="4000" />
+      </label>
+      <p class="entry-notice">{{ lang.t.entryDraftNote }}</p>
+      <p v-if="message" class="form-error" role="alert">{{ message }}</p>
     </div>
-    <p v-if="message" class="form-error" role="alert">{{ message }}</p>
-    <p v-if="saved" role="status">{{ lang.t.draftSaved }}</p>
     <div class="entry-actions">
-      <button class="pill active" type="submit">{{ lang.t.saveDraft }}</button
-      ><button class="pill" type="button" disabled>{{ lang.t.submitLater }}</button>
+      <button type="button" class="draft-button" @click="save">{{ lang.t.saveDraft }}</button>
+      <button type="button" @click="requestClose">{{ lang.t.cancel }}</button>
+      <button type="button" class="submit-button" disabled :title="lang.t.submitLater">
+        {{ lang.t.submit }}
+      </button>
     </div>
   </form>
+  <BaseModal v-if="confirming" :title="lang.t.saveDraft" @close="confirming = false">
+    <p>{{ lang.t.leaveDraft }}</p>
+    <div class="draft-confirm-actions">
+      <button class="pill active" @click="save">{{ lang.t.saveDraft }}</button
+      ><button class="pill" @click="confirming = false">{{ lang.t.keepEditing }}</button
+      ><button class="pill" @click="discard">{{ lang.t.discard }}</button>
+    </div>
+  </BaseModal>
 </template>

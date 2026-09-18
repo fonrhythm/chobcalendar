@@ -1725,10 +1725,10 @@ p {
   height: 13px;
 }
 .weekday.sunday {
-  color: #4b1912;
+  color: #632024;
 }
 .weekday.saturday {
-  color: #21297e;
+  color: #010c80;
 }
 .day-cell {
   min-height: 90px;
@@ -2192,3 +2192,6 @@ p {
     min-width: 27px;
   }
 }
+
+
+

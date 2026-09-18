@@ -20,6 +20,11 @@ const theme = useThemeStore()
 const view = useViewStore(),
   data = useEventsStore(),
   lang = useLanguageStore()
+const entryForm = ref(null)
+function closeModal() {
+  if (modal.value === 'entry') entryForm.value?.requestClose()
+  else modal.value = ''
+}
 const modal = ref(''),
   item = ref(null),
   day = ref(''),
@@ -179,11 +184,52 @@ onBeforeUnmount(() => {
         ><button class="pill about-button" @click="modal = 'about'">ABOUT</button>
       </div>
       <div class="social-footer">
-        <button class="icon-button" :aria-label="lang.t.favorites" @click="modal = 'favorites'">
-          <Icon name="heart" /></button
-        ><a class="icon-button" href="mailto:chobcalendar@gmail.com" aria-label="Email CHOB"
+        <a
+          href="https://xhslink.cn/m/6daqAMGfZbo"
+          class="icon-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="小红书: SomenStjerne"
+          aria-label="小红书: SomenStjerne"
+          ><Icon name="heart"
+        /></a>
+        <a
+          href="https://x.com/ChobCalendar"
+          class="icon-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="X: ChobCalendar"
+          aria-label="X: ChobCalendar"
+          ><Icon name="brandX"
+        /></a>
+        <a
+          href="https://www.threads.com/@chobcalendar"
+          class="icon-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Threads: chobcalendar"
+          aria-label="Threads: chobcalendar"
+          ><Icon name="chat"
+        /></a>
+        <a
+          href="https://www.instagram.com/chobcalendar/"
+          class="icon-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Instagram: chobcalendar"
+          aria-label="Instagram: chobcalendar"
+          ><Icon name="camera"
+        /></a>
+        <a
+          href="mailto:chobcalendar@gmail.com"
+          class="icon-button"
+          title="chobcalendar@gmail.com"
+          aria-label="Email"
           ><Icon name="mail"
         /></a>
+        <span class="icon-button" title="欢迎合作联系" aria-label="欢迎合作联系"
+          ><Icon name="handshake"
+        /></span>
       </div>
     </main>
     <footer class="copyright">
@@ -195,12 +241,13 @@ onBeforeUnmount(() => {
     <BaseModal
       v-if="modal"
       :title="modalTitle"
+      :form="modal === 'entry'"
       :wide="modal === 'day'"
       :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
       :accent="
         modal === 'event' && item ? getCategoryColor(item.category, item.region).bg : undefined
       "
-      @close="modal = ''"
+      @close="closeModal"
     >
       <EventDetail v-if="modal === 'event'" :item="item" />
       <DayAgenda v-else-if="modal === 'day'" :key="day" :day="day" @open="open" />
@@ -219,7 +266,7 @@ onBeforeUnmount(() => {
           {{ lang.t.favorites }} · {{ data.favorites.length }}
         </button></template
       >
-      <EntryForm v-else-if="modal === 'entry'" />
+      <EntryForm v-else-if="modal === 'entry'" ref="entryForm" @close="modal = ''" />
       <template v-else
         ><div class="about-content">
           <span class="about-wordmark">CHOB<span>CALENDAR</span></span>

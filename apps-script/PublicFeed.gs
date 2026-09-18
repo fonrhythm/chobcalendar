@@ -3,15 +3,51 @@
 // Only the first worksheet is read, matching the original API.
 // For another worksheet, explicitly set tab to its exact name.
 const CHOB_PUBLIC_SOURCES = [
-  { id:'1zU7BdQQ2qvCR80ku3WT6YQhu8s9aTCSf3UHLWlhKahc', region:'thailand', official:true },
-  { id:'1RSHC9A4T8OvT0XLFCdMbds9Z5ky2GsbLhtDqFhb4Pkw', region:'', official:true },
-  { id:'1UvY0Fd5lmgRhPlSdIKn1Clfywo3yU7qcrLTwrRWosuU', region:'thailand', official:true },
-  { id:'1HCaeRIunaianxgeyKQceselxyk1IxHzb5k9KBlfMsDA', region:'', official:true },
-  { id:'1Irbm_DlW63XjhS54qbopw18WnpJpo_s3gbrDKqkmyvY', region:'thailand', official:false },
-  { id:'10S-flnjUlbZzQVBXmHKe7y7tXVfYc3Gg2O6KmSGDjMQ', region:'china', official:false },
-  { id:'1H88jEc_anrOW63YsZsxdxb2sdH0mMV0Eemq0iW1Tr-Q', region:'oversea', official:false },
-  { id:'1umKIOnnCtnNHRQKQs-O3J9cHvamUZqtu8bY__SvgR3g', region:'thailand', official:false },
-  { id:'1gEwDgp7F_ACqWCu7qShCJkhRtMPZusO0USgMdaBTFmo', region:'', official:false }
+  {
+    "id": "1zU7BdQQ2qvCR80ku3WT6YQhu8s9aTCSf3UHLWlhKahc",
+    "region": "thailand",
+    "official": true
+  },
+  {
+    "id": "1RSHC9A4T8OvT0XLFCdMbds9Z5ky2GsbLhtDqFhb4Pkw",
+    "region": "",
+    "official": true
+  },
+  {
+    "id": "10S-flnjUlbZzQVBXmHKe7y7tXVfYc3Gg2O6KmSGDjMQ",
+    "region": "thailand",
+    "official": true
+  },
+  {
+    "id": "1H88jEc_anrOW63YsZsxdxb2sdH0mMV0Eemq0iW1Tr-Q",
+    "region": "",
+    "official": true
+  },
+  {
+    "id": "1UvY0Fd5lmgRhPlSdIKn1Clfywo3yU7qcrLTwrRWosuU",
+    "region": "thailand",
+    "official": false
+  },
+  {
+    "id": "1HCaeRIunaianxgeyKQceselxyk1IxHzb5k9KBlfMsDA",
+    "region": "china",
+    "official": false
+  },
+  {
+    "id": "1Irbm_DlW63XjhS54qbopw18WnpJpo_s3gbrDKqkmyvY",
+    "region": "oversea",
+    "official": false
+  },
+  {
+    "id": "1umKIOnnCtnNHRQKQs-O3J9cHvamUZqtu8bY__SvgR3g",
+    "region": "thailand",
+    "official": false
+  },
+  {
+    "id": "1gEwDgp7F_ACqWCu7qShCJkhRtMPZusO0USgMdaBTFmo",
+    "region": "",
+    "official": false
+  }
 ];
 function chobPublicFeed() {
   const output = value => ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON);
@@ -58,7 +94,7 @@ function chobPublicFeed() {
          'type','company','note','contact','contact_method','link','images'].forEach(key => { base[key] = row[key] || ''; });
         base.activity = row.activity || row.title || '';
         base.link = row.link || row.ticket_url || '';
-        base.images = row.images || row.image_url || row.picture_urls || '';
+        base.images = row.images || row.image_url || row.picture_url || row.picture_urls || '';
         base.contact = row.contact || row.contact_info || '';
         if (row.time === '非公开') { base.time = ''; base.time_status = 'private'; }
         function append(kind, date, end, suffix, extra) {

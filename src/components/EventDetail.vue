@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useLanguageStore } from '../stores/language'
 import { useEventsStore } from '../stores/events'
 import { safeUrl, imageUrls } from '../utils/records'
+import { attendance, displayTime } from '../utils/calendarDisplay'
 import Icon from './Icon.vue'
 import PosterGallery from './PosterGallery.vue'
 const props = defineProps({ item: Object }),
@@ -19,25 +20,27 @@ const linkHost = computed(() => (link.value ? new URL(link.value).hostname : '')
     <p class="detail-activity">{{ item.activity }}</p>
     <dl>
       <div>
-        <dt>{{ lang.t.start }}</dt>
+        <dt>{{ lang.t.dateLabel }}</dt>
         <dd>
-          {{ item.date }} ·
-          {{
-            item.time_status === 'private'
-              ? lang.t.private
-              : item.time_status === 'all_day'
-                ? lang.t.allDay
-                : item.time || lang.t.tba
-          }}
+          {{ item.date
+          }}<template v-if="item.end_date && item.end_date !== item.date">
+            – {{ item.end_date }}</template
+          >
         </dd>
       </div>
-      <div v-if="item.end_date || item.end_time">
-        <dt>{{ lang.t.end }}</dt>
-        <dd>{{ item.end_date || item.date }} {{ item.end_time }}</dd>
+      <div>
+        <dt>{{ lang.t.time }}</dt>
+        <dd>{{ displayTime(item.time || (item.time_status === 'private' ? lang.t.private : item.time_status === 'all_day' ? lang.t.allDay : ''), item.region) || lang.t.tba }}</dd>
       </div>
       <div v-if="item.kind === 'event'">
-        <dt>{{ lang.t.location }}</dt>
-        <dd>{{ [item.venue, item.city].filter(Boolean).join(', ') || lang.t.tba }}</dd>
+        <dt>{{ attendance(item.city) === 'online' ? lang.t.broadcast : lang.t.location }}</dt>
+        <dd>
+          {{
+            (attendance(item.city) === 'online'
+              ? item.venue
+              : [item.venue, item.city].filter(Boolean).join(', ')) || lang.t.tba
+          }}
+        </dd>
       </div>
       <div v-if="item.company">
         <dt>{{ lang.t.company }}</dt>

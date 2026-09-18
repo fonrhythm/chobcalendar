@@ -26,3 +26,15 @@ export function activityCategory(type) {
     }[value] || 'other'
   )
 }
+
+export function timeRange(time, end = '') {
+  const text = String(time || '').trim()
+  const match = text.match(/^(\d{1,2}[:：.]\d{2})\s*[-–—~～至]\s*(\d{1,2}[:：.]\d{2})$/)
+  return { start: match ? match[1] : text, end: end || (match ? match[2] : '') }
+}
+export function displayTime(time, region) {
+  const text = String(time || '').trim()
+  if (!text || region === 'oversea') return text
+  const zone = region === 'china' ? 'GMT+8' : 'GMT+7'
+  return text.replace(/\s*GMT\s*[+]\s*[78]\s*$/i, '') + ' ' + zone
+}

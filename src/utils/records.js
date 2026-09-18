@@ -1,3 +1,4 @@
+import { sourceRule } from './sources.js'
 import { validDate } from './dates.js'
 export function safeUrl(v) {
   try {
@@ -23,6 +24,8 @@ export function imageUrls(value) {
   return [...new Set(list(value).map(safeUrl).filter(Boolean))].slice(0, 9)
 }
 export function normalizeRecord(raw, index = 0, source = 'sheet') {
+  const rule = sourceRule(raw.id)
+  if (rule) raw = { ...raw, region: rule[1] || raw.region, isofficial: rule[2] }
   const date = String(raw.date || raw.start_date || '').slice(0, 10),
     end = String(raw.end_date || '').slice(0, 10),
     name = String(raw.name || '').trim()

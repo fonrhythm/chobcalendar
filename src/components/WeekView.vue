@@ -32,6 +32,7 @@ const items = computed(() =>
         {{ lang.t[type] || type }}
       </button>
     </div>
+    <p class="week-count" role="status">{{ lang.t.eventTotal.replace('{n}', items.length) }}</p>
     <div class="event-list">
       <EventCard v-for="item in items" :key="item.id" :item="item" @open="emit('open', $event)" />
     </div>

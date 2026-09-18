@@ -4,6 +4,7 @@ import { endpoint, fetchRecords } from '../api/appsScriptService'
 import { demoRecords } from '../data/demo'
 import { useViewStore } from './view'
 import { occursOn, intersectsMonth } from '../utils/dates'
+import { sourceRule } from '../utils/sources'
 export const useEventsStore = defineStore('events', () => {
   const records = ref([]),
     status = ref('idle'),
@@ -107,7 +108,10 @@ export const useEventsStore = defineStore('events', () => {
               typeof r.name === 'string',
           )
         ) {
-          records.value = c.records
+          records.value = c.records.map((record) => {
+            const rule = sourceRule(record.id)
+            return rule ? { ...record, region: rule[1] || record.region, isofficial: rule[2] } : record
+          })
           updatedAt.value = c.updatedAt
           status.value = 'stale'
         }

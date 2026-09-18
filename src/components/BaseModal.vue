@@ -2,7 +2,14 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useLanguageStore } from '../stores/language'
 import Icon from './Icon.vue'
-defineProps({ title: String, wide: Boolean, accent: String, subtitle: String, gallery: Boolean })
+defineProps({
+  title: String,
+  wide: Boolean,
+  accent: String,
+  subtitle: String,
+  gallery: Boolean,
+  form: Boolean,
+})
 const emit = defineEmits(['close']),
   panel = ref(null),
   lang = useLanguageStore()
@@ -53,7 +60,13 @@ onBeforeUnmount(() => {
       <section
         ref="panel"
         class="modal"
-        :class="{ wide, 'event-modal': accent, 'gallery-modal': gallery, 'day-modal': subtitle }"
+        :class="{
+          wide,
+          'event-modal': accent,
+          'gallery-modal': gallery,
+          'day-modal': subtitle,
+          'form-modal': form,
+        }"
         :style="accent ? { '--detail-accent': accent } : undefined"
         role="dialog"
         aria-modal="true"

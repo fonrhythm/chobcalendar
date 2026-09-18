@@ -1,8 +1,11 @@
 <script setup>
 import { useLanguageStore } from '../stores/language'
+import { computed } from 'vue'
+import { attendance, timeRange } from '../utils/calendarDisplay'
 import Icon from './Icon.vue'
 import { getCategoryColor } from '../utils/config'
-defineProps({ item: Object })
+const props = defineProps({ item: Object })
+const range = computed(() => timeRange(props.item.time, props.item.end_time))
 defineEmits(['open'])
 const lang = useLanguageStore()
 </script>
@@ -28,8 +31,12 @@ const lang = useLanguageStore()
       </div>
       <div class="event-activity">{{ item.activity }}</div>
       <div class="location">
-        {{ lang.t.location }}:
-        <span>{{ [item.venue, item.city].filter(Boolean).join(', ') || lang.t.tba }}</span>
+        {{ attendance(item.city) === 'online' ? lang.t.broadcast : lang.t.location }}:
+        <span>{{
+          [item.venue, attendance(item.city) === 'online' ? '' : item.city]
+            .filter(Boolean)
+            .join(', ') || lang.t.tba
+        }}</span>
       </div>
     </div>
     <span v-if="item.type" class="type-tag">{{ item.type }}</span>
@@ -41,11 +48,11 @@ const lang = useLanguageStore()
             ? lang.t.private
             : item.time_status === 'all_day'
               ? lang.t.allDay
-              : item.time || lang.t.tba
+              : range.start || lang.t.tba
         }}</span>
       </div>
-      <div v-if="item.end_time" class="end-time">
-        <i></i><span>{{ item.end_time }}</span>
+      <div v-if="range.end && !item.time_status" class="end-time">
+        <i></i><span>{{ range.end }}</span>
       </div>
     </div>
     <Icon class="card-arrow" name="arrow" />

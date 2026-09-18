@@ -8,6 +8,26 @@ import { useEventsStore } from '../stores/events'
 const props = defineProps({ item: Object })
 const lang = useLanguageStore(),
   data = useEventsStore()
+const loading = ref(true)
+const warmed = new Set()
+function preload() {
+  if (images.value.length < 2) return
+  for (const offset of [-1, 1]) {
+    const url = images.value[(index.value + offset + images.value.length) % images.value.length]
+    if (warmed.has(url)) continue
+    warmed.add(url)
+    const image = new Image()
+    image.src = url
+  }
+}
+function onImageError() {
+  failed.value = true
+  loading.value = false
+}
+function loaded() {
+  loading.value = false
+  preload()
+}
 const index = ref(0),
   expanded = ref(false),
   failed = ref(false),
@@ -21,10 +41,14 @@ watch(
     expanded.value = false
   },
 )
-watch(index, () => {
-  failed.value = false
-  magnified.value = false
-})
+watch(
+  () => images.value[index.value],
+  () => {
+    loading.value = true
+    failed.value = false
+    magnified.value = false
+  },
+)
 function move(n) {
   index.value = (index.value + n + images.value.length) % images.value.length
 }
@@ -54,10 +78,16 @@ function end(e) {
           v-if="!failed"
           :src="images[index]"
           :alt="item.name + ' · ' + (index + 1)"
-          @error="failed = true"
+          decoding="async"
+          fetchpriority="high"
+          @load="loaded"
+          @error="onImageError"
         />
         <span v-else class="poster-error">{{ lang.t.imageFailed }}</span>
       </button>
+      <span v-if="loading && !failed" class="poster-loading" role="status">{{
+        lang.t.loadingImage
+      }}</span>
       <button
         class="poster-favorite"
         :class="{ saved: data.favorites.includes(item.id) }"
@@ -67,15 +97,15 @@ function end(e) {
       >
         <Icon name="heart" />
       </button>
-    </div>
-    <div v-if="images.length > 1" class="poster-navigation">
-      <button class="icon-button" :aria-label="lang.t.previous" @click="move(-1)">
-        <Icon name="left" />
-      </button>
-      <span aria-live="polite">{{ index + 1 }} / {{ images.length }}</span>
-      <button class="icon-button" :aria-label="lang.t.next" @click="move(1)">
-        <Icon name="right" />
-      </button>
+      <div v-if="images.length > 1" class="poster-navigation">
+        <button class="icon-button" :aria-label="lang.t.previous" @click="move(-1)">
+          <Icon name="left" />
+        </button>
+        <span aria-live="polite">{{ index + 1 }} / {{ images.length }}</span>
+        <button class="icon-button" :aria-label="lang.t.next" @click="move(1)">
+          <Icon name="right" />
+        </button>
+      </div>
     </div>
     <BaseModal
       v-if="expanded"

@@ -3,8 +3,8 @@ import { ref, computed } from 'vue'
 import { useEventsStore } from '../stores/events'
 import { useLanguageStore } from '../stores/language'
 import { attendance } from '../utils/calendarDisplay'
-import EventChip from './EventChip.vue'
-import EventCard from './EventCard.vue'
+import { getCategoryColor } from '../utils/config'
+
 import EmptyState from './EmptyState.vue'
 const props = defineProps({ day: String })
 const emit = defineEmits(['open'])
@@ -17,7 +17,7 @@ const visible = computed(() =>
 )
 </script>
 <template>
-  <p class="day-summary">{{ rows.length }} {{ lang.t.dayCount }}</p>
+  <p class="day-summary">{{ lang.t.scheduleTotal.replace('{n}', visible.length) }}</p>
   <div class="activity-tabs day-tabs">
     <button
       v-for="type in ['all', 'offline', 'online']"
@@ -29,19 +29,23 @@ const visible = computed(() =>
       {{ lang.t[type] }}
     </button>
   </div>
-  <div class="day-detail-list desktop-day-list">
-    <EventCard
+  <div class="day-capsules">
+    <button
       v-for="entry in visible"
       :key="entry.id"
-      :item="entry"
-      @open="emit('open', $event)"
-    />
-  </div>
-  <div class="mobile-day-list">
-    <div v-for="entry in visible" :key="entry.id" class="day-mini">
-      <EventChip :item="entry" @open="emit('open', $event)" />
-      <span>{{ entry.type || lang.t.other }}</span>
-    </div>
+      class="day-capsule"
+      :class="{ official: entry.isofficial }"
+      :style="{
+        '--capsule-color': getCategoryColor(entry.category, entry.region).bg,
+        '--capsule-text': getCategoryColor(entry.category, entry.region).text,
+      }"
+      :title="entry.name"
+      @click="emit('open', entry)"
+    >
+      <span class="capsule-name">{{ entry.name }}</span>
+      <span v-if="entry.isofficial" class="capsule-star" :aria-label="lang.t.official">★</span>
+      <span class="capsule-type">{{ entry.type || lang.t.other }}</span>
+    </button>
   </div>
   <EmptyState v-if="!visible.length" />
 </template>
