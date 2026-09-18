@@ -15,9 +15,12 @@ function list(v) {
     if (Array.isArray(a)) return a.map(String)
   } catch {}
   return String(v)
-    .split(/\n|\|/)
+    .split(/\r?\n|\||;(?=\s*https?:)|,(?=\s*https?:)/)
     .map((s) => s.trim())
     .filter(Boolean)
+}
+export function imageUrls(value) {
+  return [...new Set(list(value).map(safeUrl).filter(Boolean))].slice(0, 9)
 }
 export function normalizeRecord(raw, index = 0, source = 'sheet') {
   const date = String(raw.date || raw.start_date || '').slice(0, 10),
@@ -68,9 +71,7 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     contact: String(raw.contact || raw.contact_info || ''),
     contact_method: String(raw.contact_method || ''),
     link: safeUrl(raw.link || raw.ticket_url),
-    images: list(raw.images || raw.image_url)
-      .map(safeUrl)
-      .filter(Boolean),
+    images: imageUrls(raw.images || raw.image_url || raw.picture_url || raw.picture_urls),
     isofficial:
       raw.isofficial === true ||
       raw.isofficial === 1 ||

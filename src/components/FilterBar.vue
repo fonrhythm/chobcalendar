@@ -5,6 +5,8 @@ import { useEventsStore } from '../stores/events'
 import { useLanguageStore } from '../stores/language'
 import { REGION_COLORS } from '../utils/config'
 import Icon from './Icon.vue'
+import { useThemeStore } from '../stores/theme'
+const theme = useThemeStore()
 const emit = defineEmits(['favorites']),
   view = useViewStore(),
   data = useEventsStore(),
@@ -101,6 +103,24 @@ const state = computed(
         </details>
       </div>
       <div class="filter-actions">
+        <div class="segmented theme-toggle" :aria-label="lang.t.theme">
+          <button
+            :class="{ active: !theme.isDark }"
+            :aria-pressed="!theme.isDark"
+            :aria-label="lang.t.light"
+            @click="theme.setTheme(false)"
+          >
+            <Icon name="sun" />
+          </button>
+          <button
+            :class="{ active: theme.isDark }"
+            :aria-pressed="theme.isDark"
+            :aria-label="lang.t.dark"
+            @click="theme.setTheme(true)"
+          >
+            <Icon name="moon" />
+          </button>
+        </div>
         <button
           class="icon-button"
           :aria-label="lang.t.search"

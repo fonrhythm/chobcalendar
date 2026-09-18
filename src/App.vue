@@ -13,8 +13,10 @@ import WeekView from './components/WeekView.vue'
 import TaskView from './components/TaskView.vue'
 import BaseModal from './components/BaseModal.vue'
 import EventDetail from './components/EventDetail.vue'
-import EventCard from './components/EventCard.vue'
-import EmptyState from './components/EmptyState.vue'
+import DayAgenda from './components/DayAgenda.vue'
+import EntryForm from './components/EntryForm.vue'
+import { useThemeStore } from './stores/theme'
+const theme = useThemeStore()
 const view = useViewStore(),
   data = useEventsStore(),
   lang = useLanguageStore()
@@ -53,7 +55,7 @@ const modalTitle = computed(() =>
       : modal.value === 'favorites'
         ? lang.t.favorites
         : modal.value === 'entry'
-          ? lang.t.entryLater
+          ? lang.t.add
           : lang.t.about,
 )
 function open(itemValue) {
@@ -74,6 +76,7 @@ function closeMenus(e) {
   })
 }
 onMounted(() => {
+  theme.initTheme()
   data.initialize()
   timer = setInterval(onVisible, 5 * 60 * 1000)
   document.addEventListener('visibilitychange', onVisible)
@@ -159,8 +162,8 @@ onBeforeUnmount(() => {
         class="connection-state"
       >
         <Icon name="calendar" />
-        <h2>{{ lang.t.connect }}</h2>
-        <p>{{ lang.t.connectNote }}</p>
+        <h2>{{ data.status === 'error' ? lang.t.error : lang.t.connect }}</h2>
+        <p>{{ data.status === 'error' ? lang.t.errorNote : lang.t.connectNote }}</p>
         <button class="pill active" @click="data.showDemo()">{{ lang.t.preview }}</button>
       </div>
       <template v-else
@@ -186,15 +189,21 @@ onBeforeUnmount(() => {
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by SomenStjerne
     </footer>
-    <BaseModal v-if="modal" :title="modalTitle" :wide="modal === 'day'" :accent="modal === 'event' && item ? getCategoryColor(item.category, item.region).bg : undefined" @close="modal = ''">
+    <button class="floating-add" :aria-label="lang.t.add" @click="modal = 'entry'">
+      <Icon name="plus" />
+    </button>
+    <BaseModal
+      v-if="modal"
+      :title="modalTitle"
+      :wide="modal === 'day'"
+      :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
+      :accent="
+        modal === 'event' && item ? getCategoryColor(item.category, item.region).bg : undefined
+      "
+      @close="modal = ''"
+    >
       <EventDetail v-if="modal === 'event'" :item="item" />
-      <template v-else-if="modal === 'day'"
-        ><p class="day-summary">{{ data.onDate(day).length }} {{ lang.t.dayCount }}</p>
-        <div class="day-detail-list">
-          <EventCard v-for="entry in data.onDate(day)" :key="entry.id" :item="entry" @open="open" />
-        </div>
-        <EmptyState v-if="!data.onDate(day).length"
-      /></template>
+      <DayAgenda v-else-if="modal === 'day'" :key="day" :day="day" @open="open" />
       <template v-else-if="modal === 'favorites'"
         ><p class="muted">{{ lang.t.localFavorites }}</p>
         <button
@@ -210,14 +219,7 @@ onBeforeUnmount(() => {
           {{ lang.t.favorites }} · {{ data.favorites.length }}
         </button></template
       >
-      <template v-else-if="modal === 'entry'"
-        ><div class="about-content">
-          <Icon name="calendar" />
-          <p>{{ lang.t.entryNote }}</p>
-          <a class="external-link" href="mailto:chobcalendar@gmail.com"
-            >chobcalendar@gmail.com<Icon name="mail"
-          /></a></div
-      ></template>
+      <EntryForm v-else-if="modal === 'entry'" />
       <template v-else
         ><div class="about-content">
           <span class="about-wordmark">CHOB<span>CALENDAR</span></span>

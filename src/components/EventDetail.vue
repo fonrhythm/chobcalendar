@@ -1,48 +1,20 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useLanguageStore } from '../stores/language'
 import { useEventsStore } from '../stores/events'
-import { safeUrl } from '../utils/records'
+import { safeUrl, imageUrls } from '../utils/records'
 import Icon from './Icon.vue'
+import PosterGallery from './PosterGallery.vue'
 const props = defineProps({ item: Object }),
   lang = useLanguageStore(),
-  data = useEventsStore(),
-  index = ref(0),
-  failed = ref(false)
-const images = computed(() => (props.item.images || []).map(safeUrl).filter(Boolean))
+  data = useEventsStore()
+const images = computed(() => imageUrls(props.item.images))
 const link = computed(() => safeUrl(props.item.link))
 const linkHost = computed(() => (link.value ? new URL(link.value).hostname : ''))
-watch(
-  () => props.item.id,
-  () => {
-    index.value = 0
-    failed.value = false
-  },
-)
-function move(n) {
-  index.value = (index.value + n + images.value.length) % images.value.length
-  failed.value = false
-}
 </script>
 <template>
   <div class="event-detail">
-    <div v-if="images.length" class="carousel">
-      <img
-        v-if="!failed"
-        :src="images[index]"
-        :alt="item.name + ' · ' + lang.t.images + ' ' + (index + 1)"
-        @error="failed = true"
-      />
-      <p v-else>{{ lang.t.images }} · {{ lang.t.error }}</p>
-      <div v-if="images.length > 1" class="carousel-controls">
-        <button class="icon-button" :aria-label="lang.t.previous" @click="move(-1)">
-          <Icon name="left" /></button
-        ><span>{{ index + 1 }} / {{ images.length }}</span
-        ><button class="icon-button" :aria-label="lang.t.next" @click="move(1)">
-          <Icon name="right" />
-        </button>
-      </div>
-    </div>
+    <PosterGallery v-if="images.length" :item="item" />
     <h3>{{ item.name }}</h3>
     <p class="detail-activity">{{ item.activity }}</p>
     <dl>
@@ -91,7 +63,7 @@ function move(n) {
         >{{ lang.t.link }}<small>{{ linkHost }}</small></span
       ><Icon name="arrow"
     /></a>
-    <div class="detail-footer">
+    <div v-if="!images.length" class="detail-footer">
       <button
         class="pill"
         :class="{ active: data.favorites.includes(item.id) }"

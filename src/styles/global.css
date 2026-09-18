@@ -1525,9 +1525,15 @@ p {
   border-top: 8px solid var(--detail-accent);
   overflow: hidden;
 }
-.event-modal .modal-content { padding: 0; }
-.event-detail { padding: 24px; }
-.event-detail:has(> .carousel) { padding-top: 0; }
+.event-modal .modal-content {
+  padding: 0;
+}
+.event-detail {
+  padding: 24px;
+}
+.event-detail:has(> .carousel) {
+  padding-top: 0;
+}
 .event-detail > .carousel {
   margin: 0 -24px 24px;
   border-radius: 0;
@@ -1540,10 +1546,20 @@ p {
   object-fit: initial;
 }
 /* Compact cards share the same layout in week view and the day dialog. */
-.event-card .event-artist { font-size: 21px; letter-spacing: .5px; }
-.modal-content .event-card .event-artist { font-size: 16px; }
-.event-card .event-activity { font-size: 12px; letter-spacing: .4px; }
-.event-card .location { font-size: 12px; }
+.event-card .event-artist {
+  font-size: 21px;
+  letter-spacing: 0.5px;
+}
+.modal-content .event-card .event-artist {
+  font-size: 16px;
+}
+.event-card .event-activity {
+  font-size: 12px;
+  letter-spacing: 0.4px;
+}
+.event-card .location {
+  font-size: 12px;
+}
 .event-card .event-times {
   display: grid;
   position: relative;
@@ -1554,9 +1570,18 @@ p {
   font-size: 12px;
   min-width: 76px;
 }
-.event-card .event-times > div { gap: 8px; white-space: normal; }
-.event-card .event-times > div > span { white-space: pre-line; overflow-wrap: anywhere; }
-.event-card .event-times i { width: 8px; height: 8px; }
+.event-card .event-times > div {
+  gap: 8px;
+  white-space: normal;
+}
+.event-card .event-times > div > span {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.event-card .event-times i {
+  width: 8px;
+  height: 8px;
+}
 .event-card .event-times:has(.end-time)::before {
   content: '';
   position: absolute;
@@ -1566,22 +1591,32 @@ p {
   width: 2px;
   background: linear-gradient(to bottom, #79c66b, #a5171b);
 }
-.event-card .event-times .end-time::before { display: none; }
+.event-card .event-times .end-time::before {
+  display: none;
+}
 @media (max-width: 700px) {
-  .event-card, .modal-content .event-card {
+  .event-card,
+  .modal-content .event-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(76px, 27%);
     gap: 10px 14px;
     padding: 16px;
     align-items: center;
   }
-  .event-card .event-card-main, .modal-content .event-card-main {
+  .event-card .event-card-main,
+  .modal-content .event-card-main {
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
   }
-  .event-card .type-tag { grid-column: 1; grid-row: 2; justify-self: start; white-space: normal; }
-  .event-card .event-times, .modal-content .event-card .event-times {
+  .event-card .type-tag {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+    white-space: normal;
+  }
+  .event-card .event-times,
+  .modal-content .event-card .event-times {
     grid-column: 2;
     grid-row: 1 / span 2;
     display: grid;
@@ -1593,20 +1628,49 @@ p {
     width: 100%;
     font-size: 11px;
   }
-  .event-card .event-artist { font-size: 18px; }
-  .modal-content .event-card .event-artist { font-size: 16px; }
-  .event-card .event-activity, .event-card .location { font-size: 11px; }
-  .event-card .card-arrow { display: none; }
-  .event-detail { padding: 20px; }
-  .event-detail > .carousel { margin: 0 -20px 20px; }
+  .event-card .event-artist {
+    font-size: 18px;
+  }
+  .modal-content .event-card .event-artist {
+    font-size: 16px;
+  }
+  .event-card .event-activity,
+  .event-card .location {
+    font-size: 11px;
+  }
+  .event-card .card-arrow {
+    display: none;
+  }
+  .event-detail {
+    padding: 20px;
+  }
+  .event-detail > .carousel {
+    margin: 0 -20px 20px;
+  }
 }
 /* Matched day/detail dialogs and compact calendar, September refinement. */
-.modal.wide, .modal.event-modal { max-width: 570px; }
-.event-modal .modal-header { padding-top: 11px; padding-bottom: 11px; }
-.day-cell { min-height: 116px; }
-@media (min-width: 1400px) { .day-cell { min-height: 129px; } }
+.modal.wide,
+.modal.event-modal {
+  max-width: 570px;
+}
+.event-modal .modal-header {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+.day-cell {
+  min-height: 116px;
+}
+@media (min-width: 1400px) {
+  .day-cell {
+    min-height: 129px;
+  }
+}
 @media (min-width: 721px) {
-  .week-agenda { width: 76vw; max-width: 100%; margin-inline: auto; }
+  .week-agenda {
+    width: 76vw;
+    max-width: 100%;
+    margin-inline: auto;
+  }
   .week-agenda .strip-day {
     font-size: 14px;
     max-width: 55px;
@@ -1614,12 +1678,517 @@ p {
     gap: 6px;
     border-radius: 22px;
   }
-  .week-agenda .strip-day b { font-size: 16.1px; }
-  .week-agenda .activity-tabs button { font-size: 11.2px; }
+  .week-agenda .strip-day b {
+    font-size: 16.1px;
+  }
+  .week-agenda .activity-tabs button {
+    font-size: 11.2px;
+  }
 }
 @media (max-width: 720px) {
-  .modal.wide, .modal.event-modal { width: 88%; max-width: 570px; }
-  .event-modal .modal-header { padding-top: 8px; padding-bottom: 8px; }
-  .day-cell { min-height: 98px; }
+  .modal.wide,
+  .modal.event-modal {
+    width: 88%;
+    max-width: 570px;
+  }
+  .event-modal .modal-header {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .day-cell {
+    min-height: 98px;
+  }
 }
-@media (max-width: 420px) { .day-cell { min-height: 91px; } }
+@media (max-width: 420px) {
+  .day-cell {
+    min-height: 91px;
+  }
+}
+/* Mobile-first refinement: consistent controls, compact days and poster tools. */
+.month-heading {
+  padding-block: 20.24px;
+  min-height: 149px;
+}
+.filter-bar .segmented button {
+  font-size: 10px;
+  padding: 6px 10px;
+  min-width: 32px;
+  line-height: 1.1;
+}
+.theme-toggle button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-toggle svg {
+  width: 13px;
+  height: 13px;
+}
+.weekday.sunday {
+  color: #4b1912;
+}
+.weekday.saturday {
+  color: #21297e;
+}
+.day-cell {
+  min-height: 90px;
+}
+.day-cell .day-number {
+  height: 15.4px;
+  margin-bottom: 2px;
+}
+.day-cell .chip {
+  min-height: 17.6px;
+  line-height: 14.6px;
+}
+.cell-events {
+  gap: 2px;
+}
+.day-modal .modal-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.modal-subtitle {
+  font-size: 11px;
+  color: var(--sub);
+  margin: 4px 0 0;
+}
+.day-tabs {
+  margin: 0 0 18px;
+}
+.mobile-day-list {
+  display: none;
+}
+.event-modal {
+  border-bottom: 8px solid #fff;
+}
+.event-detail h3 {
+  font-size: 27px;
+}
+.event-detail dl > div {
+  grid-template-columns: 75px minmax(0, 1fr);
+  column-gap: 0;
+}
+.event-detail dt {
+  padding-left: 5%;
+}
+.event-detail dd {
+  transform: translateX(-5%);
+}
+.event-detail:has(> .poster-gallery) {
+  padding-top: 0;
+}
+.poster-gallery {
+  margin: 0 -24px 20px;
+}
+.poster-stage {
+  position: relative;
+}
+.poster-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+.poster-open img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.poster-error {
+  display: block;
+  padding: 45px 25px;
+  color: var(--sub);
+}
+.poster-favorite {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffffd9;
+  color: #25231f;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px #0002;
+}
+.poster-favorite.saved {
+  color: #a34259;
+}
+.poster-favorite.saved svg {
+  fill: currentColor;
+}
+.poster-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 12px;
+  font-size: 12px;
+}
+.modal.gallery-modal {
+  max-width: 1100px;
+  width: 96vw;
+  max-height: 96dvh;
+}
+.gallery-modal .modal-content {
+  padding: 0;
+}
+.lightbox-view {
+  position: relative;
+}
+.lightbox-scroll {
+  overflow: auto;
+  max-height: calc(96dvh - 75px);
+  text-align: center;
+}
+.lightbox-image {
+  display: inline-block;
+  padding: 0;
+  cursor: zoom-in;
+  max-width: 100%;
+}
+.lightbox-image img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(96dvh - 80px);
+  width: auto;
+  height: auto;
+  margin: auto;
+}
+.magnified .lightbox-image {
+  max-width: none;
+  width: 175%;
+  cursor: zoom-out;
+}
+.magnified .lightbox-image img {
+  max-height: none;
+  width: 100%;
+}
+.lightbox-prev,
+.lightbox-next {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  background: #ffffffdb;
+  color: #222;
+  box-shadow: 0 1px 5px #0003;
+}
+.lightbox-prev {
+  left: 6px;
+}
+.lightbox-next {
+  right: 6px;
+}
+.event-card {
+  position: relative;
+}
+.event-card .card-official {
+  position: absolute;
+  top: 9px;
+  right: 12px;
+}
+.event-card .event-artist {
+  padding-right: 10px;
+}
+.event-card .event-times {
+  transform: translateX(8%);
+}
+/* Two separate selected shapes: weekday pill and day circle. */
+.week-agenda .strip-day.selected {
+  background: transparent;
+  color: var(--text);
+}
+.week-agenda .strip-day {
+  border-radius: 0;
+  gap: 8px;
+  padding: 8px 0;
+}
+.week-agenda .strip-day > span {
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.week-agenda .strip-day b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+.week-agenda .strip-day.selected > span,
+.week-agenda .strip-day.selected b {
+  color: white;
+  background: #191a18;
+}
+.floating-add {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 35;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--text);
+  opacity: 0.5;
+  box-shadow: 0 3px 15px #0002;
+}
+.floating-add:hover,
+.floating-add:focus-visible {
+  opacity: 1;
+}
+.floating-add svg {
+  width: 25px;
+  height: 25px;
+}
+.entry-notice {
+  font-size: 12px;
+  line-height: 1.7;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+}
+.entry-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.entry-fields label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--sub);
+}
+.entry-fields .full {
+  grid-column: 1 / -1;
+}
+.entry-fields input,
+.entry-fields select,
+.entry-fields textarea {
+  font: inherit;
+  font-size: 16px;
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px;
+  border-radius: 8px;
+}
+.entry-fields textarea {
+  resize: vertical;
+}
+.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.entry-actions button:disabled {
+  cursor: not-allowed;
+}
+.form-error {
+  color: #a5171b;
+}
+@media (min-width: 1400px) {
+  .day-cell {
+    min-height: 100px;
+  }
+}
+@media (max-width: 720px) {
+  .month-heading {
+    padding-block: 18.4px;
+    min-height: 128px;
+  }
+  .filter-bar {
+    gap: 10px;
+    padding-inline: 16px;
+  }
+  .filter-actions {
+    gap: 6px;
+  }
+  .filter-bar .segmented button {
+    font-size: 10px;
+    padding: 6px 10px;
+    min-width: 32px;
+  }
+  .day-cell {
+    min-height: 76px;
+  }
+  .day-cell .day-number {
+    height: 13.3px;
+    min-width: 13.3px;
+    margin-bottom: 2px;
+    padding-inline: 2px;
+    line-height: 1;
+  }
+  .day-cell .chip {
+    min-height: 15.84px;
+    line-height: 12.84px;
+  }
+  .day-cell .more {
+    padding-top: 2px;
+  }
+  .desktop-day-list {
+    display: none;
+  }
+  .mobile-day-list {
+    display: grid;
+    gap: 12px;
+  }
+  .day-mini .chip {
+    font-size: 12px;
+    min-height: 27px;
+    line-height: 1.5;
+    padding: 4px 18px 4px 7px;
+  }
+  .day-mini .chip > span:first-child {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .day-mini > span {
+    display: block;
+    margin: 4px 7px 0;
+    font-size: 11px;
+    color: var(--sub);
+  }
+  .day-tabs {
+    gap: 6px;
+  }
+  .day-tabs button {
+    font-size: 11px;
+    padding: 7px 14px;
+  }
+  .event-detail h3 {
+    font-size: 27px;
+  }
+  .poster-gallery {
+    margin-inline: -20px;
+  }
+  .week-agenda .strip-day > span {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+  .week-agenda .strip-day b {
+    font-size: 15px;
+    width: 25px;
+    height: 25px;
+  }
+  .event-card .event-times {
+    justify-self: end;
+  }
+}
+@media (max-width: 420px) {
+  .day-cell {
+    min-height: 71px;
+  }
+}
+/* Dark appearance applies to teleported dialogs as well as the page. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #171817;
+  --surface: #232522;
+  --text: #eeeae3;
+  --sub: #b8b5ad;
+  --muted: #aaa79f;
+  --border: #494b45;
+  --border-soft: #343730;
+  background: var(--bg);
+  color: var(--text);
+}
+[data-theme='dark'] body,
+[data-theme='dark'] .site {
+  background: var(--bg);
+  color: var(--text);
+}
+[data-theme='dark'] .site-header,
+[data-theme='dark'] .month-heading,
+[data-theme='dark'] .filter-wrap,
+[data-theme='dark'] .filter-bar,
+[data-theme='dark'] .stats,
+[data-theme='dark'] .month-grid,
+[data-theme='dark'] .modal,
+[data-theme='dark'] .event-card,
+[data-theme='dark'] .filter-options,
+[data-theme='dark'] .search-row,
+[data-theme='dark'] .weekday {
+  background: var(--surface);
+  color: var(--text);
+}
+[data-theme='dark'] .segmented,
+[data-theme='dark'] .type-tag,
+[data-theme='dark'] .detail-note,
+[data-theme='dark'] .external-link,
+[data-theme='dark'] .pill,
+[data-theme='dark'] .activity-tabs button,
+[data-theme='dark'] .social-footer,
+[data-theme='dark'] .today-button,
+[data-theme='dark'] .day-cell.outside {
+  background: var(--bg);
+  color: var(--sub);
+}
+[data-theme='dark'] .segmented button.active,
+[data-theme='dark'] .activity-tabs button.active,
+[data-theme='dark'] .pill.active,
+[data-theme='dark'] .week-agenda .strip-day.selected > span,
+[data-theme='dark'] .week-agenda .strip-day.selected b,
+[data-theme='dark'] .today .day-number {
+  background: #eeeae3;
+  color: #1a1c19;
+}
+[data-theme='dark'] .day-cell:hover {
+  background: #2c2e29;
+}
+[data-theme='dark'] .weekday.saturday {
+  color: #a6b0ff;
+}
+[data-theme='dark'] .weekday.sunday {
+  color: #e4a49a;
+}
+[data-theme='dark'] .location span {
+  color: #d4a4b4;
+}
+[data-theme='dark'] .error-banner {
+  background: #35291f;
+  color: #edbc96;
+}
+[data-theme='dark'] .chip.official {
+  background: #faf9f7;
+}
+[data-theme='dark'] .detail-activity,
+[data-theme='dark'] .event-detail dt,
+[data-theme='dark'] .day-summary,
+[data-theme='dark'] .more {
+  color: var(--sub);
+}
+[data-theme='dark'] .chip.official {
+  background: transparent;
+  color: color-mix(in srgb, var(--chip-bg) 60%, white);
+  border-color: color-mix(in srgb, var(--chip-border) 60%, white);
+}
+[data-theme='dark'] .past .chip {
+  opacity: 0.78;
+}
+@media (max-width: 720px) {
+  .dropdowns {
+    gap: 12px;
+  }
+  .filter-actions > .icon-button {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+  }
+  .filter-actions .sync-status {
+    font-size: 9px;
+  }
+  .filter-actions .theme-toggle button {
+    padding-inline: 7px;
+    min-width: 27px;
+  }
+}

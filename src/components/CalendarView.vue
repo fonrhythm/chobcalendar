@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
-import { visibleEventCount, calendarAction } from '../utils/calendarDisplay'
+import { visibleEventCount, calendarAction, activityCategory } from '../utils/calendarDisplay'
 import { useViewStore } from '../stores/view'
 import { useEventsStore } from '../stores/events'
 import { useLanguageStore } from '../stores/language'
@@ -19,23 +19,23 @@ const weekdays = computed(() =>
 const stats = computed(() =>
   ['brand', 'series', 'stage', 'other'].map((type) => ({
     type,
-    count: data.monthEvents.filter(
-      (e) =>
-        (['brand', 'series', 'stage'].includes(e.activity_type) ? e.activity_type : 'other') ===
-        type,
-    ).length,
+    count: data.monthEvents.filter((e) => activityCategory(e.type) === type).length,
   })),
 )
 const mobile = ref(false)
 let media
-function updateScreen() { mobile.value = media.matches }
+function updateScreen() {
+  mobile.value = media.matches
+}
 onMounted(() => {
   media = window.matchMedia('(max-width: 720px)')
   updateScreen()
   media.addEventListener('change', updateScreen)
 })
 onBeforeUnmount(() => media?.removeEventListener('change', updateScreen))
-function limit(day) { return visibleEventCount(data.onDate(day).length, mobile.value) }
+function limit(day) {
+  return visibleEventCount(data.onDate(day).length, mobile.value)
+}
 function openChip(day, item) {
   if (calendarAction(data.onDate(day).length, mobile.value) === 'day') emit('day', day)
   else emit('open', item)
@@ -53,7 +53,12 @@ function label(day) {
     </div>
   </section>
   <section class="month-grid" :aria-label="view.month">
-    <div v-for="(day, i) in weekdays" :key="i" class="weekday" :class="{ sunday: i === 0 }">
+    <div
+      v-for="(day, i) in weekdays"
+      :key="i"
+      class="weekday"
+      :class="{ sunday: i === 0, saturday: i === 6 }"
+    >
       {{ day }}
     </div>
     <div
@@ -79,7 +84,11 @@ function label(day) {
           @open="openChip(day, $event)"
         />
       </div>
-      <button v-if="data.onDate(day).length > limit(day)" class="more" @click.stop="emit('day', day)">
+      <button
+        v-if="data.onDate(day).length > limit(day)"
+        class="more"
+        @click.stop="emit('day', day)"
+      >
         {{ lang.t.more.replace('{n}', data.onDate(day).length - limit(day)) }}
       </button>
     </div>

@@ -2,12 +2,13 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useLanguageStore } from '../stores/language'
 import Icon from './Icon.vue'
-defineProps({ title: String, wide: Boolean, accent: String })
+defineProps({ title: String, wide: Boolean, accent: String, subtitle: String, gallery: Boolean })
 const emit = defineEmits(['close']),
   panel = ref(null),
   lang = useLanguageStore()
 let previous, oldOverflow
 function key(e) {
+  if (panel.value !== [...document.querySelectorAll('[role="dialog"]')].at(-1)) return
   if (e.key === 'Escape') {
     e.preventDefault()
     emit('close')
@@ -52,7 +53,7 @@ onBeforeUnmount(() => {
       <section
         ref="panel"
         class="modal"
-        :class="{ wide, 'event-modal': accent }"
+        :class="{ wide, 'event-modal': accent, 'gallery-modal': gallery, 'day-modal': subtitle }"
         :style="accent ? { '--detail-accent': accent } : undefined"
         role="dialog"
         aria-modal="true"
@@ -60,7 +61,10 @@ onBeforeUnmount(() => {
         tabindex="-1"
       >
         <header class="modal-header">
-          <h2>{{ title }}</h2>
+          <div>
+            <h2>{{ title }}</h2>
+            <p v-if="subtitle" class="modal-subtitle">{{ subtitle }}</p>
+          </div>
           <button class="icon-button" :aria-label="lang.t.close" @click="emit('close')">
             <Icon name="close" />
           </button>

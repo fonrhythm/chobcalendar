@@ -54,8 +54,15 @@ export function demoRecords() {
           time_status: i === 3 ? 'private' : '',
           company: ['GMMTV', 'Independent', 'DMD'][n % 3],
           venue: region === 'thailand' ? 'Sample Hall' : 'Sample Venue',
-          city: region === 'thailand' ? 'Bangkok' : region === 'china' ? 'Shanghai' : 'Singapore',
-          type: i % 2 ? 'Online' : 'In person',
+          city:
+            i % 2
+              ? '线上直播'
+              : region === 'thailand'
+                ? 'Bangkok'
+                : region === 'china'
+                  ? 'Shanghai'
+                  : 'Singapore',
+          type: ['舞台演出', '舞台演出', '站台活动', '剧集宣传'][i % 4],
           isofficial: i % 3 === 0,
           note: '演示日程 · Fictional preview only.',
         })
