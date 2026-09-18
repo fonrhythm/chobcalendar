@@ -6,6 +6,7 @@ import { useLanguageStore } from './stores/language'
 import { parseDate } from './utils/dates'
 import { safeUrl } from './utils/records'
 import Icon from './components/Icon.vue'
+import { getCategoryColor } from './utils/config'
 import FilterBar from './components/FilterBar.vue'
 import CalendarView from './components/CalendarView.vue'
 import WeekView from './components/WeekView.vue'
@@ -185,7 +186,7 @@ onBeforeUnmount(() => {
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by SomenStjerne
     </footer>
-    <BaseModal v-if="modal" :title="modalTitle" :wide="modal === 'day'" @close="modal = ''">
+    <BaseModal v-if="modal" :title="modalTitle" :wide="modal === 'day'" :accent="modal === 'event' && item ? getCategoryColor(item.category, item.region).bg : undefined" @close="modal = ''">
       <EventDetail v-if="modal === 'event'" :item="item" />
       <template v-else-if="modal === 'day'"
         ><p class="day-summary">{{ data.onDate(day).length }} {{ lang.t.dayCount }}</p>

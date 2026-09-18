@@ -43,9 +43,6 @@ function move(n) {
         </button>
       </div>
     </div>
-    <span class="source-label" :class="{ official: item.isofficial }"
-      >{{ item.isofficial ? '★ ' : '' }}{{ item.isofficial ? lang.t.official : lang.t.fan }}</span
-    >
     <h3>{{ item.name }}</h3>
     <p class="detail-activity">{{ item.activity }}</p>
     <dl>

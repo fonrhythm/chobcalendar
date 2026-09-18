@@ -1520,3 +1520,83 @@ p {
     letter-spacing: -1px;
   }
 }
+/* Detail posters keep their intrinsic ratio; the frame follows each image. */
+.modal.event-modal {
+  border-top: 8px solid var(--detail-accent);
+  overflow: hidden;
+}
+.event-modal .modal-content { padding: 0; }
+.event-detail { padding: 24px; }
+.event-detail:has(> .carousel) { padding-top: 0; }
+.event-detail > .carousel {
+  margin: 0 -24px 24px;
+  border-radius: 0;
+  background: transparent;
+}
+.event-detail .carousel > img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: initial;
+}
+/* Compact cards share the same layout in week view and the day dialog. */
+.event-card .event-artist { font-size: 21px; letter-spacing: .5px; }
+.modal-content .event-card .event-artist { font-size: 16px; }
+.event-card .event-activity { font-size: 12px; letter-spacing: .4px; }
+.event-card .location { font-size: 12px; }
+.event-card .event-times {
+  display: grid;
+  position: relative;
+  grid-auto-rows: 1fr;
+  gap: 24px;
+  align-self: center;
+  margin-left: 0;
+  font-size: 12px;
+  min-width: 76px;
+}
+.event-card .event-times > div { gap: 8px; white-space: normal; }
+.event-card .event-times > div > span { white-space: pre-line; overflow-wrap: anywhere; }
+.event-card .event-times i { width: 8px; height: 8px; }
+.event-card .event-times:has(.end-time)::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: calc((100% - 24px) / 4);
+  bottom: calc((100% - 24px) / 4);
+  width: 2px;
+  background: linear-gradient(to bottom, #79c66b, #a5171b);
+}
+.event-card .event-times .end-time::before { display: none; }
+@media (max-width: 700px) {
+  .event-card, .modal-content .event-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(76px, 27%);
+    gap: 10px 14px;
+    padding: 16px;
+    align-items: center;
+  }
+  .event-card .event-card-main, .modal-content .event-card-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .event-card .type-tag { grid-column: 1; grid-row: 2; justify-self: start; white-space: normal; }
+  .event-card .event-times, .modal-content .event-card .event-times {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    justify-self: center;
+    align-self: center;
+    margin: 0;
+    gap: 24px;
+    min-width: 0;
+    width: 100%;
+    font-size: 11px;
+  }
+  .event-card .event-artist { font-size: 18px; }
+  .modal-content .event-card .event-artist { font-size: 16px; }
+  .event-card .event-activity, .event-card .location { font-size: 11px; }
+  .event-card .card-arrow { display: none; }
+  .event-detail { padding: 20px; }
+  .event-detail > .carousel { margin: 0 -20px 20px; }
+}
