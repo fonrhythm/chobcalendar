@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { attendance } from '../utils/calendarDisplay'
 import { useViewStore } from '../stores/view'
 import { useEventsStore } from '../stores/events'
 import { useLanguageStore } from '../stores/language'
@@ -10,22 +11,23 @@ const emit = defineEmits(['open']),
   view = useViewStore(),
   data = useEventsStore(),
   lang = useLanguageStore()
-const types = computed(() => ['all', ...new Set(data.events.map((e) => e.activity_type))])
+const types = ['all', 'offline', 'online']
+const selectedType = ref('all')
 const items = computed(() =>
   data
     .onDate(view.selectedDate)
-    .filter((e) => view.activityType === 'all' || e.activity_type === view.activityType),
+    .filter((e) => selectedType.value === 'all' || attendance(e.city) === selectedType.value),
 )
 </script>
 <template>
-  <section class="agenda-view">
+  <section class="agenda-view week-agenda">
     <DateStrip />
     <div class="activity-tabs">
       <button
         v-for="type in types"
         :key="type"
-        :class="{ active: view.activityType === type }"
-        @click="view.activityType = type"
+        :class="{ active: selectedType === type }"
+        @click="selectedType = type"
       >
         {{ lang.t[type] || type }}
       </button>

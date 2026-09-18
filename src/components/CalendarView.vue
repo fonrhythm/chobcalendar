@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { visibleEventCount, calendarAction } from '../utils/calendarDisplay'
 import { useViewStore } from '../stores/view'
 import { useEventsStore } from '../stores/events'
 import { useLanguageStore } from '../stores/language'
@@ -25,6 +26,20 @@ const stats = computed(() =>
     ).length,
   })),
 )
+const mobile = ref(false)
+let media
+function updateScreen() { mobile.value = media.matches }
+onMounted(() => {
+  media = window.matchMedia('(max-width: 720px)')
+  updateScreen()
+  media.addEventListener('change', updateScreen)
+})
+onBeforeUnmount(() => media?.removeEventListener('change', updateScreen))
+function limit(day) { return visibleEventCount(data.onDate(day).length, mobile.value) }
+function openChip(day, item) {
+  if (calendarAction(data.onDate(day).length, mobile.value) === 'day') emit('day', day)
+  else emit('open', item)
+}
 const today = dateKey(new Date())
 function label(day) {
   return new Intl.DateTimeFormat(lang.locale, { dateStyle: 'full' }).format(parseDate(day))
@@ -58,14 +73,14 @@ function label(day) {
       </button>
       <div class="cell-events">
         <EventChip
-          v-for="item in data.onDate(day).slice(0, 3)"
+          v-for="item in data.onDate(day).slice(0, limit(day))"
           :key="item.id"
           :item="item"
-          @open="emit('open', $event)"
+          @open="openChip(day, $event)"
         />
       </div>
-      <button v-if="data.onDate(day).length > 3" class="more" @click.stop="emit('day', day)">
-        {{ lang.t.more.replace('{n}', data.onDate(day).length - 3) }}
+      <button v-if="data.onDate(day).length > limit(day)" class="more" @click.stop="emit('day', day)">
+        {{ lang.t.more.replace('{n}', data.onDate(day).length - limit(day)) }}
       </button>
     </div>
   </section>
