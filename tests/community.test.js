@@ -28,7 +28,7 @@ test('activity, artist and task classifications stay independent across normaliz
   assert.equal(eventState(r).pending, true);
   assert.deepEqual(
     TASK_TYPES.map((t) => t.label),
-    ['消费', '填表', '开票', '其他'],
+    ['开票', '填表', '消费', '其他'],
   );
   assert.equal(taskCategory('booking'), 'other');
   assert.equal(taskCategory('notification'), 'other');
@@ -52,5 +52,28 @@ test('pending flags coexist with cancelled/postponed states and dates remain lin
   assert.equal(
     dateExplanation({ date: '2026-10-02', original_date: '2026-09-27' }),
     '原 2026-09-27 延期至 2026-10-02',
+  );
+});
+
+import { artistTypes, selectionCount } from '../src/utils/artistSelection.js';
+test('artist attributes deduplicate aliases and each selected CP/group counts once', () => {
+  assert.deepEqual(
+    artistTypes(['group', '组合', 'SINGER', '歌手', 'CP', 'cp']),
+    ['组合', '歌手', 'CP'],
+  );
+  assert.equal(
+    selectionCount({
+      artist_selections: ['cp:a', 'group:b', 'band:c'],
+      artist_ids: Array.from({ length: 12 }, (_, i) => String(i)),
+    }),
+    3,
+  );
+  assert.equal(
+    selectionCount({ artist_selections: ['a', 'b', 'c', 'd', 'e', 'f'] }),
+    6,
+  );
+  assert.equal(
+    selectionCount({ artist_selections: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }),
+    7,
   );
 });

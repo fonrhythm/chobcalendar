@@ -45,14 +45,19 @@ function xEmbed(url) {
     aria-label="最新通知"
   >
     <button @click="index = Math.max(0, index - 1)" aria-label="上一条通知">
-      ‹</button
-    ><a href="#announcements">{{ current.title }}</a
-    ><button @click="index++" aria-label="下一条通知">›</button>
+      ↑</button
+    ><a class="notice-scroll" :href="'#notice-' + current.id"><span>{{ current.title }}</span></a
+    ><button @click="index++" aria-label="下一条通知">↓</button>
   </div>
   <section v-else-if="!ticker" id="announcements" class="announcements">
     <h2>消息 / 公告</h2>
     <p v-if="!data.announcements.length" class="muted">暂无变动公告</p>
-    <article v-for="n in data.announcements" :key="n.id" class="message-card">
+    <article
+      v-for="n in data.announcements"
+      :key="n.id"
+      :id="'notice-' + n.id"
+      class="message-card"
+    >
       <h3>{{ n.title }}</h3>
       <p>{{ n.body }}</p>
       <div class="message-links">

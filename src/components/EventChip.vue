@@ -1,4 +1,5 @@
 <script setup>
+import { selectionCount } from '../utils/artistSelection';
 import { eventState } from '../utils/eventState';
 import { computed } from 'vue';
 import { getCategoryColor } from '../utils/config';
@@ -23,17 +24,11 @@ const colors = computed(() => {
   <button
     class="chip"
     :class="{
-      official:
-        item.isofficial ||
-        item.artist_ids?.length > 1 ||
-        item.artist_names?.length > 1 ||
-        ['group', 'band'].includes(item.category),
+      official: selectionCount(item) > 6,
       'status-faded': state.faded,
     }"
     :style="colors"
-    :title="
-      item.name + ' · ' + (item.isofficial ? lang.t.official : lang.t.fan)
-    "
+    :title="item.name"
     @click.stop="emit('open', item)"
   >
     <span
@@ -41,11 +36,12 @@ const colors = computed(() => {
       :class="{ 'name-struck': state.cancelled || state.postponed }"
       ><i v-if="item.roll_call" class="roll-call-dot" aria-label="有点名"></i
       >{{ item.name }}</span
-    ><span v-if="item.isofficial" class="official-star" aria-hidden="true"
+    ><span
+      v-if="selectionCount(item) > 6"
+      class="official-star"
+      aria-hidden="true"
       >★</span
     ><span v-if="state.label" class="status-label">{{ state.label }}</span
-    ><span class="sr-only">{{
-      item.isofficial ? lang.t.official : lang.t.fan
-    }}</span>
+    ><span v-if="selectionCount(item) > 6" class="sr-only">超过6人或组</span>
   </button>
 </template>

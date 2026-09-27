@@ -158,7 +158,11 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="site" :data-region="view.currentRegion">
+  <div
+    class="site"
+    :class="{ 'is-home': home }"
+    :data-region="view.currentRegion"
+  >
     <HomePage
       v-if="home"
       @region="enterRegion"

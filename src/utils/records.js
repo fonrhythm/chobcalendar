@@ -72,6 +72,13 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
         : source + ':' + raw.event_id
       : '',
     task_type: String(raw.task_type || 'other'),
+    artist_types: Array.isArray(raw.artist_types) ? raw.artist_types : [],
+    artist_selections: Array.isArray(raw.artist_selections)
+      ? raw.artist_selections
+      : [],
+    artist_count: Number.isFinite(raw.artist_count)
+      ? raw.artist_count
+      : undefined,
     artist_ids: Array.isArray(raw.artist_ids) ? raw.artist_ids : [],
     artist_names: Array.isArray(raw.artist_names) ? raw.artist_names : [],
     event_status: String(raw.event_status || raw.status || ''),

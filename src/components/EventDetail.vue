@@ -1,4 +1,5 @@
 <script setup>
+import { artistTypes } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { eventState, dateExplanation } from '../utils/eventState';
 import { computed } from 'vue';
@@ -133,7 +134,13 @@ const linkHost = computed(() =>
       <div>
         <dt>{{ lang.t.category }}</dt>
         <dd>
-          {{ lang.t[item.category] || item.category }}
+          {{
+            artistTypes(
+              item.artist_types?.length
+                ? item.artist_types
+                : [lang.t[item.category] || item.category],
+            ).join(' · ')
+          }}
           <template> · {{ activityLabel(item) }}</template>
         </dd>
       </div>

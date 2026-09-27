@@ -1,4 +1,5 @@
 <script setup>
+import { selectionCount } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { useLanguageStore } from '../stores/language';
 import { computed } from 'vue';
@@ -13,7 +14,7 @@ const lang = useLanguageStore();
 <template>
   <button
     class="event-card"
-    :class="{ official: item.isofficial }"
+    :class="{ official: selectionCount(item) > 6 }"
     :style="{
       '--official-color': getCategoryColor(item.category, item.region).bg,
       '--official-border':
@@ -27,7 +28,7 @@ const lang = useLanguageStore();
       <div class="event-artist">
         {{ item.name }}
         <span
-          v-if="item.isofficial"
+          v-if="selectionCount(item) > 6"
           class="card-official"
           :title="lang.t.official"
           >★<span class="sr-only">{{ lang.t.official }}</span></span

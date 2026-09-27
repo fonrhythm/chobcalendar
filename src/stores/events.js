@@ -166,6 +166,7 @@ export const useEventsStore = defineStore('events', () => {
       { id: 'demo-a', name: '演示艺人 A', company: '演示公司', categories: [] },
       { id: 'demo-b', name: '演示艺人 B', company: '演示公司', categories: [] },
     ];
+    artistCatalog.value.push({id:'cp:demo-pair',name:'演示 CP',categories:['CP'],member_ids:['demo-a','demo-b']},{id:'demo-group',name:'演示组合',categories:['group'],group_kind:'group',group_member_ids:['demo-a','demo-b']},{id:'demo-band',name:'演示乐队',categories:['band'],group_kind:'band'});
     announcements.value = [
       {
         id: 'demo-notice',

@@ -1,4 +1,5 @@
 <script setup>
+import { selectionCount } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { eventState } from '../utils/eventState';
 import { ref, computed } from 'vue';
@@ -41,11 +42,7 @@ const visible = computed(() =>
       :key="entry.id"
       class="day-capsule"
       :class="{
-        official:
-          entry.isofficial ||
-          entry.artist_ids?.length > 1 ||
-          entry.artist_names?.length > 1 ||
-          ['group', 'band'].includes(entry.category),
+        official: selectionCount(entry) > 6,
         'status-faded': eventState(entry).faded,
       }"
       :style="{
@@ -65,7 +62,7 @@ const visible = computed(() =>
         >{{ entry.name }}</span
       >
       <span
-        v-if="entry.isofficial"
+        v-if="selectionCount(entry) > 6"
         class="capsule-star"
         :aria-label="lang.t.official"
         >★</span

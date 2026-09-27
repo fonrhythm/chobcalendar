@@ -47,7 +47,9 @@ export function demoRecords() {
           id: `${region}-event-${day}-${i}`,
           kind: 'event',
           region,
-          name: names[n],
+          name: day===today && i===4 ? names.slice(0,7).join(' / ') : names[n],
+          artist_selections:day===today && i===4 ? Array.from({length:7},(_,j)=>'demo-person-'+j) : ['demo-entity-'+n],
+          artist_types: i%2 ? ['演员','歌手'] : ['CP','演员'],
           category:
             region === 'china' && ['band', 'singer', 'group'].includes(cats[n])
               ? 'music'
