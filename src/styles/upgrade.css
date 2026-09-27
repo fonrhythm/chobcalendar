@@ -613,3 +613,257 @@
 .home-preferences .segmented {
   flex-shrink: 0;
 }
+/* Confirmed homepage and compact calendar layout */
+.site.is-home {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 36px;
+  height: 100dvh;
+}
+.site.is-home .copyright {
+  padding: 8px 12px;
+  margin: 0;
+  min-height: 0;
+  font-size: 10px;
+  box-sizing: border-box;
+}
+.home-page {
+  box-sizing: border-box;
+  min-height: 0;
+  width: 76%;
+  max-width: 600px;
+  height: 100%;
+  padding: 96px 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(8px, 1.5vh, 18px);
+  margin: auto;
+}
+.home-preferences {
+  position: absolute;
+  right: 12%;
+  top: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0;
+}
+.home-preferences .segmented {
+  height: 32px;
+  min-height: 32px;
+}
+.home-preferences button {
+  padding: 4px 10px;
+}
+.home-brand h1 {
+  font-size: clamp(40px, 7vh, 66px);
+  margin: 6px 0;
+  line-height: 1.1;
+}
+.home-brand > span {
+  font-size: 10px;
+  letter-spacing: 5px;
+}
+.home-divider {
+  margin: 4px auto;
+  flex-shrink: 0;
+}
+.home-links {
+  width: 100%;
+  gap: 10px;
+}
+.home-links button {
+  padding: 16px 22px;
+  min-height: 0;
+  gap: 10px;
+  border-radius: 14px;
+}
+.home-links strong {
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.home-links small {
+  font-size: 10px;
+  padding: 2px 7px;
+}
+.home-account {
+  margin: 8px 0 0;
+  font-size: 12px;
+  gap: 18px;
+}
+.home-page > .tutorial-link {
+  margin: 0 auto;
+  font-size: 12px;
+}
+.task-overview {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+.mini-calendar {
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.mini-grid {
+  gap: 2px;
+  align-items: center;
+  justify-items: center;
+}
+.mini-grid button {
+  width: min(100%, 28px);
+  aspect-ratio: 1;
+  height: auto;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  border-radius: 50%;
+}
+.mini-grid > span {
+  padding: 0;
+  min-height: 22px;
+}
+.upcoming-items {
+  min-width: 0;
+}
+.upcoming-items .task-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+.upcoming-items .task-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.announcement-ticker {
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 20px;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+  line-height: 20px;
+}
+.notice-scroll {
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  min-width: 0;
+}
+.notice-scroll span {
+  display: inline-block;
+  min-width: 100%;
+  padding-right: 40px;
+  animation: notice-marquee 22s linear infinite;
+}
+.notice-scroll:hover span,
+.notice-scroll:focus span {
+  animation-play-state: paused;
+}
+.message-card {
+  scroll-margin-top: 24px;
+}
+.message-card:target {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+@keyframes notice-marquee {
+  0%,
+  15% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+@media (max-width: 600px) {
+  .home-links button {
+    padding: 13px 12px;
+    gap: 6px;
+  }
+  .home-links strong {
+    font-size: 11px;
+    letter-spacing: 0.6px;
+  }
+  .home-links small {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+  .home-preferences {
+    right: 12%;
+    top: 12px;
+  }
+  .task-overview {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 12px;
+    gap: 12px;
+  }
+  .mini-calendar header {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .mini-grid {
+    font-size: 10px;
+    gap: 1px;
+  }
+  .mini-grid button {
+    max-width: 22px;
+  }
+  .upcoming-items h2 {
+    font-size: 13px;
+  }
+  .upcoming-items .task-row {
+    font-size: 10px;
+    padding: 8px 0;
+  }
+  .upcoming-items {
+    max-height: 200px;
+  }
+  .home-page {
+    gap: 10px;
+  }
+}
+@media (max-height: 580px) {
+  .home-page {
+    padding-top: 12px;
+    gap: 6px;
+    max-width: 470px;
+  }
+  .home-preferences {
+    right: 2%;
+    top: 10px;
+  }
+  .home-brand h1 {
+    font-size: 32px;
+  }
+  .home-brand > span {
+    font-size: 8px;
+  }
+  .home-links {
+    gap: 5px;
+  }
+  .home-links button {
+    padding: 7px 12px;
+  }
+  .home-account {
+    margin: 3px 0;
+  }
+  .home-divider {
+    margin: 0 auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notice-scroll span {
+    animation: none;
+  }
+  .notice-scroll {
+    overflow-x: auto;
+  }
+}

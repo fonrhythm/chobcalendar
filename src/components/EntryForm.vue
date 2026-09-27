@@ -1,4 +1,6 @@
 <script setup>
+import CatalogPicker from './CatalogPicker.vue';
+import { selectionTypes } from '../utils/artistSelection';
 import { reactive, ref, computed } from 'vue';
 import { call, useSupabaseFeed } from '../api/supabase';
 import { useAccountStore } from '../stores/account';
@@ -14,7 +16,8 @@ const data = useEventsStore(),
   unmatched = ref(false),
   recurring = ref(false),
   endDate = ref(''),
-  busy = ref(false);
+  busy = ref(false),
+  rollCall = ref(false);
 const matches = computed(() =>
   data.artistCatalog
     .filter((a) => a.name.toLowerCase().includes(form.name.toLowerCase()))
@@ -55,6 +58,9 @@ async function submit() {
                 ),
               ),
             ],
+        artist_selections: unmatched.value ? [] : selectedArtists.value,
+        artist_types: selectionTypes(data.artistCatalog, selectedArtists.value),
+        roll_call: rollCall.value,
         unmatched_artist: unmatched.value ? form.name : '',
         images: imageUrls(form.picture_url),
         recurring_daily: recurring.value,
@@ -176,7 +182,8 @@ if (props.editing) {
     ticket_url: e.ticket_url || '',
     name: e.attributes?.unmatched_artist || '',
   });
-  selectedArtists.value = e.artist_ids || [];
+  selectedArtists.value = e.attributes?.artist_selections || e.artist_ids || [];
+  rollCall.value = !!e.attributes?.roll_call;
   unmatched.value = !!e.attributes?.unmatched_artist;
   recurring.value = !!e.attributes?.recurring_daily;
   endDate.value = e.attributes?.end_date || '';
@@ -210,50 +217,23 @@ defineExpose({ requestClose });
 <template>
   <form class="entry-form" @submit.prevent="submit">
     <div class="entry-fields">
-      <label
-        >{{ lang.t.artistName }} <em>*</em
-        ><input
-          v-model="form.name"
-          maxlength="200"
-          placeholder="e.g. New (GELBOYS) / Ohm (ohmtpk)"
-          :required="unmatched"
-      /></label>
+      <CatalogPicker
+        v-if="!unmatched"
+        v-model="selectedArtists"
+        :catalog="data.artistCatalog"
+      />
       <label class="profile-artist"
         ><input
           v-model="unmatched"
           type="checkbox"
         />没有匹配的艺人，自行填写</label
       >
-      <div v-if="!unmatched" class="artist-match-list">
-        <label v-for="a in matches" :key="a.id" class="profile-artist"
-          ><input v-model="selectedArtists" type="checkbox" :value="a.id" />{{
-            a.name
-          }}
-          · {{ a.company }}</label
-        >
-      </div>
-      <label
-        >{{ lang.t.category
-        }}<select v-model="form.category">
-          <option value="">{{ lang.t.choose }}</option>
-          <option
-            v-for="c in [
-              'bl',
-              'gl',
-              'band',
-              'singer',
-              'group',
-              'actor',
-              'music',
-              'other',
-            ]"
-            :key="c"
-            :value="c"
-          >
-            {{ lang.t[c] }}
-          </option>
-        </select></label
-      >
+      <label v-if="unmatched"
+        >艺人名称<input v-model="form.name" required maxlength="200"
+      /></label>
+      <label class="profile-artist"
+        >点名 <input v-model="rollCall" type="checkbox"
+      /></label>
       <label
         >{{ lang.t.activityName }} <em>*</em
         ><input v-model="form.activity" maxlength="400" required
@@ -300,7 +280,7 @@ defineExpose({ requestClose });
         >{{ lang.t.cityLabel }} <em>*</em
         ><input
           v-model="form.city"
-          placeholder="城市名、线上直播，或填写非公开"
+          placeholder="填写城市名或“非公开”，如果是线上直播直接填“线上直播”"
           required
       /></label>
       <label>{{ lang.t.venueLabel }}<input v-model="form.venue" /></label>

@@ -1,7 +1,7 @@
 export const TASK_TYPES = [
-  { value: 'shopping', label: '消费' },
-  { value: 'registration', label: '填表' },
   { value: 'ticketing', label: '开票' },
+  { value: 'registration', label: '填表' },
+  { value: 'shopping', label: '消费' },
   { value: 'other', label: '其他' },
 ];
 export function taskCategory(value) {
