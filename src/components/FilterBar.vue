@@ -1,40 +1,39 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useViewStore } from '../stores/view'
-import { useEventsStore } from '../stores/events'
-import { useLanguageStore } from '../stores/language'
-import { REGION_COLORS } from '../utils/config'
-import Icon from './Icon.vue'
-import { useThemeStore } from '../stores/theme'
-const theme = useThemeStore()
-const emit = defineEmits(['favorites']),
+import { ACTIVITY_TYPES } from '../utils/activityTypes';
+import { computed, ref } from 'vue';
+import { useViewStore } from '../stores/view';
+import { useEventsStore } from '../stores/events';
+import { useLanguageStore } from '../stores/language';
+import { REGION_COLORS } from '../utils/config';
+import Icon from './Icon.vue';
+const emit = defineEmits(['favorites', 'profile', 'my-items']),
   view = useViewStore(),
   data = useEventsStore(),
   lang = useLanguageStore(),
-  searchOpen = ref(false)
+  searchOpen = ref(false);
 const cats = computed(() =>
   Object.keys(REGION_COLORS[view.currentRegion])
     .filter((k) => k.startsWith('c-'))
     .map((k) => k.slice(2)),
-)
+);
 const state = computed(
-  () => lang.t[data.status === 'demo-error' ? 'demo' : data.status] || lang.t.unconfigured,
-)
+  () =>
+    lang.t[data.status === 'demo-error' ? 'demo' : data.status] ||
+    lang.t.unconfigured,
+);
+function toggleFilter(key, value, all, checked) {
+  const values = new Set(
+    view[key].length ? view[key].filter((x) => x !== '__none__') : all,
+  );
+  if (checked) values.add(value);
+  else values.delete(value);
+  view[key] =
+    values.size === all.length ? [] : values.size ? [...values] : ['__none__'];
+}
 </script>
 <template>
   <div class="filter-wrap">
     <div class="filter-bar">
-      <div class="segmented languages" aria-label="Language">
-        <button
-          v-for="(label, key) in { zh: '中', en: 'EN', th: 'ไทย' }"
-          :key="key"
-          :class="{ active: lang.currentLanguage === key }"
-          :aria-pressed="lang.currentLanguage === key"
-          @click="lang.setLanguage(key)"
-        >
-          {{ label }}
-        </button>
-      </div>
       <div class="segmented">
         <button
           :class="{ active: view.viewMode !== 'task' }"
@@ -47,8 +46,8 @@ const state = computed(
           :aria-pressed="view.viewMode === 'task'"
           @click="
             () => {
-              view.viewMode = 'task'
-              view.taskStart = view.selectedDate
+              view.viewMode = 'task';
+              view.taskStart = view.selectedDate;
             }
           "
         >
@@ -74,63 +73,109 @@ const state = computed(
         <details class="filter-menu">
           <summary>
             {{ lang.t.company }}
-            <span v-if="view.companies.length">({{ view.companies.length }})</span
+            <span v-if="view.companies.length"
+              >({{ view.companies.length }})</span
             ><Icon name="down" />
           </summary>
           <div class="filter-options">
-            <button class="text-button" @click="view.companies = []">{{ lang.t.all }}</button
+            <button class="text-button" @click="view.companies = []">
+              全选</button
+            ><button class="text-button" @click="view.companies = ['__none__']">
+              全不选</button
             ><label v-for="company in data.companies" :key="company"
-              ><input v-model="view.companies" type="checkbox" :value="company" />{{
-                company
-              }}</label
+              ><input
+                type="checkbox"
+                :checked="
+                  !view.companies.length || view.companies.includes(company)
+                "
+                @change="
+                  toggleFilter(
+                    'companies',
+                    company,
+                    data.companies,
+                    $event.target.checked,
+                  )
+                "
+              />{{ company }}</label
             ><small v-if="!data.companies.length">{{ lang.t.emptyNote }}</small>
           </div>
         </details>
         <details class="filter-menu">
           <summary>
-            {{ lang.t.category }}
-            <span v-if="view.categories.length">({{ view.categories.length }})</span
+            艺人类别
+            <span v-if="view.categories.length"
+              >({{ view.categories.length }})</span
             ><Icon name="down" />
           </summary>
           <div class="filter-options">
-            <button class="text-button" @click="view.categories = []">{{ lang.t.all }}</button
+            <button class="text-button" @click="view.categories = []">
+              全选</button
+            ><button
+              class="text-button"
+              @click="view.categories = ['__none__']"
+            >
+              全不选</button
             ><label v-for="cat in cats" :key="cat"
-              ><input v-model="view.categories" type="checkbox" :value="cat" />{{
-                lang.t[cat]
-              }}</label
+              ><input
+                type="checkbox"
+                :checked="
+                  !view.categories.length || view.categories.includes(cat)
+                "
+                @change="
+                  toggleFilter('categories', cat, cats, $event.target.checked)
+                "
+              />{{ lang.t[cat] }}</label
+            >
+          </div>
+        </details>
+        <details class="filter-menu">
+          <summary>活动类型<Icon name="down" /></summary>
+          <div class="filter-options">
+            <button class="text-button" @click="view.activityTypes = []">
+              全选</button
+            ><button
+              class="text-button"
+              @click="view.activityTypes = ['__none__']"
+            >
+              全不选</button
+            ><label v-for="type in ACTIVITY_TYPES" :key="type.id"
+              ><input
+                type="checkbox"
+                :checked="
+                  !view.activityTypes.length ||
+                  view.activityTypes.includes(type.id)
+                "
+                @change="
+                  toggleFilter(
+                    'activityTypes',
+                    type.id,
+                    ACTIVITY_TYPES.map((t) => t.id),
+                    $event.target.checked,
+                  )
+                "
+              />{{ type.name }}</label
             >
           </div>
         </details>
       </div>
       <div class="filter-actions">
-        <div class="segmented theme-toggle" :aria-label="lang.t.theme">
-          <button
-            :class="{ active: !theme.isDark }"
-            :aria-pressed="!theme.isDark"
-            :aria-label="lang.t.light"
-            @click="theme.setTheme(false)"
-          >
-            <Icon name="sun" />
-          </button>
-          <button
-            :class="{ active: theme.isDark }"
-            :aria-pressed="theme.isDark"
-            :aria-label="lang.t.dark"
-            @click="theme.setTheme(true)"
-          >
-            <Icon name="moon" />
-          </button>
-        </div>
         <button
           class="icon-button"
           :aria-label="lang.t.search"
           :aria-expanded="searchOpen"
           @click="searchOpen = !searchOpen"
         >
-          <Icon name="search" /></button
-        ><button class="icon-button" :aria-label="lang.t.favorites" @click="emit('favorites')">
-          <Icon name="user" /></button
-        ><button
+          <Icon name="search" />
+        </button>
+        <details class="filter-menu personal-menu">
+          <summary aria-label="个人菜单"><Icon name="user" /></summary>
+          <div class="filter-options">
+            <button @click="emit('profile')">个人资料</button
+            ><button @click="emit('favorites')">我的收藏</button
+            ><button @click="emit('my-items')">我的事项</button>
+          </div>
+        </details>
+        <button
           class="sync-status"
           :class="data.status"
           :disabled="data.status === 'loading'"
@@ -151,8 +196,8 @@ const state = computed(
         class="text-button"
         @click="
           () => {
-            view.query = ''
-            searchOpen = false
+            view.query = '';
+            searchOpen = false;
           }
         "
       >
@@ -160,13 +205,22 @@ const state = computed(
       </button>
     </div>
     <div
-      v-if="view.companies.length || view.categories.length || view.onlyFavorites"
+      v-if="
+        view.companies.length ||
+        view.categories.length ||
+        view.activityTypes.length ||
+        view.onlyFavorites
+      "
       class="active-filters"
     >
       <span
         >{{ lang.t.filterActive
-        }}<template v-if="view.onlyFavorites"> · {{ lang.t.favorites }}</template></span
-      ><button class="text-button" @click="view.resetFilters()">{{ lang.t.reset }} ×</button>
+        }}<template v-if="view.onlyFavorites">
+          · {{ lang.t.favorites }}</template
+        ></span
+      ><button class="text-button" @click="view.resetFilters()">
+        {{ lang.t.reset }} ×
+      </button>
     </div>
   </div>
 </template>

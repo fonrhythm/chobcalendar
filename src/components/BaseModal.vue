@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useLanguageStore } from '../stores/language'
-import Icon from './Icon.vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { useLanguageStore } from '../stores/language';
+import Icon from './Icon.vue';
 defineProps({
   title: String,
   wide: Boolean,
@@ -9,50 +9,54 @@ defineProps({
   subtitle: String,
   gallery: Boolean,
   form: Boolean,
-})
+});
 const emit = defineEmits(['close']),
   panel = ref(null),
-  lang = useLanguageStore()
-let previous, oldOverflow
+  lang = useLanguageStore();
+let previous, oldOverflow;
 function key(e) {
-  if (panel.value !== [...document.querySelectorAll('[role="dialog"]')].at(-1)) return
+  if (panel.value !== [...document.querySelectorAll('[role="dialog"]')].at(-1))
+    return;
   if (e.key === 'Escape') {
-    e.preventDefault()
-    emit('close')
+    e.preventDefault();
+    emit('close');
   }
   if (e.key === 'Tab') {
     const nodes = [
-      ...panel.value.querySelectorAll('button,a[href],input,select,textarea,[tabindex="0"]'),
-    ].filter((el) => !el.disabled && el.getClientRects().length)
+      ...panel.value.querySelectorAll(
+        'button,a[href],input,select,textarea,[tabindex="0"]',
+      ),
+    ].filter((el) => !el.disabled && el.getClientRects().length);
     if (!nodes.length) {
-      e.preventDefault()
-      return
+      e.preventDefault();
+      return;
     }
     if (
       e.shiftKey &&
-      (document.activeElement === nodes[0] || document.activeElement === panel.value)
+      (document.activeElement === nodes[0] ||
+        document.activeElement === panel.value)
     ) {
-      e.preventDefault()
-      nodes.at(-1).focus()
+      e.preventDefault();
+      nodes.at(-1).focus();
     } else if (!e.shiftKey && document.activeElement === nodes.at(-1)) {
-      e.preventDefault()
-      nodes[0].focus()
+      e.preventDefault();
+      nodes[0].focus();
     }
   }
 }
 onMounted(async () => {
-  previous = document.activeElement
-  oldOverflow = document.body.style.overflow
-  document.body.style.overflow = 'hidden'
-  await nextTick()
-  panel.value.focus()
-  document.addEventListener('keydown', key)
-})
+  previous = document.activeElement;
+  oldOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  await nextTick();
+  panel.value.focus();
+  document.addEventListener('keydown', key);
+});
 onBeforeUnmount(() => {
-  document.body.style.overflow = oldOverflow
-  document.removeEventListener('keydown', key)
-  previous?.focus()
-})
+  document.body.style.overflow = oldOverflow;
+  document.removeEventListener('keydown', key);
+  previous?.focus();
+});
 </script>
 <template>
   <Teleport to="body"
@@ -75,14 +79,19 @@ onBeforeUnmount(() => {
       >
         <header class="modal-header">
           <div>
-            <h2>{{ title }}</h2>
+            <h2 v-if="!accent">{{ title }}</h2>
             <p v-if="subtitle" class="modal-subtitle">{{ subtitle }}</p>
           </div>
-          <button class="icon-button" :aria-label="lang.t.close" @click="emit('close')">
+          <button
+            class="icon-button"
+            :aria-label="lang.t.close"
+            @click="emit('close')"
+          >
             <Icon name="close" />
           </button>
         </header>
         <div class="modal-content"><slot /></div>
+        <div v-if="accent" class="detail-bottom-space" aria-hidden="true"></div>
       </section></div
   ></Teleport>
 </template>

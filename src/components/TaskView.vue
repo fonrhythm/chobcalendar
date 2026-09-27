@@ -1,74 +1,100 @@
 <script setup>
-import { useViewStore } from '../stores/view'
-import { useEventsStore } from '../stores/events'
-import { useLanguageStore } from '../stores/language'
-import { getCategoryColor } from '../utils/config'
-import DateStrip from './DateStrip.vue'
-import EmptyState from './EmptyState.vue'
-import Icon from './Icon.vue'
+import { computed } from 'vue';
+import { useViewStore } from '../stores/view';
+import { useEventsStore } from '../stores/events';
+import { TASK_TYPES, taskCategory } from '../utils/tasks';
+import EventChip from './EventChip.vue';
+import MiniCalendar from './MiniCalendar.vue';
+import DateStrip from './DateStrip.vue';
 const emit = defineEmits(['open']),
   view = useViewStore(),
-  data = useEventsStore(),
-  lang = useLanguageStore()
-function style(item) {
-  const c = getCategoryColor(item.category, item.region)
-  return {
-    '--chip-bg': c.bg,
-    '--chip-text': c.text,
-    '--chip-border': item.region === 'oversea' && item.category === 'actor' ? '#b0a090' : c.bg,
-  }
+  data = useEventsStore();
+const mine = computed(() =>
+  data.filtered
+    .filter((r) => data.myItems.includes(r.id))
+    .sort((a, b) => a.date.localeCompare(b.date)),
+);
+const rows = computed(() => data.onDate(view.selectedDate, 'task'));
+function open(item) {
+  const parent =
+    item.event_id && data.records.find((r) => r.id === item.event_id);
+  emit('open', parent || item);
 }
 </script>
 <template>
-  <section class="agenda-view task-view">
-    <DateStrip task />
-    <div class="task-list">
-      <article
-        v-for="item in data.onDate(view.selectedDate, 'task')"
-        :key="item.id"
-        class="task-card"
-        :class="{ official: item.isofficial }"
-        :style="style(item)"
-      >
+  <section class="task-dashboard">
+    <div class="task-overview">
+      <MiniCalendar />
+      <section class="upcoming-items">
+        <h2>我的日程</h2>
         <button
-          class="task-open"
-          :aria-label="item.name + ' ' + lang.t.detail"
-          @click="emit('open', item)"
-        ></button>
-        <div class="task-top">
-          <div>
-            <h2>{{ item.name }}</h2>
-            <p>{{ item.activity }}</p>
-            <p v-if="item.note" class="task-note">{{ item.note }}</p>
-          </div>
-          <span class="task-type"
-            >{{ lang.t[item.activity_type] || item.activity_type }}
-            <span v-if="item.isofficial" :title="lang.t.official">★</span></span
-          >
-        </div>
-        <div class="task-bottom">
-          <div class="task-date">
-            <strong>{{ item.date.slice(5).replace('-', ' / ') }}</strong
-            ><span>{{ lang.t.start }} {{ item.time }}</span>
-          </div>
-          <a
-            v-if="item.link"
-            class="task-contact"
-            :href="item.link"
-            target="_blank"
-            rel="noopener noreferrer"
-            >{{ item.contact || lang.t.link }} <Icon name="arrow"
-          /></a>
-          <div v-else-if="item.contact" class="task-contact">
-            {{ item.contact }}<small>{{ item.contact_method }}</small>
-          </div>
-          <div v-if="item.end_date" class="task-date">
-            <strong>{{ item.end_date.slice(5).replace('-', ' / ') }}</strong
-            ><span>{{ lang.t.end }} {{ item.end_time }}</span>
-          </div>
-        </div>
-      </article>
+          v-for="item in mine"
+          :key="item.id"
+          class="task-row"
+          @click="open(item)"
+        >
+          <span class="task-row-name"
+            >{{ item.name }} · {{ item.activity }}</span
+          ><time>{{ item.date.slice(5) }}</time>
+        </button>
+        <p v-if="!mine.length" class="muted">
+          在活动详情中选择“加入我的事项”。
+        </p>
+      </section>
     </div>
-    <EmptyState v-if="!data.onDate(view.selectedDate, 'task').length" />
+    <DateStrip task />
+    <div class="task-week-chips">
+      <div v-for="day in view.taskDays" :key="day">
+        <EventChip
+          v-for="item in data.onDate(day, 'task').slice(0, 2)"
+          :key="item.id"
+          :item="item"
+          @open="open"
+        /><button
+          v-if="data.onDate(day, 'task').length > 2"
+          class="text-button"
+          @click="view.selectDate(day)"
+        >
+          +{{ data.onDate(day, 'task').length - 2 }}
+        </button>
+      </div>
+    </div>
+    <div class="task-quadrants">
+      <section
+        v-for="(type, index) in TASK_TYPES"
+        :key="type.value"
+        class="task-quadrant"
+        :style="{
+          '--task-color': ['#c86e6c', '#6295bb', '#c5a15a', '#9192a3'][index],
+        }"
+      >
+        <header>
+          <h2>{{ type.label }}</h2>
+          <span>{{
+            rows.filter((r) => taskCategory(r.task_type) === type.value).length
+          }}</span>
+        </header>
+        <div class="quadrant-rows">
+          <button
+            v-for="item in rows.filter(
+              (r) => taskCategory(r.task_type) === type.value,
+            )"
+            :key="item.id"
+            class="task-row"
+            @click="open(item)"
+          >
+            <i></i
+            ><span class="task-row-name">{{ item.activity || item.name }}</span
+            ><time>{{ (item.end_date || item.date).slice(5) }}</time>
+          </button>
+          <p
+            v-if="!rows.some((r) => taskCategory(r.task_type) === type.value)"
+            class="muted"
+          >
+            暂无事项
+          </p>
+        </div>
+      </section>
+    </div>
   </section>
 </template>
