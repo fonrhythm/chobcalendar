@@ -21,6 +21,7 @@ export function eventState(item) {
 }
 export function dateExplanation(item) {
   if (item.postponed_to_date) return '延期至 ' + item.postponed_to_date;
+  if (eventState(item).postponed) return '延期，日期另行通知';
   if (item.original_date)
     return '原 ' + item.original_date + ' 延期至 ' + item.date;
   return (

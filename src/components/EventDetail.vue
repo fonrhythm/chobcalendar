@@ -22,6 +22,9 @@ const link = computed(() => safeUrl(props.item.link));
 const linkHost = computed(() =>
   link.value ? new URL(link.value).hostname : '',
 );
+const eventTasks = computed(() =>
+  data.records.filter((row) => row.kind === 'task' && row.event_id === props.item.id),
+);
 </script>
 <template>
   <div class="event-detail">
@@ -140,7 +143,24 @@ const linkHost = computed(() =>
           {{ item.contact }} <span>{{ item.contact_method }}</span>
         </dd>
       </div>
+      <div v-if="item.participation_label || item.participation_condition">
+        <dt>参与方式</dt>
+        <dd>{{ item.participation_label || item.participation_condition }}</dd>
+      </div>
     </dl>
+
+    <section v-if="item.participation_rules" class="detail-remarks">
+      <h4>活动详情与参与规则</h4>
+      <p style="white-space: pre-wrap">{{ item.participation_rules }}</p>
+    </section>
+    <section v-if="eventTasks.length" class="detail-remarks">
+      <h4>参与事项</h4>
+      <article v-for="task in eventTasks" :key="task.id" class="detail-task">
+        <strong>{{ task.activity }}</strong>
+        <p v-if="task.steps" style="white-space: pre-wrap">{{ task.steps }}</p>
+        <a v-if="task.action_url" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+      </article>
+    </section>
 
     <aside class="detail-remarks">
       <h4>备注</h4>

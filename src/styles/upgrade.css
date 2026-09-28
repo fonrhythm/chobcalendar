@@ -306,6 +306,23 @@
   border-bottom: 1px solid var(--border-soft);
   min-width: 0;
 }
+.task-entry {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.task-entry .task-row {
+  border-bottom: 0;
+}
+.task-steps {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  margin: 0 0 8px 25px;
+}
+.task-action {
+  display: inline-block;
+  margin-left: 25px;
+  text-decoration: underline;
+}
 .task-row-name {
   min-width: 0;
   flex: 1;
