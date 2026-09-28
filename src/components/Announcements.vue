@@ -1,24 +1,65 @@
 <script setup>
 import Icon from './Icon.vue';
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { safeUrl } from '../utils/records';
+import { dateKey } from '../utils/dates';
+import { activeTickerNotices } from '../utils/noticeTicker';
 const props = defineProps({ ticker: Boolean }),
   emit = defineEmits(['open']),
   data = useEventsStore(),
   index = ref(0),
-  embed = ref('');
+  embed = ref(''),
+  today = ref(dateKey(new Date())),
+  linkRef = ref(null),
+  textRef = ref(null),
+  overflowPx = ref(0);
+const tickerNotices = computed(() =>
+  activeTickerNotices(data.announcements, data.records, today.value),
+);
 const current = computed(
   () =>
-    data.announcements[index.value % Math.max(1, data.announcements.length)],
+    tickerNotices.value[index.value % Math.max(1, tickerNotices.value.length)],
 );
-let timer;
-onMounted(() => {
-  timer = setInterval(() => {
-    index.value++;
-  }, 6000);
+const displayMs = computed(() =>
+  Math.max(6000, Math.round(3200 + (overflowPx.value / 35) * 1000)),
+);
+let timer, observer, elapsed = 0;
+function measureOverflow() {
+  overflowPx.value = linkRef.value && textRef.value
+    ? Math.max(0, Math.ceil(textRef.value.scrollWidth - linkRef.value.clientWidth))
+    : 0;
+}
+watch(current, async () => {
+  elapsed = 0;
+  overflowPx.value = 0;
+  await nextTick();
+  if (!props.ticker) return;
+  observer?.disconnect();
+  if (linkRef.value) observer?.observe(linkRef.value);
+  if (textRef.value) observer?.observe(textRef.value);
+  measureOverflow();
 });
-onBeforeUnmount(() => clearInterval(timer));
+onMounted(() => {
+  if (!props.ticker) return;
+  if (typeof ResizeObserver !== 'undefined') observer = new ResizeObserver(measureOverflow);
+  window.addEventListener('resize', measureOverflow);
+  timer = setInterval(() => {
+    today.value = dateKey(new Date());
+    if (tickerNotices.value.length < 2) return;
+    elapsed += 1000;
+    if (elapsed >= displayMs.value) {
+      index.value++;
+      elapsed = 0;
+    }
+  }, 1000);
+  nextTick(measureOverflow);
+});
+onBeforeUnmount(() => {
+  clearInterval(timer);
+  observer?.disconnect();
+  if (props.ticker) window.removeEventListener('resize', measureOverflow);
+});
 function open(n) {
   const r = data.records.find((r) => r.id === 'supabase:' + n.event_id);
   if (r) emit('open', r);
@@ -46,9 +87,12 @@ function xEmbed(url) {
     aria-label="最新通知"
   >
     <Icon name="speaker" /><a
+      ref="linkRef"
       class="notice-scroll"
+      :class="{ 'is-overflowing': overflowPx > 1 }"
+      :style="{ '--notice-overflow': overflowPx + 'px', '--notice-duration': displayMs + 'ms' }"
       :href="'#notice-' + current.id"
-      ><span>{{ current.title }}</span></a
+      ><span ref="textRef">{{ current.title }}</span></a
     >
   </div>
   <section v-else-if="!ticker" id="announcements" class="announcements">

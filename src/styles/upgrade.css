@@ -776,9 +776,12 @@
 }
 .notice-scroll span {
   display: inline-block;
-  min-width: 100%;
-  padding-right: 40px;
-  animation: notice-marquee 22s linear infinite;
+  width: max-content;
+  max-width: none;
+  animation: none;
+}
+.notice-scroll.is-overflowing span {
+  animation: notice-reveal var(--notice-duration, 8s) ease-in-out infinite;
 }
 .notice-scroll:hover span,
 .notice-scroll:focus span {
@@ -791,13 +794,17 @@
   outline: 2px solid var(--text);
   outline-offset: 3px;
 }
-@keyframes notice-marquee {
+@keyframes notice-reveal {
   0%,
-  15% {
+  12% {
     transform: translateX(0);
   }
+  82%,
+  92% {
+    transform: translateX(calc(-1 * var(--notice-overflow, 0px)));
+  }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(0);
   }
 }
 @media (max-width: 600px) {
@@ -877,7 +884,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .notice-scroll span {
+  .notice-scroll.is-overflowing span {
     animation: none;
   }
   .notice-scroll {
