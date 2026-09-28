@@ -35,7 +35,9 @@ jobs:
       - name: Build website
         env:
           VITE_BASE_PATH: /chobcalendar/
-          VITE_DATA_SOURCE: demo
+          VITE_DATA_SOURCE: supabase
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           cp .env.example .env
           npm run build
