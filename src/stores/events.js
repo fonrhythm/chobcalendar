@@ -163,10 +163,40 @@ export const useEventsStore = defineStore('events', () => {
   function showDemo() {
     records.value = demoRecords();
     artistCatalog.value = [
-      { id: 'demo-a', name: '演示艺人 A', company: '演示公司', categories: [] },
-      { id: 'demo-b', name: '演示艺人 B', company: '演示公司', categories: [] },
+      {
+        id: 'demo-a',
+        name: '演示艺人 A',
+        company: '演示公司',
+        categories: ['演员'],
+      },
+      {
+        id: 'demo-b',
+        name: '演示艺人 B',
+        company: '演示公司',
+        categories: ['演员', '歌手'],
+      },
     ];
-    artistCatalog.value.push({id:'cp:demo-pair',name:'演示 CP',categories:['CP'],member_ids:['demo-a','demo-b']},{id:'demo-group',name:'演示组合',categories:['group'],group_kind:'group',group_member_ids:['demo-a','demo-b']},{id:'demo-band',name:'演示乐队',categories:['band'],group_kind:'band'});
+    artistCatalog.value.push(
+      {
+        id: 'cp:demo-pair',
+        name: '演示 CP',
+        categories: ['CP'],
+        member_ids: ['demo-a', 'demo-b'],
+      },
+      {
+        id: 'demo-group',
+        name: '演示组合',
+        categories: ['group'],
+        group_kind: 'group',
+        group_member_ids: ['demo-a', 'demo-b'],
+      },
+      {
+        id: 'demo-band',
+        name: '演示乐队',
+        categories: ['band'],
+        group_kind: 'band',
+      },
+    );
     announcements.value = [
       {
         id: 'demo-notice',

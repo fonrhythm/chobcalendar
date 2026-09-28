@@ -307,15 +307,7 @@ onBeforeUnmount(() => {
         <button class="tutorial-link" @click="modal = 'tutorial'">
           使用教程
         </button>
-        <p class="admin-contact">
-          删除或批量添加请联系
-          <a
-            href="https://x.com/ChobCalendar"
-            target="_blank"
-            rel="noopener noreferrer"
-            >@ChobCalendar</a
-          >
-        </p>
+
         <div class="social-footer">
           <a
             href="https://xhslink.cn/m/6daqAMGfZbo"
@@ -465,16 +457,18 @@ onBeforeUnmount(() => {
         ><div class="about-content">
           <span class="about-wordmark">CHOB<span>CALENDAR</span></span>
           <div class="about-actions">
-            <button class="pill" @click="modal = 'tutorial'">使用教程</button
-            ><button class="pill" @click="modal = 'entry'">新增活动</button>
+            <button class="text-link" @click="modal = 'tutorial'">
+              使用教程</button
+            ><button class="text-link" @click="modal = 'entry'">新增活动</button
+            ><button class="text-link" disabled title="支持链接筹备中">
+              Buy me a coffee
+            </button>
           </div>
           <h3>管理员的话</h3>
           <p v-for="paragraph in aboutParagraphs" :key="paragraph">
             {{ paragraph }}
           </p>
-          <button class="pill" disabled title="支持链接筹备中">
-            Buy me a coffee
-          </button>
+
           <p v-if="data.updatedAt" class="muted">
             {{ lang.t.updated }} ·
             {{ new Date(data.updatedAt).toLocaleString(lang.locale) }}

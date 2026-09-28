@@ -78,11 +78,22 @@ function toggleFilter(key, value, all, checked) {
             ><Icon name="down" />
           </summary>
           <div class="filter-options">
-            <button class="text-button" @click="view.companies = []">
-              全选</button
-            ><button class="text-button" @click="view.companies = ['__none__']">
-              全不选</button
-            ><label v-for="company in data.companies" :key="company"
+            <div class="filter-all-row">
+              <label
+                ><input
+                  type="checkbox"
+                  :checked="!view.companies.length"
+                  @change="view.companies = []"
+                />全选</label
+              ><label
+                ><input
+                  type="checkbox"
+                  :checked="view.companies.includes('__none__')"
+                  @change="view.companies = ['__none__']"
+                />全不选</label
+              >
+            </div>
+            <label v-for="company in data.companies" :key="company"
               ><input
                 type="checkbox"
                 :checked="
@@ -108,14 +119,22 @@ function toggleFilter(key, value, all, checked) {
             ><Icon name="down" />
           </summary>
           <div class="filter-options">
-            <button class="text-button" @click="view.categories = []">
-              全选</button
-            ><button
-              class="text-button"
-              @click="view.categories = ['__none__']"
-            >
-              全不选</button
-            ><label v-for="cat in cats" :key="cat"
+            <div class="filter-all-row">
+              <label
+                ><input
+                  type="checkbox"
+                  :checked="!view.categories.length"
+                  @change="view.categories = []"
+                />全选</label
+              ><label
+                ><input
+                  type="checkbox"
+                  :checked="view.categories.includes('__none__')"
+                  @change="view.categories = ['__none__']"
+                />全不选</label
+              >
+            </div>
+            <label v-for="cat in cats" :key="cat"
               ><input
                 type="checkbox"
                 :checked="
@@ -131,14 +150,22 @@ function toggleFilter(key, value, all, checked) {
         <details class="filter-menu">
           <summary>活动类型<Icon name="down" /></summary>
           <div class="filter-options">
-            <button class="text-button" @click="view.activityTypes = []">
-              全选</button
-            ><button
-              class="text-button"
-              @click="view.activityTypes = ['__none__']"
-            >
-              全不选</button
-            ><label v-for="type in ACTIVITY_TYPES" :key="type.id"
+            <div class="filter-all-row">
+              <label
+                ><input
+                  type="checkbox"
+                  :checked="!view.activityTypes.length"
+                  @change="view.activityTypes = []"
+                />全选</label
+              ><label
+                ><input
+                  type="checkbox"
+                  :checked="view.activityTypes.includes('__none__')"
+                  @change="view.activityTypes = ['__none__']"
+                />全不选</label
+              >
+            </div>
+            <label v-for="type in ACTIVITY_TYPES" :key="type.id"
               ><input
                 type="checkbox"
                 :checked="
