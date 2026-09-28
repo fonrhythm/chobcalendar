@@ -1,4 +1,6 @@
 <script setup>
+import { ACTIVITY_TYPES } from '../utils/activityTypes';
+import { publishTimestamp, localDateTime } from '../utils/publishing';
 import CatalogPicker from './CatalogPicker.vue';
 import { selectionTypes } from '../utils/artistSelection';
 import { reactive, ref, computed } from 'vue';
@@ -23,6 +25,8 @@ const matches = computed(() =>
     .filter((a) => a.name.toLowerCase().includes(form.name.toLowerCase()))
     .slice(0, 30),
 );
+const publishMode = ref(props.editing?.scheduled_publish_at ? 'later' : 'now'),
+  publishAt = ref(localDateTime(props.editing?.scheduled_publish_at));
 async function submit() {
   if (busy.value) return;
   message.value = '';
@@ -42,10 +46,13 @@ async function submit() {
       !window.confirm('每天重复活动将不显示图片，确认提交吗？')
     )
       return;
+    const scheduledAt =
+      publishMode.value === 'later' ? publishTimestamp(publishAt.value) : null;
     busy.value = true;
-    await call('chob_submit_event', {
+    await call('chob_submit_event_scheduled', {
       payload: {
         ...form,
+        scheduled_publish_at: scheduledAt,
         artist_ids: unmatched.value
           ? []
           : [
@@ -191,7 +198,17 @@ if (props.editing) {
 function save() {
   if (busy.value) return;
   try {
-    localStorage.setItem(key, JSON.stringify(form));
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        ...form,
+        __selection: selectedArtists.value,
+        __unmatched: unmatched.value,
+        __rollCall: rollCall.value,
+        __publishMode: publishMode.value,
+        __publishAt: publishAt.value,
+      }),
+    );
     emit('close');
   } catch {
     message.value = lang.t.draftFailed;
@@ -256,11 +273,8 @@ defineExpose({ requestClose });
         :catalog="data.artistCatalog"
       />
       <label class="profile-artist"
-        ><input
-          v-model="unmatched"
-          type="checkbox"
-        />没有匹配的艺人，自行填写</label
-      >
+        >没有匹配的艺人，自行填写<input v-model="unmatched" type="checkbox"
+      /></label>
       <label v-if="unmatched"
         >艺人名称<input v-model="form.name" required maxlength="200"
       /></label>
@@ -276,7 +290,7 @@ defineExpose({ requestClose });
         }}<select v-model="form.type">
           <option value="">{{ lang.t.choose }}</option>
           <option
-            v-for="type in data.typeCatalog"
+            v-for="type in ACTIVITY_TYPES"
             :key="type.id"
             :value="type.id"
           >
@@ -372,13 +386,28 @@ defineExpose({ requestClose });
         </p>
       </details>
       <p class="entry-notice">
-        提交后直接公开。{{
+        按所选时间公开。{{
           editing
             ? `剩余 ${3 - editing.user_edit_count} 次编辑`
             : '提交后可编辑 3 次'
         }}。
       </p>
       <p v-if="message" class="form-error" role="alert">{{ message }}</p>
+    </div>
+    <div class="publish-options">
+      <label
+        ><input type="radio" value="now" v-model="publishMode" />即刻发布</label
+      ><label
+        ><input
+          type="radio"
+          value="later"
+          v-model="publishMode"
+        />稍后发布</label
+      ><label v-if="publishMode === 'later'"
+        >发布时间（当前设备时区：{{
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+        }}）<input type="datetime-local" v-model="publishAt" required
+      /></label>
     </div>
     <div class="entry-actions">
       <button type="button" class="draft-button" @click="save">
@@ -390,7 +419,9 @@ defineExpose({ requestClose });
         class="submit-button"
         :disabled="busy || (editing && editing.user_edit_count >= 3)"
       >
-        {{ lang.t.submit }}
+        {{
+          busy ? '保存中…' : publishMode === 'later' ? '稍后发布' : '即刻发布'
+        }}
       </button>
     </div>
   </form>

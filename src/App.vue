@@ -147,7 +147,7 @@ onMounted(() => {
   account.initialize();
   theme.initTheme();
   data.initialize();
-  timer = setInterval(onVisible, 5 * 60 * 1000);
+  timer = setInterval(onVisible, 60 * 1000);
   document.addEventListener('visibilitychange', onVisible);
   document.addEventListener('click', closeMenus);
 });
