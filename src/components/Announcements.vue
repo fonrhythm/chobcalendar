@@ -21,9 +21,7 @@ const current = computed(
   () =>
     tickerNotices.value[index.value % Math.max(1, tickerNotices.value.length)],
 );
-const displayMs = computed(() =>
-  Math.max(6000, Math.round(3200 + (overflowPx.value / 35) * 1000)),
-);
+const displayMs = 8000;
 let timer, observer, elapsed = 0;
 function measureOverflow() {
   overflowPx.value = linkRef.value && textRef.value
@@ -48,7 +46,7 @@ onMounted(() => {
     today.value = dateKey(new Date());
     if (tickerNotices.value.length < 2) return;
     elapsed += 1000;
-    if (elapsed >= displayMs.value) {
+    if (elapsed >= displayMs) {
       index.value++;
       elapsed = 0;
     }
