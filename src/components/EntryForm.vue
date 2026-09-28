@@ -216,6 +216,39 @@ defineExpose({ requestClose });
 </script>
 <template>
   <form class="entry-form" @submit.prevent="submit">
+    <div class="entry-contact">
+      <p>删除或批量添加请联系管理员</p>
+      <p>
+        <a
+          href="https://xhslink.cn/m/6daqAMGfZbo"
+          target="_blank"
+          rel="noopener noreferrer"
+          >小红书</a
+        >
+        ·
+        <a
+          href="https://x.com/ChobCalendar"
+          target="_blank"
+          rel="noopener noreferrer"
+          >X</a
+        >
+        ·
+        <a
+          href="https://www.threads.com/@chobcalendar"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Threads</a
+        >
+        ·
+        <a
+          href="https://www.instagram.com/chobcalendar/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Instagram</a
+        >
+        · <a href="mailto:chobcalendar@gmail.com">邮箱</a>
+      </p>
+    </div>
     <div class="entry-fields">
       <CatalogPicker
         v-if="!unmatched"
@@ -232,8 +265,8 @@ defineExpose({ requestClose });
         >艺人名称<input v-model="form.name" required maxlength="200"
       /></label>
       <label class="profile-artist"
-        >点名 <input v-model="rollCall" type="checkbox"
-      /></label>
+        >点名 <input v-model="rollCall" type="checkbox" /></label
+      ><small class="roll-call-help">（如有点名则勾选，无则不选）</small>
       <label
         >{{ lang.t.activityName }} <em>*</em
         ><input v-model="form.activity" maxlength="400" required
@@ -343,7 +376,7 @@ defineExpose({ requestClose });
           editing
             ? `剩余 ${3 - editing.user_edit_count} 次编辑`
             : '提交后可编辑 3 次'
-        }}；删除或批量添加请联系 @ChobCalendar。
+        }}。
       </p>
       <p v-if="message" class="form-error" role="alert">{{ message }}</p>
     </div>

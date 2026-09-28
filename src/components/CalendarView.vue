@@ -93,13 +93,12 @@ function label(day) {
           :aria-current="day === today ? 'date' : undefined"
           @click.stop="emit('day', day)"
         >
-          {{ Number(day.slice(-2))
-          }}<small
-            v-if="data.onDate(day).some((r) => data.updates.includes(r.id))"
-            class="update-label"
-            >update</small
-          >
-        </button>
+          {{ Number(day.slice(-2)) }}</button
+        ><small
+          v-if="data.onDate(day).some((r) => data.updates.includes(r.id))"
+          class="update-label"
+          >update</small
+        >
         <div class="cell-events">
           <EventChip
             v-for="item in data.onDate(day).slice(0, limit(day))"

@@ -14,7 +14,7 @@ const copy = computed(
           thailand: '泰国行程',
           oversea: '海外行程',
         },
-        about: '关于我们',
+        about: '联系我',
         tutorial: '使用教程',
       },
       en: {

@@ -1,4 +1,5 @@
 <script setup>
+import Icon from './Icon.vue';
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { safeUrl } from '../utils/records';
@@ -44,10 +45,11 @@ function xEmbed(url) {
     class="announcement-ticker"
     aria-label="最新通知"
   >
-    <button @click="index = Math.max(0, index - 1)" aria-label="上一条通知">
-      ↑</button
-    ><a class="notice-scroll" :href="'#notice-' + current.id"><span>{{ current.title }}</span></a
-    ><button @click="index++" aria-label="下一条通知">↓</button>
+    <Icon name="speaker" /><a
+      class="notice-scroll"
+      :href="'#notice-' + current.id"
+      ><span>{{ current.title }}</span></a
+    >
   </div>
   <section v-else-if="!ticker" id="announcements" class="announcements">
     <h2>消息 / 公告</h2>

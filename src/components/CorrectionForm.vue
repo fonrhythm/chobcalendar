@@ -9,7 +9,8 @@ const props = defineProps({ item: Object }),
   account = useAccountStore();
 const date = ref(props.item?.date || ''),
   target = ref(props.item?.id || ''),
-  fields = ref([]),
+  issues = ref([{ field: '', value: '' }]),
+  fields = computed(() => issues.value.map((i) => i.field).filter(Boolean)),
   details = ref(''),
   message = ref(''),
   busy = ref(false),
@@ -17,6 +18,18 @@ const date = ref(props.item?.date || ''),
 const rows = computed(() =>
   data.records.filter((r) => r.kind === 'event' && r.date === date.value),
 );
+const labels = {
+  name: '艺人',
+  activity: '活动名称',
+  date: '日期',
+  time: '时间',
+  venue: '地点',
+  city: '城市',
+  company: '公司',
+  note: '备注',
+  images: '图片',
+  link: '来源链接',
+};
 async function submit() {
   busy.value = true;
   message.value = '';
@@ -27,7 +40,12 @@ async function submit() {
     await call('chob_report_correction', {
       target: target.value.slice(9),
       field_names: fields.value,
-      details: details.value,
+      details:
+        issues.value
+          .map((i) => `${labels[i.field]}\n正确的内容：${i.value.trim()}`)
+          .join('\n\n') +
+        '\n\n信息来源：' +
+        details.value.trim(),
     });
     done.value = true;
     message.value = '已通知管理员核对，谢谢你的提醒';
@@ -56,35 +74,59 @@ async function submit() {
           </option>
         </select></label
       >
-      <fieldset>
-        <legend>需要纠错的内容</legend>
+      <fieldset
+        v-for="(issue, index) in issues"
+        :key="index"
+        class="correction-issue"
+      >
+        <legend>问题 {{ index + 1 }}</legend>
         <label
-          v-for="(label, key) in {
-            name: '艺人',
-            activity: '活动名称',
-            date: '日期',
-            time: '时间',
-            venue: '地点',
-            city: '城市',
-            company: '公司',
-            note: '备注',
-            images: '图片',
-            link: '来源链接',
-          }"
-          :key="key"
-          class="profile-artist"
-          ><input v-model="fields" type="checkbox" :value="key" />{{
-            label
-          }}</label
+          >需要纠错的内容<select v-model="issue.field" required>
+            <option value="">请选择</option>
+            <option
+              v-for="(label, key) in labels"
+              :key="key"
+              :value="key"
+              :disabled="
+                issues.some((other, i) => i !== index && other.field === key)
+              "
+            >
+              {{ label }}
+            </option>
+          </select></label
+        ><label
+          >正确的内容<textarea
+            v-model="issue.value"
+            required
+            maxlength="1000"
+            rows="3"
+            placeholder="请填写这一项的正确内容"
+          ></textarea></label
+        ><button
+          v-if="issues.length > 1"
+          type="button"
+          class="text-button"
+          @click="issues.splice(index, 1)"
         >
+          移除此问题
+        </button>
       </fieldset>
-      <textarea
-        v-model="details"
-        required
-        maxlength="4000"
-        rows="4"
-        placeholder="说明哪里有误，并附上你看到的资料来源"
-      ></textarea
+      <button
+        v-if="issues.length < Object.keys(labels).length"
+        type="button"
+        class="text-button"
+        @click="issues.push({ field: '', value: '' })"
+      >
+        ＋ 添加一个问题</button
+      ><label
+        >信息来源
+        <textarea
+          v-model="details"
+          required
+          maxlength="4000"
+          rows="4"
+          placeholder="请附上信息来源的内容链接"
+        ></textarea></label
       ><button class="pill active" :disabled="busy || !fields.length">
         {{ busy ? '提交中…' : '提交纠错' }}
       </button></template
