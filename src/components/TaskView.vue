@@ -75,18 +75,20 @@ function open(item) {
           }}</span>
         </header>
         <div class="quadrant-rows">
-          <button
+          <div
             v-for="item in rows.filter(
               (r) => taskCategory(r.task_type) === type.value,
             )"
             :key="item.id"
-            class="task-row"
-            @click="open(item)"
+            class="task-entry"
           >
-            <i></i
-            ><span class="task-row-name">{{ item.activity || item.name }}</span
-            ><time>{{ (item.end_date || item.date).slice(5) }}</time>
-          </button>
+            <button class="task-row" @click="open(item)">
+              <i></i><span class="task-row-name">{{ item.activity || item.name }}</span
+              ><time>{{ (item.end_date || item.date).slice(5) }}</time>
+            </button>
+            <p v-if="item.steps" class="task-steps">{{ item.steps }}</p>
+            <a v-if="item.action_url" class="task-action" :href="item.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+          </div>
           <p
             v-if="!rows.some((r) => taskCategory(r.task_type) === type.value)"
             class="muted"
