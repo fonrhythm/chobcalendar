@@ -1,6 +1,7 @@
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
 import { normalizeRecord } from '../utils/records';
+import { eventDisplayName } from '../utils/cpDisplayName';
 import { useAccountStore } from './account';
 import { dateKey } from '../utils/dates';
 import { defineStore } from 'pinia';
@@ -243,6 +244,10 @@ export const useEventsStore = defineStore('events', () => {
           normalizeRecord(r, i, 'supabase'),
         );
         artistCatalog.value = feed.artists;
+        incoming = incoming.map((event) => ({
+          ...event,
+          name: eventDisplayName(event, feed.artists),
+        }));
         typeCatalog.value = feed.types;
         announcements.value = feed.announcements;
       } else incoming = await fetchRecords(controller.signal);
@@ -383,3 +388,4 @@ export const useEventsStore = defineStore('events', () => {
     initialize,
   };
 });
+
