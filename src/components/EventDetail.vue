@@ -165,12 +165,6 @@ const eventTasks = computed(() =>
     <aside class="detail-remarks">
       <h4>备注</h4>
       <p :class="fieldClass('note')">{{ item.note || '暂无备注' }}</p>
-      <details>
-        <summary>复制图片 URL 教程</summary>
-        <p>
-          打开来源图片，长按图片或右键选择“复制图片地址”。粘贴图片本身的公开链接，不要复制贴文页面地址。无法取得链接时可以留空。
-        </p>
-      </details>
     </aside>
     <a
       v-if="link"
