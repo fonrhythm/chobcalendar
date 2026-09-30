@@ -355,14 +355,14 @@ defineExpose({ requestClose });
         <label
           >{{ lang.t.saleTime }}<input v-model="form.sale_time" type="time"
         /></label>
-        <label
-          >{{ lang.t.link
-          }}<input
-            v-model="form.ticket_url"
-            type="url"
-            placeholder="https://example.com/tickets"
-        /></label>
       </template>
+      <label
+        >{{ lang.t.link
+        }}<input
+          v-model="form.ticket_url"
+          type="url"
+          placeholder="https://example.com/"
+      /></label>
       <label v-if="form.ticket_type === 'info'"
         >{{ lang.t.participationInfo
         }}<textarea v-model="form.participation_info" rows="3" />
