@@ -41,11 +41,8 @@ async function submit() {
       !window.confirm('没有填写图片 URL，仍要继续提交吗？')
     )
       return;
-    if (
-      recurring.value &&
-      !window.confirm('每天重复活动将不显示图片，确认提交吗？')
-    )
-      return;
+    if (recurring.value && (!endDate.value || endDate.value <= form.date))
+      throw Error('连续多日活动的结束日期必须晚于开始日期。');
     const scheduledAt =
       publishMode.value === 'later' ? publishTimestamp(publishAt.value) : null;
     busy.value = true;
@@ -306,9 +303,9 @@ defineExpose({ requestClose });
         ><input
           v-model="recurring"
           type="checkbox"
-        />每天重复（不显示图片）</label
+        />连续多日</label
       ><label v-if="recurring"
-        >结束日期<input v-model="endDate" type="date" :min="form.date" required
+        >结束日期 <em>*</em><input v-model="endDate" type="date" :min="form.date" required
       /></label>
       <label
         >{{ lang.t.time
