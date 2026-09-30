@@ -257,7 +257,7 @@ export const useEventsStore = defineStore('events', () => {
           name: eventDisplayName(event, feed.artists),
         }));
         typeCatalog.value = feed.types;
-        conditionCatalog.value = feed.conditions || [];
+        conditionCatalog.value = (feed.conditions || []).filter((condition) => !/仅获得资格者/.test(condition.name || ''));
         announcements.value = feed.announcements;
       } else incoming = await fetchRecords(controller.signal);
       const baseline = Object.keys(previousVersions).length > 0;
