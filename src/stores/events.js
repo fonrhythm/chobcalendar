@@ -11,6 +11,7 @@ import { demoRecords } from '../data/demo';
 import { useViewStore } from './view';
 import { occursOn, intersectsMonth } from '../utils/dates';
 import { sourceRule } from '../utils/sources';
+import { companyOptions, matchesCompany } from '../utils/companyFilter';
 export const useEventsStore = defineStore('events', () => {
   const artistCatalog = ref([]),
     typeCatalog = ref([]),
@@ -52,14 +53,12 @@ export const useEventsStore = defineStore('events', () => {
     inRegion = computed(() =>
       records.value.filter((r) => r.region === view.currentRegion),
     );
-  const companies = computed(() =>
-    [...new Set(inRegion.value.map((r) => r.company).filter(Boolean))].sort(),
-  );
+  const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>
     inRegion.value.filter((r) => {
       const q = view.query.trim().toLowerCase();
       return (
-        (!view.companies.length || view.companies.includes(r.company)) &&
+        matchesCompany(r, artistCatalog.value, view.companies) &&
         (!view.categories.length || view.categories.includes(r.category)) &&
         (!view.activityTypes.length ||
           view.activityTypes.includes(

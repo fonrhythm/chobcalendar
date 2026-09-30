@@ -87,7 +87,7 @@ function label(day) {
       @click="day.startsWith(view.month) && emit('day', day)"
     >
       <template v-if="day.startsWith(view.month)"
-        ><button
+        ><div class="day-head"><button
           class="day-number"
           :aria-label="label(day)"
           :aria-current="day === today ? 'date' : undefined"
@@ -98,7 +98,7 @@ function label(day) {
           v-if="data.onDate(day).some((r) => data.updates.includes(r.id))"
           class="update-label"
           >update</small
-        >
+        ></div>
         <div class="cell-events">
           <EventChip
             v-for="item in data.onDate(day).slice(0, limit(day))"

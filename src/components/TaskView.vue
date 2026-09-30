@@ -49,6 +49,7 @@ function open(item) {
           v-for="item in data.onDate(day, 'task').slice(0, 2)"
           :key="item.id"
           :item="item"
+          task
           @open="open"
         /><button
           v-if="data.onDate(day, 'task').length > 2"
@@ -66,6 +67,7 @@ function open(item) {
         class="task-quadrant"
         :style="{
           '--task-color': ['#c86e6c', '#6295bb', '#c5a15a', '#9192a3'][index],
+          '--task-on-color': index === 2 ? '#241d0f' : '#fff',
         }"
       >
         <header>
@@ -76,17 +78,17 @@ function open(item) {
         </header>
         <div class="quadrant-rows">
           <div
-            v-for="item in rows.filter(
+            v-for="(item, itemIndex) in rows.filter(
               (r) => taskCategory(r.task_type) === type.value,
             )"
             :key="item.id"
             class="task-entry"
+            :class="itemIndex % 2 === 0 ? 'is-solid' : 'is-outline'"
           >
             <button class="task-row" @click="open(item)">
-              <i></i><span class="task-row-name">{{ item.activity || item.name }}</span
-              ><time>{{ (item.end_date || item.date).slice(5) }}</time>
+              <span class="task-entry-name">{{ item.name }}</span>
+              <span class="task-entry-detail"><span>{{ item.activity }}</span><time>{{ (item.end_date || item.date).slice(5) }}</time></span>
             </button>
-            <p v-if="item.steps" class="task-steps">{{ item.steps }}</p>
             <a v-if="item.action_url" class="task-action" :href="item.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
           </div>
           <p
