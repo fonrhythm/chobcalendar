@@ -62,6 +62,7 @@ async function submit() {
       payload: {
         ...form,
         participation_info: needsTask.value ? task.description : '',
+        ticket_url: needsTask.value ? task.action_url : '',
         scheduled_publish_at: scheduledAt,
         artist_ids: unmatched.value
           ? []
