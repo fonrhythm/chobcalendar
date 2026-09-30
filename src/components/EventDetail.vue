@@ -30,7 +30,7 @@ const eventTasks = computed(() =>
   <div class="event-detail">
     <div class="detail-media">
       <div
-        v-if="images.length && !item.recurring_daily"
+        v-if="images.length"
         class="status-poster"
         :class="{
           'poster-faded': state.faded,
