@@ -62,6 +62,9 @@ function open(n) {
   const r = data.records.find((r) => r.id === 'supabase:' + n.event_id);
   if (r) emit('open', r);
 }
+function linkedEvent(n) {
+  return data.records.find((r) => r.id === 'supabase:' + n.event_id && r.kind === 'event');
+}
 function xEmbed(url) {
   try {
     const u = new URL(url);
@@ -102,11 +105,14 @@ function xEmbed(url) {
       :id="'notice-' + n.id"
       class="message-card"
     >
-      <h3>{{ n.title }}</h3>
+      <div class="message-heading">
+        <h3>{{ linkedEvent(n)?.name || n.title }}</h3>
+        <div v-if="linkedEvent(n)?.activity" class="message-event">{{ linkedEvent(n).activity }}</div>
+      </div>
       <p>{{ n.body }}</p>
       <div class="message-links">
         <button v-if="n.event_id" class="text-button" @click="open(n)">
-          查看活动变动 →</button
+          活动变动 →</button
         ><a
           v-if="safeUrl(n.source_url)"
           :href="safeUrl(n.source_url)"
@@ -118,7 +124,7 @@ function xEmbed(url) {
           class="text-button"
           @click="embed = embed === n.id ? '' : n.id"
         >
-          {{ embed === n.id ? '收起贴文' : '展开 X 贴文' }}
+          {{ embed === n.id ? '收起贴文' : '展开贴文' }}
         </button>
       </div>
       <iframe

@@ -1227,17 +1227,23 @@
 .day-head .update-label { margin-left: 0; }
 
 .announcements {
-  width: 70%;
+  width: 100%;
   margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
+.announcements > h2, .announcements > .muted { grid-column: 1 / -1; margin: 0; }
 .announcements > h2 { font-size: 18px; }
 .message-card {
-  padding: 20px 24px;
+  padding: 18px 22px;
   border-radius: 18px;
-  margin-block: 12px;
+  margin: 0;
+  min-width: 0;
 }
-.message-card h3 { font-size: 16px; line-height: 1.4; }
-.message-card p { font-size: 13px; line-height: 1.55; }
+.message-card h3 { font-size: 16px; line-height: 1.35; margin: 0; }
+.message-event { font-size: 13px; line-height: 1.35; margin-top: 3px; color: var(--muted); }
+.message-card p { font-size: 13px; line-height: 1.45; margin: 10px 0; }
 .message-links { gap: 12px; font-size: 11px; }
 
 .task-quadrant { min-height: 0; padding: 18px; }
@@ -1282,7 +1288,8 @@
 .task-week-chips { margin-top: 0; margin-bottom: 16px; }
 .task-week-chips .chip.task-chip {
   background: color-mix(in srgb, var(--chip-bg) 20%, var(--surface));
-  color: var(--chip-text);
+  color: var(--text);
+  font-weight: 600;
   border: 0;
   border-left: 5px solid var(--chip-bg);
   border-radius: 4px;
@@ -1298,7 +1305,7 @@
   .stats > div:nth-child(-n + 3) { border-bottom: 1px solid var(--border); }
   .stats strong { font-size: 20px; }
   .stats span { font-size: 9px; }
-  .day-cell { min-height: 82px; }
+  .day-cell { min-height: 78px; }
   .day-cell .day-number,
   .today .day-number {
     width: 19px !important;
@@ -1309,9 +1316,11 @@
     font-size: 9px;
   }
   .day-head .update-label { font-size: 7px; }
-  .announcements { width: 70%; }
-  .message-card { padding: 14px; border-radius: 14px; }
-  .message-card h3 { font-size: 13px; }
-  .message-card p { font-size: 11px; }
-  .message-links { font-size: 10px; }
+  .announcements { width: 70%; grid-template-columns: 1fr; gap: 10px; }
+  .message-card { padding: 11px 13px; border-radius: 14px; }
+  .message-card h3 { font-size: 12px; }
+  .message-event { font-size: 10px; }
+  .message-card p { font-size: 10px; line-height: 1.4; margin: 7px 0; }
+  .message-links { font-size: 9px; gap: 5px; flex-wrap: nowrap; justify-content: space-between; white-space: nowrap; }
+  .message-links > * { min-width: 0; }
 }

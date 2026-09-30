@@ -66,8 +66,8 @@ function open(item) {
         :key="type.value"
         class="task-quadrant"
         :style="{
-          '--task-color': ['#c86e6c', '#6295bb', '#c5a15a', '#9192a3'][index],
-          '--task-on-color': index === 2 ? '#241d0f' : '#fff',
+          '--task-color': ['#a94e52', '#3d7297', '#866329', '#626579'][index],
+          '--task-on-color': '#fff',
         }"
       >
         <header>
