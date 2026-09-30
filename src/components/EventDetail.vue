@@ -128,7 +128,7 @@ const eventTasks = computed(() =>
           {{ item.contact }} <span>{{ item.contact_method }}</span>
         </dd>
       </div>
-      <div v-if="(item.participation_label || item.participation_condition) && !/仅获得资格者/.test(item.participation_label || '')">
+      <div v-if="(item.participation_label || item.participation_condition) && !/仅(?:获得|限)资格者/.test(item.participation_label || '')">
         <dt>参与方式</dt>
         <dd>{{ item.participation_label || item.participation_condition }}</dd>
       </div>

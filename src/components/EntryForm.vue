@@ -28,7 +28,7 @@ const matches = computed(() =>
 const publishMode = ref(props.editing?.scheduled_publish_at ? 'later' : 'now'),
   publishAt = ref(localDateTime(props.editing?.scheduled_publish_at));
 const task = reactive({ title: '', start_date: '', end_date: '', start_time: '', end_time: '', action_url: '', description: '' });
-const conditions = computed(() => data.conditionCatalog.filter((c) => !/仅获得资格者/.test(c.name || '')));
+const conditions = computed(() => data.conditionCatalog.filter((c) => !/仅(?:获得|限)资格者/.test(c.name || '')));
 const selectedCondition = computed(() => conditions.value.find((c) => c.code === form.participation_condition));
 const needsTask = computed(() => !!form.participation_condition && !/无限制|无需|无门槛|仅限受邀|free|unrestricted|no_limit|invited|invitation_only/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`));
 const taskType = computed(() => /购票|ticket/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`)
