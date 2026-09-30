@@ -14,6 +14,7 @@ import { sourceRule } from '../utils/sources';
 export const useEventsStore = defineStore('events', () => {
   const artistCatalog = ref([]),
     typeCatalog = ref([]),
+    conditionCatalog = ref([]),
     announcements = ref([]),
     personalError = ref(''),
     updates = ref([]);
@@ -207,6 +208,13 @@ export const useEventsStore = defineStore('events', () => {
         event_id: null,
       },
     ];
+    conditionCatalog.value = [
+      { code: 'unrestricted', name: '无限制' },
+      { code: 'ticket', name: '购票' },
+      { code: 'shopping', name: '购物名额' },
+      { code: 'top_spender_lucky_fans', name: 'Top Spender/Lucky Fans' },
+      { code: 'registration', name: '填报' },
+    ];
     myItems.value = records.value
       .filter((r) => r.kind === 'event' && r.date === dateKey(new Date()))
       .filter((r, i) => i % 4 === 3)
@@ -249,6 +257,7 @@ export const useEventsStore = defineStore('events', () => {
           name: eventDisplayName(event, feed.artists),
         }));
         typeCatalog.value = feed.types;
+        conditionCatalog.value = feed.conditions || [];
         announcements.value = feed.announcements;
       } else incoming = await fetchRecords(controller.signal);
       const baseline = Object.keys(previousVersions).length > 0;
@@ -362,6 +371,7 @@ export const useEventsStore = defineStore('events', () => {
   return {
     artistCatalog,
     typeCatalog,
+    conditionCatalog,
     announcements,
     personalError,
     updates,

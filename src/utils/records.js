@@ -84,6 +84,7 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     participation_condition: String(raw.participation_condition || ''),
     participation_label: String(raw.participation_label || ''),
     participation_rules: String(raw.participation_rules || ''),
+    user_task: raw.user_task && typeof raw.user_task === 'object' ? raw.user_task : null,
     action_url: safeUrl(raw.action_url),
     steps: String(raw.steps || ''),
     event_status: String(raw.event_status || raw.status || ''),

@@ -29,6 +29,8 @@ const labels = {
   note: '备注',
   images: '图片',
   link: '来源链接',
+  postponed: '活动延期',
+  cancelled: '活动取消',
 };
 async function submit() {
   busy.value = true;

@@ -1,6 +1,4 @@
 <script setup>
-import { artistTypes } from '../utils/artistSelection';
-import { activityLabel } from '../utils/activityTypes';
 import { eventState, dateExplanation } from '../utils/eventState';
 import { computed } from 'vue';
 import { useLanguageStore } from '../stores/language';
@@ -123,19 +121,6 @@ const eventTasks = computed(() =>
       <div v-if="item.company">
         <dt>{{ lang.t.company }}</dt>
         <dd :class="fieldClass('company')">{{ item.company }}</dd>
-      </div>
-      <div>
-        <dt>{{ lang.t.category }}</dt>
-        <dd>
-          {{
-            artistTypes(
-              item.artist_types?.length
-                ? item.artist_types
-                : [lang.t[item.category] || item.category],
-            ).join(' · ')
-          }}
-          <template> · {{ activityLabel(item) }}</template>
-        </dd>
       </div>
       <div v-if="item.contact">
         <dt>{{ lang.t.contact }}</dt>

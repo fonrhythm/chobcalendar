@@ -21,7 +21,7 @@ const weekdays = computed(() =>
   ),
 );
 const stats = computed(() =>
-  ACTIVITY_TYPES.map(({ id: type, name }) => ({
+  ACTIVITY_TYPES.filter(({ id }) => !['awards', 'press', 'fashion'].includes(id)).map(({ id: type, name }) => ({
     name,
     type,
     count: data.monthEvents.filter(

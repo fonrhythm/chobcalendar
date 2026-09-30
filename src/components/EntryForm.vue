@@ -2,7 +2,7 @@
 import { ACTIVITY_TYPES } from '../utils/activityTypes';
 import { publishTimestamp, localDateTime } from '../utils/publishing';
 import CatalogPicker from './CatalogPicker.vue';
-import { selectionTypes } from '../utils/artistSelection';
+import { selectionTypes, selectionCompanies } from '../utils/artistSelection';
 import { reactive, ref, computed } from 'vue';
 import { call, useSupabaseFeed } from '../api/supabase';
 import { useAccountStore } from '../stores/account';
@@ -27,6 +27,13 @@ const matches = computed(() =>
 );
 const publishMode = ref(props.editing?.scheduled_publish_at ? 'later' : 'now'),
   publishAt = ref(localDateTime(props.editing?.scheduled_publish_at));
+const task = reactive({ title: '', start_date: '', end_date: '', start_time: '', end_time: '', action_url: '', description: '' });
+const conditions = computed(() => data.conditionCatalog);
+const selectedCondition = computed(() => conditions.value.find((c) => c.code === form.participation_condition));
+const needsTask = computed(() => !!form.participation_condition && !/无限制|无需|无门槛|free|unrestricted|no_limit/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`));
+const taskType = computed(() => /购票|ticket/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`)
+  ? 'ticketing' : /填报|表单|form|register/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`)
+    ? 'registration' : /购物|消费|spender|lucky/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`) ? 'shopping' : 'other');
 async function submit() {
   if (busy.value) return;
   message.value = '';
@@ -43,12 +50,18 @@ async function submit() {
       return;
     if (recurring.value && (!endDate.value || endDate.value <= form.date))
       throw Error('连续多日活动的结束日期必须晚于开始日期。');
+    if (!form.participation_condition) throw Error('请选择参与方式。');
+    if (needsTask.value && (!task.title.trim() || !task.start_date))
+      throw Error('请填写具体事项的标题与开始日期。');
+    if (needsTask.value && taskType.value !== 'ticketing' && !task.end_date)
+      throw Error('请填写具体事项的结束日期。');
     const scheduledAt =
       publishMode.value === 'later' ? publishTimestamp(publishAt.value) : null;
     busy.value = true;
-    await call('chob_submit_event_scheduled', {
+    await call('chob_submit_event_with_tasks', {
       payload: {
         ...form,
+        participation_info: needsTask.value ? task.description : '',
         scheduled_publish_at: scheduledAt,
         artist_ids: unmatched.value
           ? []
@@ -64,6 +77,7 @@ async function submit() {
             ],
         artist_selections: unmatched.value ? [] : selectedArtists.value,
         artist_types: selectionTypes(data.artistCatalog, selectedArtists.value),
+        company: unmatched.value ? '' : selectionCompanies(data.artistCatalog, selectedArtists.value),
         roll_call: rollCall.value,
         unmatched_artist: unmatched.value ? form.name : '',
         images: imageUrls(form.picture_url),
@@ -71,6 +85,7 @@ async function submit() {
         end_date: recurring.value ? endDate.value : '',
         activity_category: form.type,
       },
+      task_payload: needsTask.value ? [{ ...task, task_type: taskType.value }] : [],
       record_id: props.editing?.id || null,
       expected_updated_at: props.editing?.updated_at || null,
     });
@@ -79,60 +94,12 @@ async function submit() {
     await account.refresh();
     emit('close');
   } catch (e) {
-    message.value = e.message;
+    message.value = e.code === 'PGRST202' ? '请先在 Supabase 执行 022_artist_participation_corrections.sql。' : e.message;
   } finally {
     busy.value = false;
   }
 }
 const lang = useLanguageStore();
-const companies = [
-  '411 Entertainment',
-  '9 Arkhan',
-  'BEC World',
-  'BOXX MUSIC',
-  'Bridge Management',
-  'CHANGE 2561',
-  'Channel 3',
-  'Copy A Bangkok',
-  'Dee Hup Hous',
-  'DoMunDi (DMD)',
-  'Genie Records',
-  'GMMTV',
-  'GNEST',
-  'Headliner Thailand',
-  'Idol Factory',
-  'iQIYIArtist TH',
-  'Kicks Records',
-  'kiddorecords',
-  'LIT Entertainment',
-  'LOOKE',
-  'LOVEiS Entertainmer',
-  'mandee',
-  'MchoiceTH',
-  'Me Mind Y',
-  'ME RECORDS',
-  'MILK!',
-  'Move Records',
-  'Muzik Move',
-  'North Star',
-  'One 31 (一台)',
-  'Open Label (一台)',
-  'Smallroom',
-  'SONAY MUSIC',
-  'Sony Music Thailand',
-  'SpicyDisc',
-  'Tero Music',
-  'TV Thunder',
-  'Wabi Sabi',
-  'Wayfer Records',
-  'What The Duck',
-  'White Fox',
-  'White Music',
-  'XOXO Entertainment',
-  '其他个人工作室',
-  '洞察娱乐 (Insight)',
-  '星猎 (Star Hunter)',
-];
 const form = reactive(
   Object.fromEntries(
     [
@@ -147,6 +114,7 @@ const form = reactive(
       'venue',
       'company',
       'ticket_type',
+      'participation_condition',
       'sale_date',
       'sale_time',
       'ticket_url',
@@ -169,6 +137,7 @@ try {
     for (const k of Object.keys(form))
       if (typeof draft[k] === 'string') form[k] = draft[k];
   if (draft?.pictures && !form.picture_url) form.picture_url = draft.pictures;
+  if (draft?.__task) Object.assign(task, draft.__task);
 } catch {}
 if (props.editing) {
   const e = props.editing;
@@ -185,7 +154,9 @@ if (props.editing) {
     picture_url: (e.attributes?.picture_urls || []).join('\n'),
     ticket_url: e.ticket_url || '',
     name: e.attributes?.unmatched_artist || '',
+    participation_condition: e.participation_condition || '',
   });
+  Object.assign(task, e.user_task || {});
   selectedArtists.value = e.attributes?.artist_selections || e.artist_ids || [];
   rollCall.value = !!e.attributes?.roll_call;
   unmatched.value = !!e.attributes?.unmatched_artist;
@@ -204,6 +175,7 @@ function save() {
         __rollCall: rollCall.value,
         __publishMode: publishMode.value,
         __publishAt: publishAt.value,
+        __task: { ...task },
       }),
     );
     emit('close');
@@ -329,41 +301,24 @@ defineExpose({ requestClose });
       /></label>
       <label>{{ lang.t.venueLabel }}<input v-model="form.venue" /></label>
       <label
-        >{{ lang.t.company
-        }}<input v-model="form.company" list="entry-companies" /><datalist
-          id="entry-companies"
-        >
-          <option v-for="c in companies" :key="c" :value="c" /></datalist
-        ><small>{{ lang.t.companyHelp }}</small></label
-      >
-      <label
         >{{ lang.t.participation }} <em>*</em
-        ><select v-model="form.ticket_type">
+        ><select v-model="form.participation_condition" required>
           <option value="">{{ lang.t.choose }}</option>
-          <option v-for="t in ['buy', 'info', 'from']" :key="t" :value="t">
-            {{ lang.t[t] }}
+          <option v-for="c in conditions" :key="c.code" :value="c.code">
+            {{ c.name }}
           </option>
         </select></label
       >
-      <template v-if="['buy', 'from'].includes(form.ticket_type)">
-        <label
-          >{{ lang.t.saleDate }}<input v-model="form.sale_date" type="date"
-        /></label>
-        <label
-          >{{ lang.t.saleTime }}<input v-model="form.sale_time" type="time"
-        /></label>
-      </template>
-      <label
-        >{{ lang.t.link
-        }}<input
-          v-model="form.ticket_url"
-          type="url"
-          placeholder="https://example.com/"
-      /></label>
-      <label v-if="form.ticket_type === 'info'"
-        >{{ lang.t.participationInfo
-        }}<textarea v-model="form.participation_info" rows="3" />
-      </label>
+      <div v-if="needsTask" class="entry-task-fields">
+        <strong>具体事项</strong>
+        <label>事项标题 <em>*</em><input v-model="task.title" required maxlength="200" placeholder="例如：报名、购票或购物名额申请" /></label>
+        <label>开始日期 <em>*</em><input v-model="task.start_date" type="date" required /></label>
+        <label>结束日期 <em v-if="taskType !== 'ticketing'">*</em><input v-model="task.end_date" type="date" :required="taskType !== 'ticketing'" :min="task.start_date" /></label>
+        <label>开始时间<input v-model="task.start_time" type="time" /></label>
+        <label v-if="task.end_date">结束时间<input v-model="task.end_time" type="time" /></label>
+        <label>操作链接<input v-model="task.action_url" type="url" placeholder="https://example.com/" /></label>
+        <label>活动详情与参与规则<textarea v-model="task.description" rows="4" placeholder="填写具体要求与操作步骤" /></label>
+      </div>
       <label
         >{{ lang.t.images
         }}<textarea
