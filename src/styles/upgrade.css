@@ -1228,7 +1228,7 @@
 
 .announcements {
   width: 100%;
-  margin-inline: auto;
+  margin: 34px auto 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -1316,7 +1316,7 @@
     font-size: 9px;
   }
   .day-head .update-label { font-size: 7px; }
-  .announcements { width: 70%; grid-template-columns: 1fr; gap: 10px; }
+  .announcements { width: 70%; margin-top: 26px; grid-template-columns: 1fr; gap: 10px; }
   .message-card { padding: 11px 13px; border-radius: 14px; }
   .message-card h3 { font-size: 12px; }
   .message-event { font-size: 10px; }
