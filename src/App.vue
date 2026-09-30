@@ -59,7 +59,7 @@ function closeModal() {
   if (modal.value === 'day') {
     modal.value = '';
   } else if (modal.value === 'entry') entryForm.value?.requestClose();
-  else if (modal.value === 'correction') modal.value = 'event';
+  else if (modal.value === 'correction') modal.value = correctionTarget.value ? 'event' : '';
   else if (modal.value === 'event' && fromDay.value) {
     modal.value = 'day';
     fromDay.value = false;
@@ -67,6 +67,7 @@ function closeModal() {
 }
 const modal = ref(''),
   item = ref(null),
+  correctionTarget = ref(null),
   day = ref(''),
   entryUrl = safeUrl(import.meta.env.VITE_ENTRY_URL);
 const chineseMonths = [
@@ -119,6 +120,16 @@ function open(itemValue) {
     modal.value === 'day' || (modal.value === 'event' && fromDay.value);
   item.value = itemValue;
   modal.value = 'event';
+}
+function correctEvent() {
+  correctionTarget.value = item.value?.kind === 'task'
+    ? data.records.find((record) => record.id === item.value.event_id && record.kind === 'event') || null
+    : item.value;
+  modal.value = 'correction';
+}
+function correctFromFooter() {
+  correctionTarget.value = null;
+  modal.value = 'correction';
 }
 watch(
   () => data.records,
@@ -300,6 +311,7 @@ onBeforeUnmount(() => {
             "
           >
             <Icon name="plus" />{{ lang.t.add }}</button
+          ><button class="pill" @click="correctFromFooter">我要纠错</button
           ><button class="pill about-button" @click="modal = 'about'">
             ABOUT
           </button>
@@ -389,7 +401,7 @@ onBeforeUnmount(() => {
         v-if="modal === 'event'"
         :item="item"
         @open="open"
-        @correct="modal = 'correction'"
+        @correct="correctEvent"
       />
       <DayAgenda
         v-else-if="modal === 'day'"
@@ -450,8 +462,8 @@ onBeforeUnmount(() => {
       />
       <CorrectionForm
         v-else-if="modal === 'correction'"
-        :item="item"
-        @close="modal = 'event'"
+        :item="correctionTarget"
+        @close="modal = correctionTarget ? 'event' : ''"
       />
       <template v-else
         ><div class="about-content">

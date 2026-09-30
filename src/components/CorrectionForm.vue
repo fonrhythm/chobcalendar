@@ -62,13 +62,14 @@ async function submit() {
 <template>
   <form class="account-form" @submit.prevent="submit">
     <template v-if="!done"
-      ><label
+      ><p v-if="item" class="correction-target">正在纠错：{{ item.name }} · {{ item.activity }}（{{ item.date }}）</p>
+      <label v-if="!item"
         >需要纠错的活动日期<input
           v-model="date"
           type="date"
           required
           @change="target = ''" /></label
-      ><label
+      ><label v-if="!item"
         >需要纠错的活动<select v-model="target" required>
           <option value="">请选择</option>
           <option v-for="r in rows" :key="r.id" :value="r.id">

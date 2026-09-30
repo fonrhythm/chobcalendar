@@ -28,9 +28,9 @@ const matches = computed(() =>
 const publishMode = ref(props.editing?.scheduled_publish_at ? 'later' : 'now'),
   publishAt = ref(localDateTime(props.editing?.scheduled_publish_at));
 const task = reactive({ title: '', start_date: '', end_date: '', start_time: '', end_time: '', action_url: '', description: '' });
-const conditions = computed(() => data.conditionCatalog);
+const conditions = computed(() => data.conditionCatalog.filter((c) => !/仅获得资格者/.test(c.name || '') || props.editing?.participation_condition === c.code));
 const selectedCondition = computed(() => conditions.value.find((c) => c.code === form.participation_condition));
-const needsTask = computed(() => !!form.participation_condition && !/无限制|无需|无门槛|free|unrestricted|no_limit/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`));
+const needsTask = computed(() => !!form.participation_condition && !/无限制|无需|无门槛|仅限受邀|free|unrestricted|no_limit|invited|invitation_only/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`));
 const taskType = computed(() => /购票|ticket/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`)
   ? 'ticketing' : /填报|表单|form|register/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`)
     ? 'registration' : /购物|消费|spender|lucky/i.test(`${selectedCondition.value?.name || ''} ${form.participation_condition}`) ? 'shopping' : 'other');
