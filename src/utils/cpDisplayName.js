@@ -1,4 +1,5 @@
 export function eventDisplayName(event, catalog) {
+  if (event.prefer_activity_name && (event.event_title || event.activity)?.trim()) return (event.event_title || event.activity).trim();
   if (!event.artist_ids?.length) return event.name;
   const byId = new Map(catalog.map((artist) => [artist.id, artist]));
   const selections = event.artist_selections || [];
