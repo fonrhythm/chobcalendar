@@ -1,5 +1,5 @@
 <script setup>
-import { selectionCount } from '../utils/artistSelection';
+import { selectionCount, usesOutline } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { eventState } from '../utils/eventState';
 import { ref, computed } from 'vue';
@@ -42,7 +42,7 @@ const visible = computed(() =>
       :key="entry.id"
       class="day-capsule"
       :class="{
-        official: selectionCount(entry) >= 6,
+        official: usesOutline(entry),
         'status-faded': eventState(entry).faded,
       }"
       :style="{

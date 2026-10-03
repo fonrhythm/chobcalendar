@@ -1,5 +1,5 @@
 <script setup>
-import { selectionCount } from '../utils/artistSelection';
+import { selectionCount, usesOutline } from '../utils/artistSelection';
 import { eventState } from '../utils/eventState';
 import { computed } from 'vue';
 import { getCategoryColor } from '../utils/config';
@@ -21,7 +21,7 @@ const colors = computed(() => {
   <button
     class="chip"
     :class="{
-      official: !task && selectionCount(item) >= 6,
+      official: !task && usesOutline(item),
       'task-chip': task,
       'status-faded': state.faded,
     }"

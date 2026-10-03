@@ -49,3 +49,5 @@ export const selectionCount = (item) =>
               ? item.artist_names
               : [item.name],
         ).size;
+
+export const usesOutline = (item) => item.prefer_activity_name === true || selectionCount(item) >= 6;

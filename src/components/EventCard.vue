@@ -1,5 +1,5 @@
 <script setup>
-import { selectionCount } from '../utils/artistSelection';
+import { selectionCount, usesOutline } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { useLanguageStore } from '../stores/language';
 import { computed } from 'vue';
@@ -14,7 +14,7 @@ const lang = useLanguageStore();
 <template>
   <button
     class="event-card"
-    :class="{ official: selectionCount(item) >= 6 }"
+    :class="{ official: usesOutline(item) }"
     :style="{
       '--official-color': getCategoryColor('other', item.region).bg,
       '--official-border':
