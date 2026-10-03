@@ -87,7 +87,7 @@ export const useEventsStore = defineStore('events', () => {
   const events = computed(() =>
       filtered.value.filter((r) => r.kind === 'event'),
     ),
-    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task'));
+    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task' && !r.is_closed));
   const monthEvents = computed(() =>
     events.value.filter((r) => intersectsMonth(r, view.month)),
   );

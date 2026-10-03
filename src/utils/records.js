@@ -72,6 +72,8 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
         : source + ':' + raw.event_id
       : '',
     task_type: String(raw.task_type || 'other'),
+    is_closed: raw.is_closed === true,
+    result_url: safeUrl(raw.result_url),
     artist_types: Array.isArray(raw.artist_types) ? raw.artist_types : [],
     artist_selections: Array.isArray(raw.artist_selections)
       ? raw.artist_selections
