@@ -14,13 +14,11 @@ const lang = useLanguageStore();
 <template>
   <button
     class="event-card"
-    :class="{ official: selectionCount(item) > 6 }"
+    :class="{ official: selectionCount(item) >= 6 }"
     :style="{
-      '--official-color': getCategoryColor(item.category, item.region).bg,
+      '--official-color': getCategoryColor('other', item.region).bg,
       '--official-border':
-        item.region === 'oversea' && item.category === 'actor'
-          ? '#b0a090'
-          : getCategoryColor(item.category, item.region).bg,
+        getCategoryColor('other', item.region).bg,
     }"
     @click="$emit('open', item)"
   >
@@ -28,7 +26,7 @@ const lang = useLanguageStore();
       <div class="event-artist">
         {{ item.name }}
         <span
-          v-if="selectionCount(item) > 6"
+          v-if="selectionCount(item) >= 6"
           class="card-official"
           :title="lang.t.official"
           >★<span class="sr-only">{{ lang.t.official }}</span></span

@@ -392,7 +392,7 @@ onBeforeUnmount(() => {
       :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
       :accent="
         modal === 'event' && item
-          ? getCategoryColor(item.category, item.region).bg
+          ? getCategoryColor('other', item.region).bg
           : undefined
       "
       @close="closeModal"
