@@ -1,4 +1,5 @@
 <script setup>
+import { normalizeSearch } from '../utils/artistFilters';
 import { computed, ref } from 'vue';
 const props = defineProps({
     catalog: { type: Array, default: () => [] },
@@ -14,9 +15,7 @@ const candidates = computed(() =>
         !a.deleted_at &&
         !props.modelValue.includes(a.id) &&
         [a.name, a.en_name, a.company, ...(Array.isArray(a.aliases) ? a.aliases : String(a.aliases || '').split(/[;,/]/))].some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(query.value.toLowerCase()),
+          normalizeSearch(v).includes(normalizeSearch(query.value)),
         ),
     )
     .slice(0, 50),

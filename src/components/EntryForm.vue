@@ -1,4 +1,5 @@
 <script setup>
+import { normalizeSearch } from '../utils/artistFilters';
 import { ACTIVITY_TYPES } from '../utils/activityTypes';
 import { publishTimestamp, localDateTime } from '../utils/publishing';
 import CatalogPicker from './CatalogPicker.vue';
@@ -22,7 +23,7 @@ const data = useEventsStore(),
   rollCall = ref(false);
 const matches = computed(() =>
   data.artistCatalog
-    .filter((a) => a.name.toLowerCase().includes(form.name.toLowerCase()))
+    .filter((a) => normalizeSearch(a.name).includes(normalizeSearch(form.name)))
     .slice(0, 30),
 );
 const publishMode = ref(props.editing?.scheduled_publish_at ? 'later' : 'now'),

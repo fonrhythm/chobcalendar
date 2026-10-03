@@ -1,3 +1,4 @@
+import { matchesArtistTypes, normalizeSearch } from '../utils/artistFilters';
 import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
@@ -57,10 +58,10 @@ export const useEventsStore = defineStore('events', () => {
   const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>
     inRegion.value.filter((r) => {
-      const q = view.query.trim().toLowerCase();
+      const q = normalizeSearch(view.query);
       return (
         matchesCompany(r, artistCatalog.value, view.companies) &&
-        (!view.categories.length || view.categories.includes(r.category)) &&
+        matchesArtistTypes(r, artistCatalog.value, view.categories) &&
         (!view.activityTypes.length ||
           view.activityTypes.includes(
             activityCategory(
@@ -78,9 +79,7 @@ export const useEventsStore = defineStore('events', () => {
           ) ||
           favoriteArtists.value.includes('name:' + r.name)) &&
         (!q ||
-          [r.name, r.activity, r.venue, r.city, r.company, r.note]
-            .join(' ')
-            .toLowerCase()
+          normalizeSearch([r.name, r.activity, r.venue, r.city, r.company, r.note].join(' '))
             .includes(q))
       );
     }),
