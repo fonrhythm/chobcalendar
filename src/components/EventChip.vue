@@ -9,14 +9,11 @@ const emit = defineEmits(['open']);
 const lang = useLanguageStore();
 const state = computed(() => eventState(props.item));
 const colors = computed(() => {
-  const c = getCategoryColor(props.item.category, props.item.region);
+  const c = getCategoryColor('other', props.item.region);
   return {
     '--chip-bg': c.bg,
     '--chip-text': c.text,
-    '--chip-border':
-      props.item.region === 'oversea' && props.item.category === 'actor'
-        ? '#b0a090'
-        : c.bg,
+    '--chip-border': c.bg,
   };
 });
 </script>
@@ -24,7 +21,7 @@ const colors = computed(() => {
   <button
     class="chip"
     :class="{
-      official: !task && selectionCount(item) > 6,
+      official: !task && selectionCount(item) >= 6,
       'task-chip': task,
       'status-faded': state.faded,
     }"
@@ -38,11 +35,11 @@ const colors = computed(() => {
       ><i v-if="item.roll_call && !task" class="roll-call-dot" aria-label="有点名"></i
       >{{ item.name }}</span
     ><span
-      v-if="!task && selectionCount(item) > 6"
+      v-if="!task && selectionCount(item) >= 6"
       class="official-star"
       aria-hidden="true"
       >★</span
     ><span v-if="state.label" class="status-label">{{ state.label }}</span
-    ><span v-if="!task && selectionCount(item) > 6" class="sr-only">超过6人或组</span>
+    ><span v-if="!task && selectionCount(item) >= 6" class="sr-only">6人或组及以上</span>
   </button>
 </template>
