@@ -6,7 +6,7 @@ export const useAccountStore = defineStore('account', () => {
   const user = ref(null),
     profile = ref(null),
     nickname = ref(''),
-    avatarSeed = ref(''), bio = ref(''), avatarStyle = ref('initials'), avatarColor = ref('#5b8c72'), corrections = ref([]),
+    bio = ref(''), corrections = ref([]),
     tags = ref({}),
     messages = ref([]),
     submissions = ref([]),
@@ -29,7 +29,7 @@ export const useAccountStore = defineStore('account', () => {
     messages.value = [];
     submissions.value = [];
     error.value = '';
-    nickname.value = ''; avatarSeed.value=''; bio.value=''; avatarStyle.value='initials'; avatarColor.value='#5b8c72'; corrections.value=[];
+    nickname.value = ''; bio.value=''; corrections.value=[];
     tags.value = {};
     if (!user.value) {
       ready.value = true;
@@ -61,7 +61,7 @@ export const useAccountStore = defineStore('account', () => {
       profile.value = p.data;
       nickname.value = s.data?.nickname || p.data?.nickname || '';
       tags.value = s.data?.tags || {};
-      avatarSeed.value=s.data?.avatar_seed || ''; bio.value=s.data?.bio || ''; avatarStyle.value=s.data?.avatar_style || 'initials'; avatarColor.value=s.data?.avatar_color || '#5b8c72'; corrections.value=c.data || [];
+      bio.value=s.data?.bio || ''; corrections.value=c.data || [];
       messages.value = m.data || [];
       submissions.value = e.data || [];
       const events = useEventsStore();
@@ -121,7 +121,7 @@ export const useAccountStore = defineStore('account', () => {
     const events = useEventsStore();
     await call('chob_save_personal', {
       payload: {
-        nickname: nickname.value, bio:bio.value, avatar_style:avatarStyle.value, avatar_color:avatarColor.value,
+        nickname: nickname.value, bio:bio.value,
         favorites: events.favorites,
         artist_favorites: events.favoriteArtists,
         items: events.myItems,
@@ -136,7 +136,7 @@ export const useAccountStore = defineStore('account', () => {
   return {
     user,
     profile,
-    nickname, avatarSeed, bio, avatarStyle, avatarColor, corrections, loginGoogle, resendVerification,
+    nickname, bio, corrections, loginGoogle, resendVerification,
     tags,
     messages,
     submissions,

@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
-const avatarOptions = [['initials','昵称首字'],['circle','圆形'],['square','方形'],['avataaars','卡通人物'],['adventurer','冒险家'],['bottts','机器人'],['croodles','涂鸦'],['rings','圆环'],['thumbs','拇指']];
+import { ref, computed } from 'vue';
 import { useAccountStore } from '../stores/account';
 import { useEventsStore } from '../stores/events';
 const props = defineProps({ initialMode: { type: String, default: 'login' } });
@@ -13,12 +12,6 @@ const emit = defineEmits(['edit', 'open']),
   message = ref(''),
   working = ref(false),
   artistKind = ref('all');
-const avatarUrl = ref('');
-watch(() => [account.user?.id, account.avatarStyle, account.nickname, account.avatarSeed], async ([id, style, name, seed], previous, onCleanup) => {
- let active = true; onCleanup(() => { active = false; }); avatarUrl.value = '';
- if (!id) return;
- try { const { avatarDataUri } = await import('../utils/avatars'); if (active) avatarUrl.value = avatarDataUri(style, name, seed); } catch { /* Keep the local nickname fallback. */ }
-}, { immediate: true });
 const artists = computed(() =>
   data.artistCatalog.filter(
     (a) =>
@@ -105,10 +98,7 @@ async function save() {
       </form></div></template
     ><template v-else-if="account.ready"
       ><h2>个人中心</h2><div v-if="!account.profile?.email_verified" role="status"><p>账号已保留。完成邮箱验证后即可保存资料、收藏和提交内容。</p><button class="pill" :disabled="working" @click="verifyEmail">发送验证邮件</button><button class="text-button" @click="account.refresh">刷新资料</button></div><p class="muted">个人资料和记录不会公开展示。</p>
-      <div class="profile-avatar" :style="{backgroundColor: /^#[0-9a-f]{6}$/i.test(account.avatarColor) ? account.avatarColor : '#5b8c72',borderRadius:account.avatarStyle === 'square' ? '12px' : '50%'}"><img v-if="avatarUrl" :src="avatarUrl" alt="个人头像" width="64" height="64" /><span v-else>{{ (account.nickname || '我').slice(0,1) }}</span></div>
       <label>简介<textarea v-model="account.bio" maxlength="500" /></label>
-      <label>头像颜色<input v-model="account.avatarColor" type="color" /></label>
-      <label>头像样式<select v-model="account.avatarStyle"><option v-for="[value,label] in avatarOptions" :key="value" :value="value">{{ label }}</option><option v-if="account.avatarStyle === 'animated'" value="animated">旧动画样式（暂用昵称）</option></select></label>
       <label>昵称<input v-model="account.nickname" maxlength="100" /></label
       ><button class="pill" :disabled="working" @click="save">保存资料</button
       ><button class="text-button" @click="account.logout">退出登录</button>
@@ -175,5 +165,5 @@ async function save() {
 </template>
 
 <style scoped>
-.profile-avatar{width:64px;height:64px;display:grid;place-items:center;color:white;font-size:24px;margin:12px 0} textarea{width:100%;min-height:80px}
+textarea{width:100%;min-height:80px}
 </style>
