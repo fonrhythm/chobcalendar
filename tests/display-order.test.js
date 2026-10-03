@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {compareDisplayOrder} from '../src/utils/displayOrder.js';
+test('activity-name entries first, then actual displayed names regardless of time',()=>{const rows=[{id:'a',name:'Alpha',time:'20:00'},{id:'z',name:'Zulu',time:'08:00'},{id:'e',name:'Zoo Festival',prefer_activity_name:true},{id:'b',name:'Apple Festival',prefer_activity_name:true}];assert.deepEqual(rows.sort(compareDisplayOrder).map(x=>x.id),['b','e','a','z']);});
+test('numeric names and case have stable ordering',()=>{assert(compareDisplayOrder({id:'a',name:'Show 2'},{id:'b',name:'Show 10'})<0);assert(compareDisplayOrder({id:'a',name:'alpha'},{id:'b',name:'Alpha'})<0);});

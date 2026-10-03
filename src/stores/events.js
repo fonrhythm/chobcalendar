@@ -1,3 +1,4 @@
+import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
 import { normalizeRecord } from '../utils/records';
@@ -85,7 +86,7 @@ export const useEventsStore = defineStore('events', () => {
     }),
   );
   const events = computed(() =>
-      filtered.value.filter((r) => r.kind === 'event'),
+      filtered.value.filter((r) => r.kind === 'event').sort(compareDisplayOrder),
     ),
     tasks = computed(() => filtered.value.filter((r) => r.kind === 'task' && !r.is_closed));
   const monthEvents = computed(() =>
@@ -94,11 +95,7 @@ export const useEventsStore = defineStore('events', () => {
   function onDate(day, kind = 'event') {
     return (kind === 'task' ? tasks.value : events.value)
       .filter((r) => occursOn(r, day))
-      .sort(
-        (a, b) =>
-          (a.time || '99').localeCompare(b.time || '99') ||
-          a.name.localeCompare(b.name),
-      );
+      .sort(compareDisplayOrder);
   }
   async function toggleFavorite(id) {
     const before = [...favorites.value];

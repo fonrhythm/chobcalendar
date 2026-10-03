@@ -1,4 +1,5 @@
 <script setup>
+import { compareDisplayOrder } from '../utils/displayOrder';
 import { computed } from 'vue';
 import { useViewStore } from '../stores/view';
 import { useEventsStore } from '../stores/events';
@@ -12,7 +13,7 @@ const emit = defineEmits(['open']),
 const mine = computed(() =>
   data.filtered
     .filter((r) => data.myItems.includes(r.id))
-    .sort((a, b) => a.date.localeCompare(b.date)),
+    .sort((a, b) => a.date.localeCompare(b.date) || compareDisplayOrder(a, b)),
 );
 const rows = computed(() => data.onDate(view.selectedDate, 'task'));
 function open(item) {

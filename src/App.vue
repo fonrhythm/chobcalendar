@@ -1,4 +1,5 @@
 <script setup>
+import { compareDisplayOrder } from './utils/displayOrder';
 import AccountPanel from './components/AccountPanel.vue';
 import CorrectionForm from './components/CorrectionForm.vue';
 import Announcements from './components/Announcements.vue';
@@ -53,7 +54,7 @@ function showFavorites() {
 const myRows = computed(() =>
   data.records
     .filter((r) => data.myItems.includes(r.id))
-    .sort((a, b) => a.date.localeCompare(b.date)),
+    .sort((a, b) => a.date.localeCompare(b.date) || compareDisplayOrder(a, b)),
 );
 function closeModal() {
   if (modal.value === 'day') {
