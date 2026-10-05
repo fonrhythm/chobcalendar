@@ -1,0 +1,2 @@
+const i18n=require('../../lib/i18n');
+Page({onShow(){this.setData({t:i18n.current()})},data:{t:{},contacts:[{name:'邮箱',value:'chobcalendar@gmail.com'},{name:'小红书',value:'https://xhslink.cn/m/6daqAMGfZbo'},{name:'X',value:'https://x.com/ChobCalendar'},{name:'Threads',value:'https://www.threads.com/@chobcalendar'},{name:'Instagram',value:'https://www.instagram.com/chobcalendar/'}]},copy(e){wx.setClipboardData({data:e.currentTarget.dataset.value})}});

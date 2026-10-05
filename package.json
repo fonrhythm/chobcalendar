@@ -13,6 +13,8 @@
     "format": "prettier --write src tests *.js *.json *.html *.md"
   },
   "dependencies": {
+    "@dicebear/collection": "7.1.2",
+    "@dicebear/core": "7.1.2",
     "@supabase/supabase-js": "2.116.0",
     "firebase": "12.19.0",
     "pinia": "4.0.3",

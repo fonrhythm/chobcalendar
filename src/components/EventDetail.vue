@@ -1,6 +1,4 @@
 <script setup>
-import { artistTypes } from '../utils/artistSelection';
-import { activityLabel } from '../utils/activityTypes';
 import { eventState, dateExplanation } from '../utils/eventState';
 import { computed } from 'vue';
 import { useLanguageStore } from '../stores/language';
@@ -124,26 +122,13 @@ const eventTasks = computed(() =>
         <dt>{{ lang.t.company }}</dt>
         <dd :class="fieldClass('company')">{{ item.company }}</dd>
       </div>
-      <div>
-        <dt>{{ lang.t.category }}</dt>
-        <dd>
-          {{
-            artistTypes(
-              item.artist_types?.length
-                ? item.artist_types
-                : [lang.t[item.category] || item.category],
-            ).join(' · ')
-          }}
-          <template> · {{ activityLabel(item) }}</template>
-        </dd>
-      </div>
       <div v-if="item.contact">
         <dt>{{ lang.t.contact }}</dt>
         <dd>
           {{ item.contact }} <span>{{ item.contact_method }}</span>
         </dd>
       </div>
-      <div v-if="item.participation_label || item.participation_condition">
+      <div v-if="(item.participation_label || item.participation_condition) && !/仅(?:获得|限)资格者/.test(item.participation_label || '')">
         <dt>参与方式</dt>
         <dd>{{ item.participation_label || item.participation_condition }}</dd>
       </div>
@@ -157,8 +142,10 @@ const eventTasks = computed(() =>
       <h4>参与事项</h4>
       <article v-for="task in eventTasks" :key="task.id" class="detail-task">
         <strong>{{ task.activity }}</strong>
+        <span v-if="task.is_closed"> · {{ task.task_type === 'ticketing' ? '已售罄' : task.task_type === 'shopping' ? '已截止' : '已结束' }}</span>
+        <a v-if="task.result_url" :href="task.result_url" target="_blank" rel="noopener noreferrer">查看公示名单 ↗</a>
         <p v-if="task.steps" style="white-space: pre-wrap">{{ task.steps }}</p>
-        <a v-if="task.action_url" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+        <a v-if="task.action_url && !task.is_closed" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
       </article>
     </section>
 

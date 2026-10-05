@@ -1,0 +1,1 @@
+<view class="page"><view class="brand">CHOB CALENDAR</view><view class="card">CHOB 取于泰语的 ชอบ，是「喜欢」的意思。汇集活动资讯，帮助大家不错过想见的人和想去的活动。</view><view class="title">{{t.contact}}</view><view class="card" wx:for="{{contacts}}" wx:key="name" data-value="{{item.value}}" bindtap="copy"><view>{{item.name}}</view><view class="muted">{{item.value}} · {{t.copy}}</view></view></view>

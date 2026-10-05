@@ -1,5 +1,5 @@
 <script setup>
-import { selectionCount } from '../utils/artistSelection';
+import { selectionCount, usesOutline } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { eventState } from '../utils/eventState';
 import { ref, computed } from 'vue';
@@ -42,12 +42,12 @@ const visible = computed(() =>
       :key="entry.id"
       class="day-capsule"
       :class="{
-        official: selectionCount(entry) > 6,
+        official: usesOutline(entry),
         'status-faded': eventState(entry).faded,
       }"
       :style="{
-        '--capsule-color': getCategoryColor(entry.category, entry.region).bg,
-        '--capsule-text': getCategoryColor(entry.category, entry.region).text,
+        '--capsule-color': getCategoryColor('other', entry.region).bg,
+        '--capsule-text': getCategoryColor('other', entry.region).text,
       }"
       :title="entry.name"
       @click="emit('open', entry)"
@@ -62,7 +62,7 @@ const visible = computed(() =>
         >{{ entry.name }}</span
       >
       <span
-        v-if="selectionCount(entry) > 6"
+        v-if="selectionCount(entry) >= 6"
         class="capsule-star"
         :aria-label="lang.t.official"
         >★</span

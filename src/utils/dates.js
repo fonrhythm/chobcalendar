@@ -14,6 +14,7 @@ export function addDays(v, n) {
   return dateKey(d);
 }
 export function occursOn(r, d) {
+  if (r.kind === 'task' && r.is_closed) return false;
   return (
     r.date <= d &&
     (r.end_date ||
@@ -23,6 +24,7 @@ export function occursOn(r, d) {
   );
 }
 export function intersectsMonth(r, m) {
+  if (r.kind === 'task' && r.is_closed) return false;
   const start = m + '-01',
     d = parseDate(start);
   d.setMonth(d.getMonth() + 1);

@@ -1,0 +1,13 @@
+{
+    "appid": "wxf1f32e829893b9f8",
+    "projectname": "Chob Calendar",
+    "compileType": "miniprogram",
+    "miniprogramRoot": "client/",
+    "setting": {
+        "es6": true,
+        "enhance": true,
+        "minified": true,
+        "urlCheck": true,
+        "minifyWXML": true
+    }
+}

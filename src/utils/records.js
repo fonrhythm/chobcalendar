@@ -72,6 +72,8 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
         : source + ':' + raw.event_id
       : '',
     task_type: String(raw.task_type || 'other'),
+    is_closed: raw.is_closed === true,
+    result_url: safeUrl(raw.result_url),
     artist_types: Array.isArray(raw.artist_types) ? raw.artist_types : [],
     artist_selections: Array.isArray(raw.artist_selections)
       ? raw.artist_selections
@@ -84,6 +86,7 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     participation_condition: String(raw.participation_condition || ''),
     participation_label: String(raw.participation_label || ''),
     participation_rules: String(raw.participation_rules || ''),
+    user_task: raw.user_task && typeof raw.user_task === 'object' ? raw.user_task : null,
     action_url: safeUrl(raw.action_url),
     steps: String(raw.steps || ''),
     event_status: String(raw.event_status || raw.status || ''),
@@ -92,6 +95,8 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     pending_fields: Array.isArray(raw.pending_fields) ? raw.pending_fields : [],
     roll_call: raw.roll_call === true,
     recurring_daily: raw.recurring_daily === true,
+    prefer_activity_name: raw.prefer_activity_name === true,
+    event_title: String(raw.event_title || raw.activity || raw.title || ''),
     postponed_to_date: String(raw.postponed_to_date || ''),
     original_date: String(raw.original_date || ''),
     related_event_id: raw.related_event_id

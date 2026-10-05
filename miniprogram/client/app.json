@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/calendar/index",
+    "pages/detail/index",
+    "pages/account/index",
+    "pages/submit/index",
+    "pages/correction/index",
+    "pages/about/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "Chob Calendar",
+    "navigationBarBackgroundColor": "#faf9f7",
+    "backgroundColor": "#faf9f7"
+  },
+  "style": "v2"
+}

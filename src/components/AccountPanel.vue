@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { call } from '../api/supabase';
 import { useAccountStore } from '../stores/account';
 import { useEventsStore } from '../stores/events';
 const props = defineProps({ initialMode: { type: String, default: 'login' } });
@@ -40,6 +41,18 @@ async function auth() {
     working.value = false;
   }
 }
+async function verifyEmail() {
+  if(working.value) return; working.value=true; message.value='';
+  try {await account.resendVerification(account.user?.email || email.value); message.value='如果此邮箱需要验证，将收到验证邮件。请检查收件箱和垃圾邮件，完成验证后再登录。';} catch(e) {message.value=e.message;} finally {working.value=false;}
+}
+async function googleLogin() {
+  if(working.value) return; working.value=true; message.value='';
+  try { await account.loginGoogle(); } catch(e) { message.value=e.message; } finally { working.value=false; }
+}
+async function wechatLink() {
+ if (working.value) return; working.value=true;
+ try { const code=await call('chob_wechat_link_code'); message.value='微信绑定码（5分钟有效，请仅粘贴到 Chob Calendar 小程序）：'+code; try {await navigator.clipboard.writeText(code);} catch {} } catch(e) {message.value=e.message;} finally {working.value=false;}
+}
 async function save() {
   working.value = true;
   try {
@@ -60,7 +73,8 @@ async function save() {
     </p>
     <template v-if="!account.user"
       ><p v-if="!account.configured">账号服务尚未配置。</p>
-      <form v-else @submit.prevent="auth" class="account-form">
+      <div v-else><button type="button" class="pill" :disabled="working" @click="googleLogin">使用 Google 登录</button>
+      <form @submit.prevent="auth" class="account-form">
         <label
           >邮箱<input
             v-model="email"
@@ -75,7 +89,7 @@ async function save() {
               mode === 'login' ? 'current-password' : 'new-password'
             "
             required
-            minlength="8" /></label
+            :minlength="mode === 'register' ? 8 : undefined" /></label
         ><button class="pill active" :disabled="working">
           {{ mode === 'login' ? '登录' : '注册' }}</button
         ><button
@@ -85,11 +99,15 @@ async function save() {
         >
           {{ mode === 'login' ? '注册账号' : '返回登录' }}
         </button>
-      </form></template
+      <button type="button" class="text-button" :disabled="working" @click="verifyEmail">重新发送验证邮件</button>
+      </form></div></template
     ><template v-else-if="account.ready"
-      ><label>昵称<input v-model="account.nickname" maxlength="100" /></label
+      ><h2>个人中心</h2><div v-if="!account.profile?.email_verified" role="status"><p>账号已保留。完成邮箱验证后即可保存资料、收藏和提交内容。</p><button class="pill" :disabled="working" @click="verifyEmail">发送验证邮件</button><button class="text-button" @click="account.refresh">刷新资料</button></div><p class="muted">个人资料和记录不会公开展示。</p>
+      <label>简介<textarea v-model="account.bio" maxlength="500" /></label>
+      <label>昵称<input v-model="account.nickname" maxlength="100" /></label
       ><button class="pill" :disabled="working" @click="save">保存资料</button
       ><button class="text-button" @click="account.logout">退出登录</button>
+      <button class="pill" :disabled="working || !account.profile?.email_verified" @click="wechatLink">生成微信账号绑定码</button>
       <h3>收藏艺人</h3>
       <select v-model="artistKind">
         <option value="all">全部</option>
@@ -119,7 +137,7 @@ async function save() {
       </button>
       <h3>我提交的活动</h3>
       <div v-for="row in account.submissions" :key="row.id" class="task-row">
-        <span>{{ row.title }} · {{ row.date }}</span
+        <span>{{ row.title }} · {{ row.date }} · {{ ({pending:'待审核',published:'已发布',rejected:'未通过',draft:'草稿'})[row.status] || row.status }}</span
         ><button
           :disabled="row.user_edit_count >= 3"
           @click="emit('edit', row)"
@@ -128,6 +146,9 @@ async function save() {
         </button>
       </div>
       <p class="muted">删除活动请联系管理员 @ChobCalendar。</p>
+      <h3>我的纠错</h3>
+      <article v-for="item in account.corrections" :key="item.id" class="message-card"><p>{{ item.content }}</p><p>{{ ({pending:'待处理',resolved:'已处理',rejected:'未采纳'})[item.status] || item.status }}</p><p v-if="item.reply">回复：{{ item.reply }}</p></article>
+      <p v-if="!account.corrections.length" class="muted">暂无纠错记录</p>
       <h3>站内消息</h3>
       <article v-for="m in account.messages" :key="m.id" class="message-card">
         <p>{{ m.content }}</p>
@@ -148,3 +169,8 @@ async function save() {
     >
   </section>
 </template>
+
+<style scoped>
+textarea{width:100%;min-height:80px}
+</style>
+

@@ -1,0 +1,9 @@
+name = "chobcalendar-wechat"
+main = "src/index.js"
+compatibility_date = "2026-10-05"
+# Configure a custom domain before adding it to WeChat request domains.
+# Secrets: WECHAT_APP_ID WECHAT_APP_SECRET SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY IDENTITY_HMAC_SECRET
+[[ratelimits]]
+name = "LOGIN_LIMITER"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }

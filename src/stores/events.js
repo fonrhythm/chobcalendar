@@ -1,3 +1,5 @@
+import { matchesArtistTypes, normalizeSearch } from '../utils/artistFilters';
+import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
 import { normalizeRecord } from '../utils/records';
@@ -11,9 +13,11 @@ import { demoRecords } from '../data/demo';
 import { useViewStore } from './view';
 import { occursOn, intersectsMonth } from '../utils/dates';
 import { sourceRule } from '../utils/sources';
+import { companyOptions, matchesCompany } from '../utils/companyFilter';
 export const useEventsStore = defineStore('events', () => {
   const artistCatalog = ref([]),
     typeCatalog = ref([]),
+    conditionCatalog = ref([]),
     announcements = ref([]),
     personalError = ref(''),
     updates = ref([]);
@@ -51,15 +55,13 @@ export const useEventsStore = defineStore('events', () => {
     inRegion = computed(() =>
       records.value.filter((r) => r.region === view.currentRegion),
     );
-  const companies = computed(() =>
-    [...new Set(inRegion.value.map((r) => r.company).filter(Boolean))].sort(),
-  );
+  const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>
     inRegion.value.filter((r) => {
-      const q = view.query.trim().toLowerCase();
+      const q = normalizeSearch(view.query);
       return (
-        (!view.companies.length || view.companies.includes(r.company)) &&
-        (!view.categories.length || view.categories.includes(r.category)) &&
+        matchesCompany(r, artistCatalog.value, view.companies) &&
+        matchesArtistTypes(r, artistCatalog.value, view.categories) &&
         (!view.activityTypes.length ||
           view.activityTypes.includes(
             activityCategory(
@@ -77,28 +79,22 @@ export const useEventsStore = defineStore('events', () => {
           ) ||
           favoriteArtists.value.includes('name:' + r.name)) &&
         (!q ||
-          [r.name, r.activity, r.venue, r.city, r.company, r.note]
-            .join(' ')
-            .toLowerCase()
+          normalizeSearch([r.name, r.activity, r.venue, r.city, r.company, r.note].join(' '))
             .includes(q))
       );
     }),
   );
   const events = computed(() =>
-      filtered.value.filter((r) => r.kind === 'event'),
+      filtered.value.filter((r) => r.kind === 'event').sort(compareDisplayOrder),
     ),
-    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task'));
+    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task' && !r.is_closed));
   const monthEvents = computed(() =>
     events.value.filter((r) => intersectsMonth(r, view.month)),
   );
   function onDate(day, kind = 'event') {
     return (kind === 'task' ? tasks.value : events.value)
       .filter((r) => occursOn(r, day))
-      .sort(
-        (a, b) =>
-          (a.time || '99').localeCompare(b.time || '99') ||
-          a.name.localeCompare(b.name),
-      );
+      .sort(compareDisplayOrder);
   }
   async function toggleFavorite(id) {
     const before = [...favorites.value];
@@ -207,6 +203,13 @@ export const useEventsStore = defineStore('events', () => {
         event_id: null,
       },
     ];
+    conditionCatalog.value = [
+      { code: 'unrestricted', name: '无限制' },
+      { code: 'ticket', name: '购票' },
+      { code: 'shopping', name: '购物名额' },
+      { code: 'top_spender_lucky_fans', name: 'Top Spender/Lucky Fans' },
+      { code: 'registration', name: '填报' },
+    ];
     myItems.value = records.value
       .filter((r) => r.kind === 'event' && r.date === dateKey(new Date()))
       .filter((r, i) => i % 4 === 3)
@@ -249,6 +252,7 @@ export const useEventsStore = defineStore('events', () => {
           name: eventDisplayName(event, feed.artists),
         }));
         typeCatalog.value = feed.types;
+        conditionCatalog.value = (feed.conditions || []).filter((condition) => !/仅(?:获得|限)资格者/.test(condition.name || ''));
         announcements.value = feed.announcements;
       } else incoming = await fetchRecords(controller.signal);
       const baseline = Object.keys(previousVersions).length > 0;
@@ -362,6 +366,7 @@ export const useEventsStore = defineStore('events', () => {
   return {
     artistCatalog,
     typeCatalog,
+    conditionCatalog,
     announcements,
     personalError,
     updates,

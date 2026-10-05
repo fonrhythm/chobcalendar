@@ -1,0 +1,1 @@
+App({globalData:{feed:null},onLaunch(){this.globalData.feed=wx.getStorageSync('chob-feed')||null}});

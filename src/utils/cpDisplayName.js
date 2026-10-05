@@ -1,19 +1,19 @@
 export function eventDisplayName(event, catalog) {
-  if (event.kind !== 'event' || !event.artist_ids?.length) return event.name;
+  if (event.prefer_activity_name && (event.event_title || event.activity)?.trim()) return (event.event_title || event.activity).trim();
+  if (!event.artist_ids?.length) return event.name;
   const byId = new Map(catalog.map((artist) => [artist.id, artist]));
   const selections = event.artist_selections || [];
-  const selectedPairs = selections
-    .filter((id) => String(id).startsWith('cp:'))
+  const selectedCollectives = selections
     .map((id) => byId.get(id))
-    .filter(Boolean);
+    .filter((artist) => artist && (artist.member_ids?.length || artist.group_member_ids?.length));
   const pairs = catalog.filter(
     (artist) =>
       String(artist.id).startsWith('cp:') &&
       artist.member_ids?.length === 2 &&
       artist.member_ids.every((id) => event.artist_ids.includes(id)),
   );
-  const chosen = [...selectedPairs];
-  const covered = new Set(chosen.flatMap((pair) => pair.member_ids || []));
+  const chosen = [...selectedCollectives];
+  const covered = new Set(chosen.flatMap((artist) => artist.member_ids || artist.group_member_ids || []));
   // Older events store CP membership but omit artist_selections. The count
   // records how many people/CPs were selected, so only collapse that many pairs.
   if (!selections.length && Number.isFinite(event.artist_count)) {
@@ -24,13 +24,27 @@ export function eventDisplayName(event, catalog) {
       chosen.push(pair);
       pair.member_ids.forEach((id) => covered.add(id));
     }
-    if (chosen.length !== needed) return event.name;
+    if (chosen.length !== needed) {
+      chosen.length = 0;
+      covered.clear();
+    }
+  }
+  if (!selections.length && !chosen.length) {
+    const exact = catalog.find((artist) => {
+      const members = artist.member_ids || artist.group_member_ids || [];
+      return members.length > 1 && members.length === event.artist_ids.length &&
+        members.every((id) => event.artist_ids.includes(id));
+    });
+    if (exact) {
+      chosen.push(exact);
+      (exact.member_ids || exact.group_member_ids).forEach((id) => covered.add(id));
+    }
   }
   if (!chosen.length) return event.name;
   const labels = [
     ...chosen.map((pair) => pair.name),
     ...selections
-      .filter((id) => !String(id).startsWith('cp:'))
+      .filter((id) => !chosen.some((artist) => artist.id === id))
       .map((id) => byId.get(id)?.name)
       .filter(Boolean),
     ...event.artist_ids
