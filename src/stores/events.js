@@ -3,7 +3,7 @@ import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
 import { normalizeRecord } from '../utils/records';
-import { eventDisplayName } from '../utils/cpDisplayName';
+import { eventDisplayName, eventArtistDisplayName, prefersActivityTitle } from '../utils/cpDisplayName';
 import { useAccountStore } from './account';
 import { dateKey } from '../utils/dates';
 import { defineStore } from 'pinia';
@@ -249,6 +249,8 @@ export const useEventsStore = defineStore('events', () => {
         artistCatalog.value = feed.artists;
         incoming = incoming.map((event) => ({
           ...event,
+          attendee_names: eventArtistDisplayName(event, feed.artists),
+          prefer_activity_name: prefersActivityTitle(event, feed.artists),
           name: eventDisplayName(event, feed.artists),
         }));
         typeCatalog.value = feed.types;

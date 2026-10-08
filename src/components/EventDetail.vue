@@ -1,4 +1,5 @@
 <script setup>
+import { eventArtistDisplayName } from "../utils/cpDisplayName";
 import { eventState, dateExplanation } from '../utils/eventState';
 import { computed } from 'vue';
 import { useLanguageStore } from '../stores/language';
@@ -15,6 +16,7 @@ const state = computed(() => eventState(props.item));
 const fieldClass = (field) => ({
   'unverified-field': props.item.pending_fields?.includes(field),
 });
+const attendees = computed(() => props.item.attendee_names || eventArtistDisplayName({ ...props.item, name: (props.item.artist_names?.length ? props.item.artist_names : (props.item.artist_ids || []).map(id => data.artistCatalog.find(a => a.id === id)?.name).filter(Boolean)).join(" / ") }, data.artistCatalog));
 const images = computed(() => imageUrls(props.item.images));
 const link = computed(() => safeUrl(props.item.link));
 const linkHost = computed(() =>
@@ -58,6 +60,7 @@ const eventTasks = computed(() =>
       {{ item.activity }}
     </p>
     <dl>
+      <div v-if="attendees"><dt>出席艺人</dt><dd>{{ attendees }}</dd></div>
       <div>
         <dt>{{ lang.t.dateLabel }}</dt>
         <dd>
