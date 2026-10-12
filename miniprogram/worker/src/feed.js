@@ -40,6 +40,15 @@ export default {
       } catch { return reply({error:'Invalid JSON'},400); }
     }
     try {
+      // Cache only the identical public feed, after checking the IP limiter.
+      // Never cache account data, incoming headers, or failed upstream responses.
+      const cache = typeof caches !== 'undefined' ? caches.default : null;
+      const cacheUrl = new URL('/__public_feed_cache_v1', request.url);
+      cacheUrl.searchParams.set('project', env.SUPABASE_URL);
+      const cacheKey = new Request(cacheUrl, {method:'GET'});
+      if (cache) {
+        try { const hit=await cache.match(cacheKey); if(hit) return reply(await hit.json(),200); } catch {}
+      }
       const upstream = await fetch(env.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/rpc/chob_public_feed', {
         method:'POST', headers:{'Content-Type':'application/json',apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY},
         body:'{}', signal:AbortSignal.timeout(15000), redirect:'manual'
@@ -51,6 +60,9 @@ export default {
       }
       const feed = await upstream.json();
       if (!feed || !Array.isArray(feed.records) || !Array.isArray(feed.artists)) return reply({error:'Invalid feed response'},502);
+      if (cache) {
+        try { await cache.put(cacheKey,new Response(JSON.stringify(feed),{headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=30'}})); } catch {}
+      }
       return reply(feed,200);
     } catch (error) { console.log(JSON.stringify({scope:'public_feed',event:'request_failed',kind:['TimeoutError','TypeError','SyntaxError'].includes(error?.name)?error.name:'upstream_exception',redirect_error:/redirect/i.test(error?.message||''),header_error:/header/i.test(error?.message||''),url_error:/url/i.test(error?.message||'')})); return reply({error:'Feed temporarily unavailable'},502); }
   }
