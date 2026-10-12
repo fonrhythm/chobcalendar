@@ -36,6 +36,7 @@ jobs:
         env:
           VITE_BASE_PATH: /chobcalendar/
           VITE_DATA_SOURCE: supabase
+          VITE_PUBLIC_FEED_URL: ${{ vars.VITE_PUBLIC_FEED_URL }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
