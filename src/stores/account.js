@@ -68,6 +68,9 @@ export const useAccountStore = defineStore('account', () => {
       events.favorites = s.data?.favorites || [];
       events.favoriteArtists = s.data?.artist_favorites || [];
       events.myItems = s.data?.items || [];
+      try{await events.ensureRecords([...events.favorites,...events.myItems])}catch(e){events.personalError=e.message}
+      try{await events.ensureArtists(events.favoriteArtists)}catch(e){events.catalogError=e.message}
+      if(seq!==sequence)return;
       ready.value = true;
     } catch (e) {
       if (seq === sequence)

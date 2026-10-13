@@ -67,14 +67,13 @@ const eventTasks = computed(() =>
           <span :class="fieldClass('date')">{{ dateExplanation(item) }}</span
           ><button
             v-if="
-              item.related_event_id &&
-              data.records.some((r) => r.id === item.related_event_id)
+              item.related_event_id
             "
             class="text-button"
             @click="
               emit(
                 'open',
-                data.records.find((r) => r.id === item.related_event_id),
+                data.records.find((r) => r.id === item.related_event_id)||{id:item.related_event_id},
               )
             "
           >

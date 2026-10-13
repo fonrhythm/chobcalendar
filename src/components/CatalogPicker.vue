@@ -1,13 +1,14 @@
 <script setup>
 import { normalizeSearch } from '../utils/artistFilters';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 const props = defineProps({
     catalog: { type: Array, default: () => [] },
     modelValue: { type: Array, default: () => [] },
   }),
-  emit = defineEmits(['update:modelValue']);
+  emit = defineEmits(['update:modelValue','search']);
 const query = ref(''),
   open = ref(false);
+watch(query,(value,old,onCleanup)=>{const timer=setTimeout(()=>emit('search',value),350);onCleanup(()=>clearTimeout(timer))});
 const candidates = computed(() =>
   props.catalog
     .filter(
@@ -38,7 +39,7 @@ function choose(id) {
       >艺人名称 <small>可多选</small
       ><input
         v-model="query"
-        placeholder="输入名称搜索，或点击选择 ▾"
+        placeholder="输入至少两个字符搜索艺人 ▾"
         @focus="open = true"
         @click="open = true"
         @input="open = true"

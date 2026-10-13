@@ -116,7 +116,12 @@ const modalTitle = computed(() =>
             ? lang.t.add
             : '关于 chob·calendar',
 );
-function open(itemValue) {
+let openRevision=0;
+async function open(itemValue) {
+  if(!itemValue?.id)return;
+  const revision=++openRevision;
+  try{await data.ensureRecords([itemValue.kind==='task'?itemValue.event_id:itemValue.id]);itemValue=data.records.find(r=>r.id===itemValue.id)||itemValue}catch(e){data.personalError=e.message;return}
+  if(revision!==openRevision)return;
   fromDay.value =
     modal.value === 'day' || (modal.value === 'event' && fromDay.value);
   item.value = itemValue;
@@ -147,6 +152,7 @@ function openDay(value) {
   modal.value = 'day';
 }
 let timer;
+watch(()=>view.month,()=>data.sync());
 function onVisible() {
   if (!document.hidden && !data.preview) data.sync();
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { call } from '../api/supabase';
 import { useAccountStore } from '../stores/account';
 import { useEventsStore } from '../stores/events';
@@ -13,15 +13,17 @@ const emit = defineEmits(['edit', 'open']),
   message = ref(''),
   working = ref(false),
   artistKind = ref('all');
+const artistQuery=ref('');
+watch(artistQuery,(q,old,onCleanup)=>{const timer=setTimeout(()=>data.searchArtists(q),350);onCleanup(()=>clearTimeout(timer))});
 const artists = computed(() =>
   data.artistCatalog.filter(
     (a) =>
-      artistKind.value === 'all' ||
+      (!artistQuery.value||a.name.toLowerCase().includes(artistQuery.value.toLowerCase()))&&(artistKind.value === 'all' ||
       (artistKind.value === 'person'
         ? !a.group_kind && !(a.categories || []).includes('CP')
         : artistKind.value === 'cp'
           ? (a.categories || []).includes('CP')
-          : a.group_kind === artistKind.value),
+          : a.group_kind === artistKind.value)),
   ),
 );
 async function auth() {
@@ -109,6 +111,8 @@ async function save() {
       ><button class="text-button" @click="account.logout">退出登录</button>
       <button class="pill" :disabled="working || !account.profile?.email_verified" @click="wechatLink">生成微信账号绑定码</button>
       <h3>收藏艺人</h3>
+      <label>搜索艺人<input v-model="artistQuery" placeholder="输入至少两个字符" /></label>
+      <p v-if="data.catalogError" role="alert">{{data.catalogError}}</p>
       <select v-model="artistKind">
         <option value="all">全部</option>
         <option value="person">个人艺人</option>

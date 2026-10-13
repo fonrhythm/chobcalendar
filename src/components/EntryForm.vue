@@ -242,7 +242,9 @@ defineExpose({ requestClose });
         v-if="!unmatched"
         v-model="selectedArtists"
         :catalog="data.artistCatalog"
+        @search="data.searchArtists"
       />
+      <p v-if="data.catalogError" role="alert">{{data.catalogError}}</p>
       <label class="profile-artist"
         >没有匹配的艺人，自行填写<input v-model="unmatched" type="checkbox"
       /></label>

@@ -8,6 +8,7 @@ import { useAccountStore } from './account';
 import { dateKey } from '../utils/dates';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import {feedWindow,loadFeedPages} from '../utils/feedWindow';
 import { endpoint, fetchRecords } from '../api/appsScriptService';
 import { demoRecords } from '../data/demo';
 import { useViewStore } from './view';
@@ -223,13 +224,33 @@ export const useEventsStore = defineStore('events', () => {
     view.resetFilters();
     view.today();
   }
-  let inFlight = false;
+  let inFlight = false, syncRevision=0, activeKey='', activeController;
+  const catalogError=ref('');
+  function mergeArtists(artists){const all=new Map(artistCatalog.value.map(a=>[a.id,a]));for(const a of artists||[])all.set(a.id,a);artistCatalog.value=[...all.values()]}
+  async function searchArtists(query){
+    if(demoMode||!useSupabaseFeed||query.trim().length<2)return;
+    catalogError.value='';
+    try{const feed=await call('chob_public_feed',{artist_query:query.trim()});mergeArtists(feed.artists)}catch(e){catalogError.value=e.message}
+  }
+  async function ensureRecords(ids){
+    if(demoMode||!useSupabaseFeed)return;
+    const valid=[...new Set(ids.filter(id=>typeof id==='string'&&id.startsWith('supabase:')).map(id=>id.slice(9)))];
+    for(let i=0;i<valid.length;i+=20){const feed=await call('chob_public_feed',{ids:valid.slice(i,i+20)});mergeArtists(feed.artists);const incoming=feed.records.map((r,index)=>{const e=normalizeRecord(r,index,'supabase');return {...e,attendee_names:eventArtistDisplayName(e,artistCatalog.value),prefer_activity_name:prefersActivityTitle(e,artistCatalog.value),name:eventDisplayName(e,artistCatalog.value)}});const all=new Map(records.value.map(r=>[r.id,r]));for(const r of incoming)all.set(r.id,r);records.value=[...all.values()]}
+  }
+  async function ensureArtists(ids){
+    if(demoMode||!useSupabaseFeed)return;
+    const valid=ids.filter(id=>typeof id==='string'&&/^(cp:)?[0-9a-f-]{36}$/i.test(id));
+    for(let i=0;i<valid.length;i+=20){const feed=await call('chob_public_feed',{artist_ids:valid.slice(i,i+20)});mergeArtists(feed.artists)}
+  }
   async function sync() {
     if (demoMode) {
       showDemo();
       return;
     }
-    if (inFlight) return;
+    const window=feedWindow(view.month),key=JSON.stringify(window);
+    if (inFlight&&activeKey===key) return;
+    activeController?.abort();
+    const revision=++syncRevision;activeKey=key;
     if (!sourceKey) {
       if (!preview.value) status.value = 'unconfigured';
       return;
@@ -239,14 +260,16 @@ export const useEventsStore = defineStore('events', () => {
     error.value = '';
     const controller = new AbortController(),
       timeout = setTimeout(() => controller.abort(), 60000);
+    activeController=controller;
     try {
       let incoming;
       if (useSupabaseFeed) {
-        const feed = await call('chob_public_feed', {}, controller.signal);
+        const feed = await loadFeedPages(call,window,controller.signal);
+        if(revision!==syncRevision)return;
         incoming = feed.records.map((r, i) =>
           normalizeRecord(r, i, 'supabase'),
         );
-        artistCatalog.value = feed.artists;
+        mergeArtists(feed.artists);
         incoming = incoming.map((event) => ({
           ...event,
           attendee_names: eventArtistDisplayName(event, feed.artists),
@@ -258,6 +281,8 @@ export const useEventsStore = defineStore('events', () => {
         announcements.value = feed.announcements;
       } else incoming = await fetchRecords(controller.signal);
       const baseline = Object.keys(previousVersions).length > 0;
+      const existing=new Map(records.value.map(r=>[r.id,r]));
+      incoming=incoming.map(r=>({...existing.get(r.id),...r}));
       updates.value = incoming
         .filter(
           (r) =>
@@ -267,7 +292,9 @@ export const useEventsStore = defineStore('events', () => {
             previousVersions[r.id] !== version(r),
         )
         .map((r) => r.id);
-      records.value = incoming;
+      const saved=new Set([...favorites.value,...myItems.value]);
+      const fresh=new Set(incoming.map(r=>r.id));
+      records.value = [...incoming,...records.value.filter(r=>saved.has(r.id)&&!fresh.has(r.id))];
       for (const r of incoming)
         if (!updates.value.includes(r.id)) previousVersions[r.id] = version(r);
       persistSeen();
@@ -276,15 +303,17 @@ export const useEventsStore = defineStore('events', () => {
       status.value = 'synced';
       try {
         localStorage.setItem(
-          'chob-cache-v2',
+          'chob-cache-v3',
           JSON.stringify({
             endpoint: sourceKey,
+            window:key,
             records: records.value,
             updatedAt: updatedAt.value,
           }),
         );
       } catch {}
     } catch (e) {
+      if(revision!==syncRevision)return;
       error.value =
         e.name === 'AbortError'
           ? '读取超时，请稍后重试。'
@@ -296,7 +325,7 @@ export const useEventsStore = defineStore('events', () => {
           : 'error';
     } finally {
       clearTimeout(timeout);
-      inFlight = false;
+      if(revision===syncRevision)inFlight = false;
     }
   }
   function version(r) {
@@ -337,9 +366,10 @@ export const useEventsStore = defineStore('events', () => {
     }
     if (sourceKey)
       try {
-        const c = JSON.parse(localStorage.getItem('chob-cache-v2') || 'null');
+        const c = JSON.parse(localStorage.getItem('chob-cache-v3') || 'null');
         if (
           c?.endpoint === sourceKey &&
+          c.window===JSON.stringify(feedWindow(view.month))&&
           Array.isArray(c.records) &&
           c.records.every(
             (r) =>
@@ -366,6 +396,7 @@ export const useEventsStore = defineStore('events', () => {
     sync();
   }
   return {
+    searchArtists,ensureRecords,ensureArtists,catalogError,
     artistCatalog,
     typeCatalog,
     conditionCatalog,

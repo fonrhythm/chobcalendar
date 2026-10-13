@@ -1,4 +1,5 @@
-// Only this fixed RPC is reachable. Never proxy a user-supplied URL or RPC name.
+import {parseQuery,projectFeed} from './feedQuery.js';
+// The full feed stays on the server; every response is bounded and projected.
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -22,23 +23,25 @@ export default {
       const result = await env.FEED_LIMITER.limit({key:'feed:' + ip});
       if (!result.success) return reply({error:'请求过于频繁，请稍后再试。'},429,{'Retry-After':'60'});
     } catch { return reply({error:'Feed temporarily unavailable'},503); }
-    // No query parameters accepted; cap and cancel streaming oversized bodies.
+    let args = {};
+    // Cap and cancel streaming oversized bodies; no all/export/RPC parameters.
     if (request.body) {
       const reader = request.body.getReader(); let bytes=0, chunks=[];
       while (true) {
         const {done,value} = await reader.read(); if (done) break;
         bytes += value.byteLength;
-        if (bytes > 128) { await reader.cancel(); return reply({error:'Request too large'},413); }
+        if (bytes > 2048) { await reader.cancel(); return reply({error:'Request too large'},413); }
         chunks.push(value);
       }
       try {
         const body = new Uint8Array(bytes); let offset=0;
         for (const chunk of chunks) { body.set(chunk,offset); offset+=chunk.length; }
         const raw = new TextDecoder().decode(body);
-        const args = raw ? JSON.parse(raw) : {};
-        if (!args || Array.isArray(args) || typeof args !== 'object' || Object.keys(args).length) return reply({error:'Invalid parameters'},400);
+        args = raw ? JSON.parse(raw) : {};
       } catch { return reply({error:'Invalid JSON'},400); }
     }
+    let query;
+    try { query=parseQuery(args); } catch(error) { return reply({error:error.message},400); }
     try {
       // Cache only the identical public feed, after checking the IP limiter.
       // Never cache account data, incoming headers, or failed upstream responses.
@@ -47,7 +50,7 @@ export default {
       cacheUrl.searchParams.set('project', env.SUPABASE_URL);
       const cacheKey = new Request(cacheUrl, {method:'GET'});
       if (cache) {
-        try { const hit=await cache.match(cacheKey); if(hit) return reply(await hit.json(),200); } catch {}
+        try { const hit=await cache.match(cacheKey); if(hit) return reply(projectFeed(await hit.json(),query),200); } catch {}
       }
       const upstream = await fetch(env.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/rpc/chob_public_feed', {
         method:'POST', headers:{'Content-Type':'application/json',apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY},
@@ -63,7 +66,7 @@ export default {
       if (cache) {
         try { await cache.put(cacheKey,new Response(JSON.stringify(feed),{headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=30'}})); } catch {}
       }
-      return reply(feed,200);
+      return reply(projectFeed(feed,query),200);
     } catch (error) { console.log(JSON.stringify({scope:'public_feed',event:'request_failed',kind:['TimeoutError','TypeError','SyntaxError'].includes(error?.name)?error.name:'upstream_exception',redirect_error:/redirect/i.test(error?.message||''),header_error:/header/i.test(error?.message||''),url_error:/url/i.test(error?.message||'')})); return reply({error:'Feed temporarily unavailable'},502); }
   }
 };
