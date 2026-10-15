@@ -4,7 +4,7 @@ account_id = "b705cb9977e24f8762b18256ea577d6c"
 compatibility_date = "2026-10-05"
 keep_vars = true
 [vars]
-ALLOWED_ORIGINS = "https://fonrhythm.github.io,https://chobcalendar.com,https://www.chobcalendar.com"
+ALLOWED_ORIGINS = "https://fonrhythm.github.io,https://chobcalendar.com,https://www.chobcalendar.com,https://chobcalendar.pages.dev"
 [[ratelimits]]
 name = "LOGIN_LIMITER"
 namespace_id = "1001"
