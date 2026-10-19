@@ -50,11 +50,12 @@ function normalizeRecord(raw, index = 0, source = 'sheet') {
       'band',
       'singer',
       'group',
+      'ensemble',
       'actor',
       'music',
       'other',
     ],
-    category = cats.includes(String(raw.category).toLowerCase())
+    category = String(raw.category).trim() === '组合' ? 'ensemble' : cats.includes(String(raw.category).toLowerCase())
       ? String(raw.category).toLowerCase()
       : 'other';
   return {

@@ -34,6 +34,8 @@ const THAILAND_COLORS = {
   // 分类颜色 - 组合 (Group)
   'c-group': '#6e8dbb',
   't-group': '#fff',
+  'c-ensemble': '#536f6a',
+  't-ensemble': '#fff',
 
   // 分类颜色 - 演员 (Actor)
   'c-actor': '#d0c5af',
@@ -70,6 +72,8 @@ const CHINA_COLORS = {
   // 分类颜色 - 音乐
   'c-music': '#B5ACA3',
   't-music': '#fff',
+  'c-ensemble': '#866d75',
+  't-ensemble': '#fff',
 
   // 分类颜色 - 其他
   'c-other': '#F5E6D1',
@@ -106,6 +110,8 @@ const OVERSEA_COLORS = {
   // 分类颜色 - 组合
   'c-group': '#907C6C',
   't-group': '#fff',
+  'c-ensemble': '#657467',
+  't-ensemble': '#fff',
 
   // 分类颜色 - 演员
   'c-actor': '#C9BEAD',
@@ -185,13 +191,14 @@ function getFanChipStyle(category, region = 'thailand') {
 function normalizeCategory(rawCategory, region = 'thailand') {
   if (!rawCategory) return 'other'
 
-  const normalized = rawCategory.toLowerCase().trim()
+  const value = rawCategory.toLowerCase().trim()
+  const normalized = value === '组合' ? 'ensemble' : value
 
   // 直接返回已知分类
   const validCategories = {
-    thailand: ['bl', 'gl', 'band', 'singer', 'group', 'actor', 'other'],
-    china: ['bl', 'gl', 'actor', 'music', 'other'],
-    oversea: ['bl', 'gl', 'band', 'singer', 'group', 'actor', 'other'],
+    thailand: ['bl', 'gl', 'band', 'singer', 'group', 'ensemble', 'actor', 'other'],
+    china: ['bl', 'gl', 'ensemble', 'actor', 'music', 'other'],
+    oversea: ['bl', 'gl', 'band', 'singer', 'group', 'ensemble', 'actor', 'other'],
   }
 
   if (validCategories[region]?.includes(normalized)) {
