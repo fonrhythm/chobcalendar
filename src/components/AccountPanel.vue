@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { call } from '../api/supabase';
 import { useAccountStore } from '../stores/account';
 import { useEventsStore } from '../stores/events';
+import { artistTypeKeys } from '../utils/artistFilters';
 const props = defineProps({ initialMode: { type: String, default: 'login' } });
 const emit = defineEmits(['edit', 'open']),
   account = useAccountStore(),
@@ -23,7 +24,9 @@ const artists = computed(() =>
         ? !a.group_kind && !(a.categories || []).includes('CP')
         : artistKind.value === 'cp'
           ? (a.categories || []).includes('CP')
-          : a.group_kind === artistKind.value)),
+          : ['idol', 'group'].includes(artistKind.value)
+            ? artistTypeKeys(a).includes(artistKind.value)
+            : a.group_kind === artistKind.value)),
   ),
 );
 async function auth() {
@@ -117,6 +120,7 @@ async function save() {
         <option value="all">全部</option>
         <option value="person">个人艺人</option>
         <option value="cp">CP</option>
+        <option value="idol">男女团</option>
         <option value="group">组合</option>
         <option value="band">乐队</option>
       </select>

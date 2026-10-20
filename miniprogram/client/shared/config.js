@@ -31,11 +31,11 @@ const THAILAND_COLORS = {
   'c-singer': '#c4b59c',
   't-singer': '#fff',
 
-  // 分类颜色 - 组合 (Group)
-  'c-group': '#6e8dbb',
+  // 分类颜色 - 唱跳偶像 (Idol)
+  'c-idol': '#6e8dbb',
+  't-idol': '#fff',
+  'c-group': '#536f6a',
   't-group': '#fff',
-  'c-ensemble': '#536f6a',
-  't-ensemble': '#fff',
 
   // 分类颜色 - 演员 (Actor)
   'c-actor': '#d0c5af',
@@ -72,8 +72,10 @@ const CHINA_COLORS = {
   // 分类颜色 - 音乐
   'c-music': '#B5ACA3',
   't-music': '#fff',
-  'c-ensemble': '#866d75',
-  't-ensemble': '#fff',
+  'c-idol': '#B5ACA3',
+  't-idol': '#fff',
+  'c-group': '#866d75',
+  't-group': '#fff',
 
   // 分类颜色 - 其他
   'c-other': '#F5E6D1',
@@ -107,11 +109,11 @@ const OVERSEA_COLORS = {
   'c-singer': '#674b3f',
   't-singer': '#fff',
 
-  // 分类颜色 - 组合
-  'c-group': '#907C6C',
+  // 分类颜色 - 唱跳偶像
+  'c-idol': '#907C6C',
+  't-idol': '#fff',
+  'c-group': '#657467',
   't-group': '#fff',
-  'c-ensemble': '#657467',
-  't-ensemble': '#fff',
 
   // 分类颜色 - 演员
   'c-actor': '#C9BEAD',
@@ -140,7 +142,7 @@ function getColorsByRegion(region = 'thailand') {
 
 /**
  * 获取分类的背景色和文字色
- * @param {string} category - 分类 'bl' | 'gl' | 'band' | 'singer' | 'group' | 'actor' | 'other' | 'music'
+ * @param {string} category - 分类 'bl' | 'gl' | 'band' | 'singer' | 'idol' | 'group' | 'actor' | 'other' | 'music'
  * @param {string} region - 地区
  * @returns {object} { bg, text }
  */
@@ -185,20 +187,20 @@ function getFanChipStyle(category, region = 'thailand') {
 /**
  * 转换数据库字段到前端分类
  * 可能的分类映射：
- * Thailand/Oversea: 'bl' | 'gl' | 'band' | 'singer' | 'group' | 'actor' | 'other'
+ * Thailand/Oversea: 'bl' | 'gl' | 'band' | 'singer' | 'idol' | 'group' | 'actor' | 'other'
  * China: 'bl' | 'gl' | 'actor' | 'music' | 'other'
  */
 function normalizeCategory(rawCategory, region = 'thailand') {
   if (!rawCategory) return 'other'
 
-  const value = rawCategory.toLowerCase().trim()
-  const normalized = value === '组合' ? 'ensemble' : value
+  const value = String(rawCategory).toLowerCase().trim()
+  const normalized = ({ 男女团: 'idol', goup: 'idol', 组合: 'group', ensemble: 'group' })[value] || value
 
   // 直接返回已知分类
   const validCategories = {
-    thailand: ['bl', 'gl', 'band', 'singer', 'group', 'ensemble', 'actor', 'other'],
-    china: ['bl', 'gl', 'ensemble', 'actor', 'music', 'other'],
-    oversea: ['bl', 'gl', 'band', 'singer', 'group', 'ensemble', 'actor', 'other'],
+    thailand: ['bl', 'gl', 'band', 'singer', 'idol', 'group', 'actor', 'other'],
+    china: ['bl', 'gl', 'idol', 'group', 'actor', 'music', 'other'],
+    oversea: ['bl', 'gl', 'band', 'singer', 'idol', 'group', 'actor', 'other'],
   }
 
   if (validCategories[region]?.includes(normalized)) {

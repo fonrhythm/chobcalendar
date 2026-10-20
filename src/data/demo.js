@@ -25,13 +25,13 @@ export function demoRecords() {
     'gl',
     'band',
     'singer',
-    'group',
+    'idol',
     'actor',
-    'group',
+    'idol',
     'bl',
     'gl',
     'singer',
-    'group',
+    'idol',
     'gl',
   ];
   for (const region of ['thailand', 'china', 'oversea']) {
@@ -55,7 +55,7 @@ export function demoRecords() {
               : ['demo-entity-' + n],
           artist_types: i % 2 ? ['演员', '歌手'] : ['CP', '演员'],
           category:
-            region === 'china' && ['band', 'singer', 'group'].includes(cats[n])
+            region === 'china' && ['band', 'singer', 'idol', 'group'].includes(cats[n])
               ? 'music'
               : cats[n],
           date: `${month}-${String(day).padStart(2, '0')}`,

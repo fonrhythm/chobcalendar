@@ -303,7 +303,7 @@ export const useEventsStore = defineStore('events', () => {
       status.value = 'synced';
       try {
         localStorage.setItem(
-          'chob-cache-v3',
+          'chob-cache-v4',
           JSON.stringify({
             endpoint: sourceKey,
             window:key,
@@ -366,7 +366,7 @@ export const useEventsStore = defineStore('events', () => {
     }
     if (sourceKey)
       try {
-        const c = JSON.parse(localStorage.getItem('chob-cache-v3') || 'null');
+        const c = JSON.parse(localStorage.getItem('chob-cache-v4') || 'null');
         if (
           c?.endpoint === sourceKey &&
           c.window===JSON.stringify(feedWindow(view.month))&&

@@ -1,10 +1,10 @@
-import { selectionCount, artistTypes } from "./artistSelection.js";
+import { selectionCount, selectionTypes } from "./artistSelection.js";
 
 export function prefersActivityTitle(event, catalog = []) {
   const ids = event.artist_selections?.length ? event.artist_selections : event.artist_ids || [];
   const selected = catalog.filter(a => ids.includes(a.id));
   const companies = new Set(selected.map(a => String(a.company || "").trim()).filter(Boolean));
-  const types = new Set(selected.map(a => artistTypes([...(a.categories || []), a.group_kind].filter(Boolean)).sort().join("|")).filter(Boolean));
+  const types = new Set(selected.map(a => selectionTypes([a], [a.id]).sort().join("|")).filter(Boolean));
   return event.prefer_activity_name === true || selectionCount(event) >= 6 ||
     (selectionCount(event) >= 3 && (companies.size > 1 || types.size > 1));
 }

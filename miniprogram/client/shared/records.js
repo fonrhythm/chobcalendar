@@ -50,13 +50,15 @@ function normalizeRecord(raw, index = 0, source = 'sheet') {
       'band',
       'singer',
       'group',
-      'ensemble',
+      'idol',
       'actor',
       'music',
       'other',
     ],
-    category = String(raw.category).trim() === '组合' ? 'ensemble' : cats.includes(String(raw.category).toLowerCase())
-      ? String(raw.category).toLowerCase()
+    categoryValue = String(raw.category || '').trim().toLowerCase(),
+    categoryAlias = ({ 男女团: 'idol', goup: 'idol', 组合: 'group', ensemble: 'group' })[categoryValue] || categoryValue,
+    category = cats.includes(categoryAlias)
+      ? categoryAlias
       : 'other';
   return {
     id: `${source}:${String(raw.id || `${region}-${date}-${index}`)}`,

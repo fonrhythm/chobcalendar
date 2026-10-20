@@ -17,7 +17,7 @@ async function load(force=false,options){
   const catalog=[...artists.values()],incoming=raw.map((r,i)=>{const e=normalizeRecord(r,i,'supabase');return {...e,name:eventDisplayName(e,catalog)}}),ids=new Set(incoming.map(r=>r.id));
   const retained=current.records.filter(r=>!ids.has(r.id)&&(!range||r.date&&(r.date>args.end||(r.end_date||r.date)<args.start)));
   const feed={...current,...meta,records:[...retained,...incoming],artists:catalog,announcements:[...notices.values()],queryKey:range?key:current.queryKey};
-  if(!range||revision===rangeRevision){app.globalData.feed=feed;if(range)app.globalData.feedWindow=args;wx.setStorageSync('chob-feed-v2',feed)}
+  if(!range||revision===rangeRevision){app.globalData.feed=feed;if(range)app.globalData.feedWindow=args;wx.setStorageSync('chob-feed-v3',feed)}
   return feed;
  })().finally(()=>pending.delete(key));pending.set(key,promise);return promise;
 }
