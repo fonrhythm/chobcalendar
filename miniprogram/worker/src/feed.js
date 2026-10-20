@@ -1,7 +1,8 @@
 import {parseQuery,projectFeed} from './feedQuery.js';
+import { normalizeClientIp } from './clientIp.js';
 // The full feed stays on the server; every response is bounded and projected.
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, _ctx, trustedClientIp) {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin');
     const allowed = (env.ALLOWED_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean);
@@ -17,7 +18,7 @@ export default {
     if (request.method !== 'POST') return reply({error:'Method not allowed'},405,{Allow:'POST'});
     if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY || !env.FEED_LIMITER || !allowed.length) return reply({error:'Feed temporarily unavailable'},503);
     // Cloudflare injects this header at its edge. Do not trust X-Forwarded-For.
-    const ip = request.headers.get('CF-Connecting-IP');
+    const ip = normalizeClientIp(trustedClientIp === undefined ? request.headers.get('CF-Connecting-IP') : trustedClientIp);
     if (!ip) return reply({error:'Feed temporarily unavailable'},503);
     try {
       const result = await env.FEED_LIMITER.limit({key:'feed:' + ip});

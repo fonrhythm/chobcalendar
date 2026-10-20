@@ -92,7 +92,7 @@ async function submit() {
       expected_updated_at: props.editing?.updated_at || null,
     });
     localStorage.removeItem(key);
-    await data.sync();
+    await data.sync({ force: true });
     await account.refresh();
     emit('close');
   } catch (e) {

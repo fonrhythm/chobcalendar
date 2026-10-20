@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import worker,{identityEmail} from '../src/index.js';
+import worker,{identityEmail} from '../src/auth.js';
 const env={WECHAT_APP_ID:'appid',WECHAT_APP_SECRET:'secret',SUPABASE_URL:'https://supabase.test',SUPABASE_SERVICE_ROLE_KEY:'server-secret',IDENTITY_HMAC_SECRET:'long-random-secret',LOGIN_LIMITER:{limit:async()=>({success:true})}};
 test('identity email is stable, scoped by app and hides raw OpenID',async()=>{const a=await identityEmail(env,'openid');assert.equal(a,await identityEmail(env,'openid'));assert.notEqual(a,await identityEmail({...env,WECHAT_APP_ID:'other'},'openid'));assert.ok(!a.includes('openid'))});
 test('missing config and rate limit fail closed',async()=>{const request=()=>new Request('https://worker.test/login',{method:'POST',body:'{"code":"code"}'});assert.equal((await worker.fetch(request(),{})).status,503);assert.equal((await worker.fetch(request(),{...env,LOGIN_LIMITER:{limit:async()=>({success:false})}})).status,429)});

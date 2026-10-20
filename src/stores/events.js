@@ -8,7 +8,8 @@ import { useAccountStore } from './account';
 import { dateKey } from '../utils/dates';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import {feedWindow,loadFeedPages} from '../utils/feedWindow';
+import { feedWindow, createFeedPageLoader } from '../utils/feedWindow';
+import { createFeedSync } from '../utils/feedSync';
 import { endpoint, fetchRecords } from '../api/appsScriptService';
 import { demoRecords } from '../data/demo';
 import { useViewStore } from './view';
@@ -159,6 +160,9 @@ export const useEventsStore = defineStore('events', () => {
     } catch {}
   }
   function showDemo() {
+    syncManager.cancel();
+    retryAt.value = 0;
+    syncMessageKey.value = '';
     records.value = demoRecords();
     artistCatalog.value = [
       {
@@ -224,7 +228,8 @@ export const useEventsStore = defineStore('events', () => {
     view.resetFilters();
     view.today();
   }
-  let inFlight = false, syncRevision=0, activeKey='', activeController;
+  const retryAt = ref(0), syncMessageKey = ref('');
+  const pageLoader = createFeedPageLoader(call);
   const catalogError=ref('');
   function mergeArtists(artists){const all=new Map(artistCatalog.value.map(a=>[a.id,a]));for(const a of artists||[])all.set(a.id,a);artistCatalog.value=[...all.values()]}
   async function searchArtists(query){
@@ -242,92 +247,86 @@ export const useEventsStore = defineStore('events', () => {
     const valid=ids.filter(id=>typeof id==='string'&&/^(cp:)?[0-9a-f-]{36}$/i.test(id));
     for(let i=0;i<valid.length;i+=20){const feed=await call('chob_public_feed',{artist_ids:valid.slice(i,i+20)});mergeArtists(feed.artists)}
   }
-  async function sync() {
-    if (demoMode) {
-      showDemo();
-      return;
-    }
-    const window=feedWindow(view.month),key=JSON.stringify(window);
-    if (inFlight&&activeKey===key) return;
-    activeController?.abort();
-    const revision=++syncRevision;activeKey=key;
+  function applyFeed(feed, { args } = {}) {
+    if (JSON.stringify(args) !== JSON.stringify(feedWindow(view.month))) return;
+    error.value = '';
+    retryAt.value = 0;
+    syncMessageKey.value = '';
+    let incoming;
+    if (useSupabaseFeed) {
+      incoming = feed.records.map((r, i) => normalizeRecord(r, i, 'supabase'));
+      mergeArtists(feed.artists);
+      incoming = incoming.map(event => ({
+        ...event,
+        attendee_names: eventArtistDisplayName(event, feed.artists),
+        prefer_activity_name: prefersActivityTitle(event, feed.artists),
+        name: eventDisplayName(event, feed.artists),
+      }));
+      typeCatalog.value = feed.types;
+      conditionCatalog.value = (feed.conditions || []).filter(condition => !/仅(?:获得|限)资格者/.test(condition.name || ''));
+      announcements.value = feed.announcements;
+    } else incoming = feed.records;
+    const baseline = Object.keys(previousVersions).length > 0;
+    const existing=new Map(records.value.map(r=>[r.id,r]));
+    incoming=incoming.map(r=>({...existing.get(r.id),...r}));
+    updates.value = incoming
+      .filter(
+        (r) =>
+          r.kind === 'event' &&
+          (r.end_date || r.date) >= dateKey(new Date()) &&
+          baseline &&
+          previousVersions[r.id] !== version(r),
+      )
+      .map((r) => r.id);
+    const saved=new Set([...favorites.value,...myItems.value]);
+    const fresh=new Set(incoming.map(r=>r.id));
+    records.value = [...incoming,...records.value.filter(r=>saved.has(r.id)&&!fresh.has(r.id))];
+    for (const r of incoming)
+      if (!updates.value.includes(r.id)) previousVersions[r.id] = version(r);
+    persistSeen();
+    preview.value = false;
+    updatedAt.value = new Date().toISOString();
+    status.value = 'synced';
+    try {
+      localStorage.setItem(
+        'chob-cache-v4',
+        JSON.stringify({
+          endpoint: sourceKey,
+          window:JSON.stringify(args),
+          records: records.value,
+          updatedAt: updatedAt.value,
+        }),
+      );
+    } catch {}
+  }
+  const syncManager = createFeedSync({
+    load: (window, signal) => useSupabaseFeed
+      ? pageLoader.load(window, signal)
+      : fetchRecords(signal).then(records => ({ records })),
+    onStart() {
+      status.value = 'loading';
+      error.value = '';
+      retryAt.value = 0;
+      syncMessageKey.value = '';
+    },
+    onSuccess: applyFeed,
+    onError(e) {
+      retryAt.value = e.status === 429 ? Number(e.retryAt) || Date.now() + 60000 : 0;
+      syncMessageKey.value = e.status === 429 ? 'syncCooldown'
+        : ['TimeoutError', 'AbortError'].includes(e.name) ? 'syncTimeout' : 'syncUnavailable';
+      error.value = String(e.message || '读取失败。');
+      status.value = preview.value ? 'demo-error' : records.value.length ? 'stale' : 'error';
+    },
+  });
+  function sync(options = {}) {
+    if (demoMode) { showDemo(); return; }
     if (!sourceKey) {
       if (!preview.value) status.value = 'unconfigured';
       return;
     }
-    inFlight = true;
-    status.value = 'loading';
-    error.value = '';
-    const controller = new AbortController(),
-      timeout = setTimeout(() => controller.abort(), 60000);
-    activeController=controller;
-    try {
-      let incoming;
-      if (useSupabaseFeed) {
-        const feed = await loadFeedPages(call,window,controller.signal);
-        if(revision!==syncRevision)return;
-        incoming = feed.records.map((r, i) =>
-          normalizeRecord(r, i, 'supabase'),
-        );
-        mergeArtists(feed.artists);
-        incoming = incoming.map((event) => ({
-          ...event,
-          attendee_names: eventArtistDisplayName(event, feed.artists),
-          prefer_activity_name: prefersActivityTitle(event, feed.artists),
-          name: eventDisplayName(event, feed.artists),
-        }));
-        typeCatalog.value = feed.types;
-        conditionCatalog.value = (feed.conditions || []).filter((condition) => !/仅(?:获得|限)资格者/.test(condition.name || ''));
-        announcements.value = feed.announcements;
-      } else incoming = await fetchRecords(controller.signal);
-      const baseline = Object.keys(previousVersions).length > 0;
-      const existing=new Map(records.value.map(r=>[r.id,r]));
-      incoming=incoming.map(r=>({...existing.get(r.id),...r}));
-      updates.value = incoming
-        .filter(
-          (r) =>
-            r.kind === 'event' &&
-            (r.end_date || r.date) >= dateKey(new Date()) &&
-            baseline &&
-            previousVersions[r.id] !== version(r),
-        )
-        .map((r) => r.id);
-      const saved=new Set([...favorites.value,...myItems.value]);
-      const fresh=new Set(incoming.map(r=>r.id));
-      records.value = [...incoming,...records.value.filter(r=>saved.has(r.id)&&!fresh.has(r.id))];
-      for (const r of incoming)
-        if (!updates.value.includes(r.id)) previousVersions[r.id] = version(r);
-      persistSeen();
-      preview.value = false;
-      updatedAt.value = new Date().toISOString();
-      status.value = 'synced';
-      try {
-        localStorage.setItem(
-          'chob-cache-v4',
-          JSON.stringify({
-            endpoint: sourceKey,
-            window:key,
-            records: records.value,
-            updatedAt: updatedAt.value,
-          }),
-        );
-      } catch {}
-    } catch (e) {
-      if(revision!==syncRevision)return;
-      error.value =
-        e.name === 'AbortError'
-          ? '读取超时，请稍后重试。'
-          : String(e.message || '读取失败。');
-      status.value = preview.value
-        ? 'demo-error'
-        : records.value.length
-          ? 'stale'
-          : 'error';
-    } finally {
-      clearTimeout(timeout);
-      if(revision===syncRevision)inFlight = false;
-    }
+    return syncManager.sync(feedWindow(view.month), options);
   }
+  function cancelSync() { syncManager.cancel(); }
   function version(r) {
     return (
       r.updated_at ||
@@ -397,6 +396,7 @@ export const useEventsStore = defineStore('events', () => {
   }
   return {
     searchArtists,ensureRecords,ensureArtists,catalogError,
+    retryAt, syncMessageKey, cancelSync,
     artistCatalog,
     typeCatalog,
     conditionCatalog,

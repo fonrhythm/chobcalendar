@@ -51,7 +51,7 @@ async function submit() {
     });
     done.value = true;
     message.value = '已通知管理员核对，谢谢你的提醒';
-    await data.sync();
+    await data.sync({ force: true });
   } catch (e) {
     message.value = e.message;
   } finally {

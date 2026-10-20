@@ -170,6 +170,7 @@ onMounted(() => {
   document.addEventListener('click', closeMenus);
 });
 onBeforeUnmount(() => {
+  data.cancelSync();
   clearInterval(timer);
   document.removeEventListener('visibilitychange', onVisible);
   document.removeEventListener('click', closeMenus);
@@ -250,7 +251,7 @@ onBeforeUnmount(() => {
       <main class="main-content">
         <div v-if="data.preview" class="data-banner demo-banner" role="status">
           {{ lang.t.demoNote }}
-          <button v-if="data.error" class="text-button" @click="data.sync()">
+          <button v-if="data.error" class="text-button" @click="data.sync({ force: true })">
             {{ lang.t.retry }}
           </button>
         </div>
@@ -263,14 +264,11 @@ onBeforeUnmount(() => {
           class="data-banner error-banner"
           role="status"
         >
-          {{
-            data.status === 'stale'
-              ? '已显示上次缓存内容'
-              : '暂时无法加载活动，请稍后重试'
-          }}
+          {{ lang.t[data.syncMessageKey] || lang.t.errorNote }}
+          <span v-if="data.records.length">{{ lang.t.staleNote }}</span>
 
           <span v-if="account.admin">{{ data.error }}</span
-          ><button class="text-button" @click="data.sync()">
+          ><button class="text-button" :disabled="data.retryAt > 0" @click="data.sync({ force: true })">
             {{ lang.t.retry }}
           </button>
         </div>
@@ -282,10 +280,10 @@ onBeforeUnmount(() => {
           class="connection-state"
         >
           <Icon name="calendar" />
-          <h2>{{ data.status === 'error' ? lang.t.error : lang.t.connect }}</h2>
+          <h2>{{ data.syncMessageKey === 'syncCooldown' ? lang.t.syncWaiting : data.status === 'error' ? lang.t.error : lang.t.connect }}</h2>
           <p>
             {{
-              data.status === 'error' ? lang.t.errorNote : lang.t.connectNote
+              data.status === 'error' ? lang.t[data.syncMessageKey] || lang.t.errorNote : lang.t.connectNote
             }}
           </p>
           <button class="pill active" @click="data.showDemo()">

@@ -18,7 +18,7 @@ const cats = computed(() =>
 );
 const state = computed(
   () =>
-    lang.t[data.status === 'demo-error' ? 'demo' : data.status] ||
+    lang.t[data.retryAt > 0 ? 'syncWaiting' : data.status === 'demo-error' ? 'demo' : data.status] ||
     lang.t.unconfigured,
 );
 function toggleFilter(key, value, all, checked) {
@@ -205,9 +205,9 @@ function toggleFilter(key, value, all, checked) {
         <button
           class="sync-status"
           :class="data.status"
-          :disabled="data.status === 'loading'"
+          :disabled="data.status === 'loading' || data.retryAt > 0"
           :title="lang.t.retry"
-          @click="data.sync()"
+          @click="data.sync({ force: true })"
         >
           <i></i>{{ state }}
         </button>
