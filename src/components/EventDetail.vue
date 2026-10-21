@@ -6,6 +6,7 @@ import { useLanguageStore } from '../stores/language';
 import { useEventsStore } from '../stores/events';
 import { safeUrl, imageUrls } from '../utils/records';
 import { attendance, displayTime } from '../utils/calendarDisplay';
+import { richTextHtml, richTextForText } from '../utils/richText';
 import Icon from './Icon.vue';
 import PosterGallery from './PosterGallery.vue';
 const props = defineProps({ item: Object }),
@@ -19,6 +20,8 @@ const fieldClass = (field) => ({
 const attendees = computed(() => props.item.attendee_names || eventArtistDisplayName({ ...props.item, name: (props.item.artist_names?.length ? props.item.artist_names : (props.item.artist_ids || []).map(id => data.artistCatalog.find(a => a.id === id)?.name).filter(Boolean)).join(" / ") }, data.artistCatalog));
 const images = computed(() => imageUrls(props.item.images));
 const link = computed(() => safeUrl(props.item.link));
+const descriptionHtml = computed(() => richTextHtml(richTextForText(props.item.rich_text?.description, props.item.participation_rules)));
+const noteHtml = computed(() => richTextHtml(richTextForText(props.item.rich_text?.note, props.item.note || '暂无备注')));
 const linkHost = computed(() =>
   link.value ? new URL(link.value).hostname : '',
 );
@@ -136,9 +139,9 @@ const eventTasks = computed(() =>
       </div>
     </dl>
 
-    <section v-if="item.participation_rules" class="detail-remarks">
+    <section v-if="item.participation_rules" class="detail-remarks detail-rich-section">
       <h4>活动详情与参与规则</h4>
-      <p style="white-space: pre-wrap">{{ item.participation_rules }}</p>
+      <div class="detail-rich-content" v-html="descriptionHtml"></div>
     </section>
     <section v-if="eventTasks.length" class="detail-remarks">
       <h4>参与事项</h4>
@@ -151,9 +154,9 @@ const eventTasks = computed(() =>
       </article>
     </section>
 
-    <aside class="detail-remarks">
+    <aside class="detail-remarks detail-rich-section">
       <h4>备注</h4>
-      <p :class="fieldClass('note')">{{ item.note || '暂无备注' }}</p>
+      <div class="detail-rich-content" :class="fieldClass('note')" v-html="noteHtml"></div>
     </aside>
     <a
       v-if="link"
@@ -188,3 +191,26 @@ const eventTasks = computed(() =>
     </div>
   </div>
 </template>
+<style scoped>
+.detail-rich-section {
+  font-size: calc(1em - 3px);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.detail-rich-section h4 {
+  font-size: 1em;
+  margin: 0 0 10px;
+}
+.detail-rich-content :deep(p) {
+  margin: 0 0 0.65em;
+  white-space: pre-wrap;
+}
+.detail-rich-content :deep(ul),
+.detail-rich-content :deep(ol) {
+  padding-left: 1.6em;
+  margin: 0 0 0.65em;
+}
+.detail-rich-content :deep(li) {
+  white-space: pre-wrap;
+}
+</style>

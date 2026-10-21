@@ -1,5 +1,6 @@
 import { sourceRule } from './sources.js';
 import { validDate } from './dates.js';
+import { normalizeRichText } from './richText.js';
 export function safeUrl(v) {
   try {
     const u = new URL(String(v));
@@ -89,6 +90,10 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     participation_condition: String(raw.participation_condition || ''),
     participation_label: String(raw.participation_label || ''),
     participation_rules: String(raw.participation_rules || ''),
+    rich_text: {
+      description: normalizeRichText(raw.rich_text?.description),
+      note: normalizeRichText(raw.rich_text?.note),
+    },
     user_task: raw.user_task && typeof raw.user_task === 'object' ? raw.user_task : null,
     action_url: safeUrl(raw.action_url),
     steps: String(raw.steps || ''),
