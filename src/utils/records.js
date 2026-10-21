@@ -77,6 +77,10 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
       : '',
     task_type: String(raw.task_type || 'other'),
     is_closed: raw.is_closed === true,
+    field_states: { date: ['tba', 'missing'].includes(raw.field_states?.date) ? raw.field_states.date : '' },
+    closure_reason: ['sold_out', 'results_published', 'ended', 'event_ended', 'task_ended', 'event_cancelled'].includes(raw.closure_reason) ? raw.closure_reason : '',
+    auto_close_at: typeof raw.auto_close_at === 'string' ? raw.auto_close_at : '',
+    auto_close_reason: ['event_ended', 'task_ended'].includes(raw.auto_close_reason) ? raw.auto_close_reason : '',
     result_url: safeUrl(raw.result_url),
     artist_types: Array.isArray(raw.artist_types) ? raw.artist_types : [],
     artist_selections: Array.isArray(raw.artist_selections)

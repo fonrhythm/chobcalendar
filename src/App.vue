@@ -53,7 +53,7 @@ function showFavorites() {
 }
 const myRows = computed(() =>
   data.records
-    .filter((r) => data.myItems.includes(r.id))
+    .filter((r) => data.myItems.includes(r.id) && data.isPending(r))
     .sort((a, b) => a.date.localeCompare(b.date) || compareDisplayOrder(a, b)),
 );
 function closeModal() {
@@ -154,7 +154,10 @@ function openDay(value) {
 let timer;
 watch(()=>view.month,()=>data.sync());
 function onVisible() {
-  if (!document.hidden && !data.preview) data.sync();
+  if (!document.hidden) {
+    data.refreshCompletionClock();
+    if (!data.preview) data.sync();
+  }
 }
 function closeMenus(e) {
   document.querySelectorAll('.filter-menu[open]').forEach((el) => {

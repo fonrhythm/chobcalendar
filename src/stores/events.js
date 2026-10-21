@@ -16,6 +16,7 @@ import { useViewStore } from './view';
 import { occursOn, intersectsMonth } from '../utils/dates';
 import { sourceRule } from '../utils/sources';
 import { companyOptions, matchesCompany } from '../utils/companyFilter';
+import { isPendingItem } from '../utils/taskCompletion';
 export const useEventsStore = defineStore('events', () => {
   const artistCatalog = ref([]),
     typeCatalog = ref([]),
@@ -37,7 +38,10 @@ export const useEventsStore = defineStore('events', () => {
     preview = ref(false),
     favorites = ref([]),
     myItems = ref([]),
-    favoriteArtists = ref([]);
+    favoriteArtists = ref([]),
+    completionNow = ref(Date.now());
+  function refreshCompletionClock() { completionNow.value = Date.now(); }
+  function isPending(record) { return isPendingItem(record, records.value, completionNow.value); }
   for (const [key, target] of [
     ['chob-my-items', myItems],
     ['chob-favorite-artists', favoriteArtists],
@@ -89,7 +93,7 @@ export const useEventsStore = defineStore('events', () => {
   const events = computed(() =>
       filtered.value.filter((r) => r.kind === 'event').sort(compareDisplayOrder),
     ),
-    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task' && !r.is_closed));
+    tasks = computed(() => filtered.value.filter((r) => r.kind === 'task' && isPending(r)));
   const monthEvents = computed(() =>
     events.value.filter((r) => intersectsMonth(r, view.month)),
   );
@@ -395,6 +399,7 @@ export const useEventsStore = defineStore('events', () => {
     sync();
   }
   return {
+    completionNow, refreshCompletionClock, isPending,
     searchArtists,ensureRecords,ensureArtists,catalogError,
     retryAt, syncMessageKey, cancelSync,
     artistCatalog,

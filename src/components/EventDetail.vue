@@ -7,6 +7,7 @@ import { useEventsStore } from '../stores/events';
 import { safeUrl, imageUrls } from '../utils/records';
 import { attendance, displayTime } from '../utils/calendarDisplay';
 import { richTextHtml, richTextForText } from '../utils/richText';
+import { taskCompletion, completionLabel } from '../utils/taskCompletion';
 import Icon from './Icon.vue';
 import PosterGallery from './PosterGallery.vue';
 const props = defineProps({ item: Object }),
@@ -26,7 +27,10 @@ const linkHost = computed(() =>
   link.value ? new URL(link.value).hostname : '',
 );
 const eventTasks = computed(() =>
-  data.records.filter((row) => row.kind === 'task' && row.event_id === props.item.id),
+  data.records.filter((row) => row.kind === 'task' && row.event_id === props.item.id).map(row => {
+    const completion = taskCompletion(row, props.item, data.completionNow);
+    return { ...row, completion, completionLabel: completionLabel(completion) };
+  }),
 );
 </script>
 <template>
@@ -147,10 +151,10 @@ const eventTasks = computed(() =>
       <h4>参与事项</h4>
       <article v-for="task in eventTasks" :key="task.id" class="detail-task">
         <strong>{{ task.activity }}</strong>
-        <span v-if="task.is_closed"> · {{ task.task_type === 'ticketing' ? '已售罄' : task.task_type === 'shopping' ? '已截止' : '已结束' }}</span>
+        <span v-if="task.completion.closed"> · {{ task.completionLabel }}</span>
         <a v-if="task.result_url" :href="task.result_url" target="_blank" rel="noopener noreferrer">查看公示名单 ↗</a>
         <p v-if="task.steps" style="white-space: pre-wrap">{{ task.steps }}</p>
-        <a v-if="task.action_url && !task.is_closed" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+        <a v-if="task.action_url && !task.completion.closed" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
       </article>
     </section>
 

@@ -12,7 +12,7 @@ const emit = defineEmits(['open']),
   data = useEventsStore();
 const mine = computed(() =>
   data.filtered
-    .filter((r) => data.myItems.includes(r.id))
+    .filter((r) => data.myItems.includes(r.id) && data.isPending(r))
     .sort((a, b) => a.date.localeCompare(b.date) || compareDisplayOrder(a, b)),
 );
 const rows = computed(() => data.onDate(view.selectedDate, 'task'));

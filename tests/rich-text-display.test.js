@@ -44,6 +44,7 @@ async function miniDetail(event) {
     '../../lib/i18n': { current: () => ({}) },
     '../../lib/tickets': { ticketChannel: () => '' },
     '../../shared/richText': helpers,
+    '../../shared/taskCompletion': miniModule(path.join(miniRoot, 'shared/taskCompletion.js')),
   };
   vm.runInNewContext(fs.readFileSync(file, 'utf8'), { Page: value => { page = value; },
     require: key => { if (!dependencies[key]) throw Error('Unexpected dependency: ' + key); return dependencies[key]; },
