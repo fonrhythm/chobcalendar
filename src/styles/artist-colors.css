@@ -1,13 +1,14 @@
 /* Artist colours are shared by day and night mode. */
 :root {
-  --tag-thai-bl-bg: #C96D8A; --tag-thai-bl-text: #FFFFFF;
-  --tag-thai-gl-bg: #6F8FBD; --tag-thai-gl-text: #FFFFFF;
+  --tag-thai-bl-bg: #6F8FBD; --tag-thai-bl-text: #FFFFFF;
+  --tag-thai-gl-bg: #C96D8A; --tag-thai-gl-text: #FFFFFF;
   --tag-band-bg: #9A4650; --tag-band-text: #FFFFFF;
   --tag-singer-bg: #B97A3E; --tag-singer-text: #FFFFFF;
   --tag-group-bg: #7A5446; --tag-group-text: #FFFFFF;
   --tag-combo-bg: #4F6491; --tag-combo-text: #FFFFFF;
   --tag-actor-bg: #DDBE82; --tag-actor-text: #4A3426;
   --tag-other-bg: #B3A59B; --tag-other-text: #4A3426;
+  --tag-mixed-bg: #9DB1CA; --tag-mixed-text: #FFFFFF;
 }
 .chip.official:not(.has-roll-call) { padding-right: 4px; }
 .chip.has-roll-call { padding-right: 16px; }
