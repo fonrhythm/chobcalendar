@@ -1,0 +1,47 @@
+/* Artist colours are shared by day and night mode. */
+:root {
+  --tag-thai-bl-bg: #C96D8A; --tag-thai-bl-text: #FFFFFF;
+  --tag-thai-gl-bg: #6F8FBD; --tag-thai-gl-text: #FFFFFF;
+  --tag-band-bg: #9A4650; --tag-band-text: #FFFFFF;
+  --tag-singer-bg: #B97A3E; --tag-singer-text: #FFFFFF;
+  --tag-group-bg: #7A5446; --tag-group-text: #FFFFFF;
+  --tag-combo-bg: #4F6491; --tag-combo-text: #FFFFFF;
+  --tag-actor-bg: #DDBE82; --tag-actor-text: #4A3426;
+  --tag-other-bg: #B3A59B; --tag-other-text: #4A3426;
+}
+.chip.official:not(.has-roll-call) { padding-right: 4px; }
+.chip.has-roll-call { padding-right: 16px; }
+.chip .official-star { color: inherit; }
+.day-capsule.official .capsule-type { color: var(--capsule-text); }
+.event-card,
+[data-theme='dark'] .event-card {
+  background: var(--official-color);
+  color: var(--event-text);
+  border-color: var(--official-border);
+}
+.event-card.official,
+[data-theme='dark'] .event-card.official {
+  background: transparent;
+  color: var(--official-color);
+  border-color: var(--official-border);
+}
+.event-card:hover { border-color: var(--official-border); }
+.event-card .event-artist,
+.event-card .event-activity,
+.event-card .location,
+.event-card .location span,
+.event-card .event-times,
+.event-card .card-official,
+.event-card .card-arrow {
+  color: inherit;
+}
+.event-card .type-tag,
+[data-theme='dark'] .event-card .type-tag {
+  background: transparent;
+  color: inherit;
+  border-color: currentColor;
+}
+.event-card .event-times div:not(.private) i { background: currentColor; }
+.event-card.past,
+.day-capsule.past { opacity: 0.45; }
+.task-week-chips .chip.task-chip { color: var(--chip-text); }

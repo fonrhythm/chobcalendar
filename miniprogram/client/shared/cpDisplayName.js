@@ -1,5 +1,20 @@
-function eventDisplayName(event, catalog) {
-  if (event.prefer_activity_name && (event.event_title || event.activity)?.trim()) return (event.event_title || event.activity).trim();
+const { selectionCount, selectionTypes }=require("./artistSelection.js");
+
+function prefersActivityTitle(event, catalog = []) {
+  const ids = event.artist_selections?.length ? event.artist_selections : event.artist_ids || [];
+  const selected = catalog.filter(a => ids.includes(a.id));
+  const companies = new Set(selected.map(a => String(a.company || "").trim()).filter(Boolean));
+  const types = new Set(selected.map(a => selectionTypes([a], [a.id]).sort().join("|")).filter(Boolean));
+  return event.prefer_activity_name === true || selectionCount(event) >= 6 ||
+    (selectionCount(event) >= 3 && (companies.size > 1 || types.size > 1));
+}
+
+function eventDisplayName(event, catalog = []) {
+  const title = (event.event_title || event.activity || "").trim();
+  return title && prefersActivityTitle(event, catalog) ? title : eventArtistDisplayName(event, catalog);
+}
+
+function eventArtistDisplayName(event, catalog) {
   if (!event.artist_ids?.length) return event.name;
   const byId = new Map(catalog.map((artist) => [artist.id, artist]));
   const selections = event.artist_selections || [];
@@ -55,4 +70,4 @@ function eventDisplayName(event, catalog) {
   return [...new Set(labels)].join(' / ') || event.name;
 }
 
-module.exports={eventDisplayName};
+module.exports={prefersActivityTitle,eventDisplayName,eventArtistDisplayName};

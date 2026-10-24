@@ -6,3 +6,5 @@ createApp(App).use(createPinia()).mount('#app');
 import './styles/refinement.css';
 
 import './styles/upgrade.css';
+
+import './styles/artist-colors.css';

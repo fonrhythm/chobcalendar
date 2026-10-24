@@ -57,15 +57,6 @@
   white-space: nowrap;
   flex: 1;
 }
-.roll-call-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  margin-right: 4px;
-  vertical-align: middle;
-}
 .chip {
   display: flex;
   align-items: center;
@@ -612,7 +603,7 @@
 .past .chip.status-faded,
 [data-theme='dark'] .past .chip.status-faded,
 .past:hover .chip.status-faded {
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .poster-state small {
@@ -1287,7 +1278,7 @@
 .task-dashboard .date-strip { margin-bottom: 7px; }
 .task-week-chips { margin-top: 0; margin-bottom: 16px; }
 .task-week-chips .chip.task-chip {
-  background: color-mix(in srgb, var(--chip-bg) 20%, var(--surface));
+  background: var(--chip-bg);
   color: var(--text);
   font-weight: 600;
   border: 0;

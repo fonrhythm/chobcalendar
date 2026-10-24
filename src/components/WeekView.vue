@@ -34,7 +34,7 @@ const items = computed(() =>
     </div>
     <p class="week-count" role="status">{{ lang.t.eventTotal.replace('{n}', items.length) }}</p>
     <div class="event-list">
-      <EventCard v-for="item in items" :key="item.id" :item="item" @open="emit('open', $event)" />
+      <EventCard v-for="item in items" :key="item.id" :item="item" :display-date="view.selectedDate" @open="emit('open', $event)" />
     </div>
     <EmptyState v-if="!items.length" />
   </section>

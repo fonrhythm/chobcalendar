@@ -60,7 +60,7 @@ const eventTasks = computed(() =>
       </div>
     </div>
     <h3 :class="fieldClass('name')">
-      {{ item.name }}<small v-if="item.roll_call">（有点名）</small>
+      {{ item.name }}<small v-if="item.roll_call" :aria-label="lang.t.rollCall" :title="lang.t.rollCall"> ★</small>
     </h3>
     <p v-if="state.pending" class="verification-hint">此处信息待核实</p>
     <p class="detail-activity" :class="fieldClass('activity')">

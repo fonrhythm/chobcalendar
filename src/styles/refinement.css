@@ -281,10 +281,7 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-[data-theme='dark'] .day-capsule.official {
-  color: color-mix(in srgb, var(--capsule-color), white 45%);
-  border-color: currentColor;
-}
+
 [data-theme='dark'] .entry-actions button:not(.draft-button):not(.submit-button) {
   background: var(--bg);
   color: var(--text);

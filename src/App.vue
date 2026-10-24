@@ -14,7 +14,7 @@ import { useLanguageStore } from './stores/language';
 import { parseDate } from './utils/dates';
 import { safeUrl } from './utils/records';
 import Icon from './components/Icon.vue';
-import { getCategoryColor } from './utils/config';
+import { getEventCategoryColor } from './utils/config';
 import FilterBar from './components/FilterBar.vue';
 import CalendarView from './components/CalendarView.vue';
 import WeekView from './components/WeekView.vue';
@@ -400,7 +400,7 @@ onBeforeUnmount(() => {
       :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
       :accent="
         modal === 'event' && item
-          ? getCategoryColor('other', item.region).bg
+          ? getEventCategoryColor(item, data.artistCatalog).bg
           : undefined
       "
       @close="closeModal"

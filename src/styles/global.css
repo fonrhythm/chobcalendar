@@ -473,12 +473,9 @@ p {
   filter: brightness(0.93);
 }
 .past .chip {
-  opacity: 0.5;
+  opacity: 0.45;
 }
-.past:hover .chip,
-.past:focus-within .chip {
-  opacity: 1;
-}
+
 .more {
   font-size: 9px;
   color: #aaa;
@@ -2158,23 +2155,15 @@ p {
   background: #35291f;
   color: #edbc96;
 }
-[data-theme='dark'] .chip.official {
-  background: #faf9f7;
-}
+
 [data-theme='dark'] .detail-activity,
 [data-theme='dark'] .event-detail dt,
 [data-theme='dark'] .day-summary,
 [data-theme='dark'] .more {
   color: var(--sub);
 }
-[data-theme='dark'] .chip.official {
-  background: transparent;
-  color: color-mix(in srgb, var(--chip-bg) 60%, white);
-  border-color: color-mix(in srgb, var(--chip-border) 60%, white);
-}
-[data-theme='dark'] .past .chip {
-  opacity: 0.78;
-}
+
+
 @media (max-width: 720px) {
   .dropdowns {
     gap: 12px;

@@ -1,12 +1,18 @@
 <script setup>
-import { selectionCount, usesOutline } from '../utils/artistSelection';
+import { usesOutline } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { useLanguageStore } from '../stores/language';
 import { computed } from 'vue';
+import { useEventsStore } from '../stores/events';
+import { eventState } from '../utils/eventState';
+import { dateKey } from '../utils/dates';
 import { attendance, timeRange } from '../utils/calendarDisplay';
 import Icon from './Icon.vue';
-import { getCategoryColor } from '../utils/config';
-const props = defineProps({ item: Object });
+import { getEventCategoryColor } from '../utils/config';
+const props = defineProps({ item: Object, displayDate: String });
+const data = useEventsStore();
+const colors = computed(() => getEventCategoryColor(props.item, data.artistCatalog));
+const past = computed(() => (props.displayDate || props.item.end_date || props.item.date) < dateKey(new Date()));
 const range = computed(() => timeRange(props.item.time, props.item.end_time));
 defineEmits(['open']);
 const lang = useLanguageStore();
@@ -14,11 +20,11 @@ const lang = useLanguageStore();
 <template>
   <button
     class="event-card"
-    :class="{ official: usesOutline(item) }"
+    :class="{ official: usesOutline(item), past, 'status-faded': eventState(item).faded }"
     :style="{
-      '--official-color': getCategoryColor('other', item.region).bg,
-      '--official-border':
-        getCategoryColor('other', item.region).bg,
+      '--official-color': colors.bg,
+      '--official-border': colors.bg,
+      '--event-text': colors.text,
     }"
     @click="$emit('open', item)"
   >
@@ -26,10 +32,10 @@ const lang = useLanguageStore();
       <div class="event-artist">
         {{ item.name }}
         <span
-          v-if="selectionCount(item) >= 6"
+          v-if="item.roll_call"
           class="card-official"
-          :title="lang.t.official"
-          >★<span class="sr-only">{{ lang.t.official }}</span></span
+          :title="lang.t.rollCall"
+          >★<span class="sr-only">{{ lang.t.rollCall }}</span></span
         >
       </div>
       <div class="event-activity">{{ item.activity }}</div>
