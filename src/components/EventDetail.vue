@@ -127,10 +127,6 @@ const eventTasks = computed(() =>
           }}
         </dd>
       </div>
-      <div v-if="item.company">
-        <dt>{{ lang.t.company }}</dt>
-        <dd :class="fieldClass('company')">{{ item.company }}</dd>
-      </div>
       <div v-if="item.contact">
         <dt>{{ lang.t.contact }}</dt>
         <dd>
