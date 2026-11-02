@@ -44,6 +44,13 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     泰国: 'thailand',
     中国: 'china',
     海外: 'oversea',
+    'south korea': 'oversea',
+    'republic of korea': 'oversea',
+    korea: 'oversea',
+    kr: 'oversea',
+    韩国: 'oversea',
+    韓國: 'oversea',
+    เกาหลีใต้: 'oversea',
   };
   const region =
     map[
@@ -144,4 +151,20 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
       raw.isofficial === 1 ||
       String(raw.isofficial).toLowerCase() === 'true',
   };
+}
+
+// Keep malformed rows visible to diagnostics without discarding valid schedules.
+export function normalizeFeedRecords(rows, source = 'supabase') {
+  if (!Array.isArray(rows)) throw new Error('Invalid feed records');
+  const records = [], issues = [];
+  rows.forEach((row, index) => {
+    try { records.push(normalizeRecord(row, index, source)); }
+    catch (error) { issues.push({ id: String(row?.id || ''), row: index + 1, message: error.message }); }
+  });
+  if (rows.length && !records.length) {
+    const error = new Error(issues.map(issue => issue.message).join('; '));
+    error.name = 'FeedDataError';
+    throw error;
+  }
+  return { records, issues };
 }

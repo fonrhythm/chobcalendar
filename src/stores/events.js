@@ -2,7 +2,7 @@ import { matchesArtistTypes, normalizeSearch } from '../utils/artistFilters';
 import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
 import { call, useSupabaseFeed, demoMode } from '../api/supabase';
-import { normalizeRecord } from '../utils/records';
+import { normalizeRecord, normalizeFeedRecords } from '../utils/records';
 import { eventDisplayName, eventArtistDisplayName, prefersActivityTitle } from '../utils/cpDisplayName';
 import { useAccountStore } from './account';
 import { dateKey } from '../utils/dates';
@@ -235,6 +235,7 @@ export const useEventsStore = defineStore('events', () => {
   const retryAt = ref(0), syncMessageKey = ref('');
   const pageLoader = createFeedPageLoader(call);
   const catalogError=ref('');
+  const dataIssues=ref([]);
   function mergeArtists(artists){const all=new Map(artistCatalog.value.map(a=>[a.id,a]));for(const a of artists||[])all.set(a.id,a);artistCatalog.value=[...all.values()]}
   async function searchArtists(query){
     if(demoMode||!useSupabaseFeed||query.trim().length<2)return;
@@ -258,7 +259,9 @@ export const useEventsStore = defineStore('events', () => {
     syncMessageKey.value = '';
     let incoming;
     if (useSupabaseFeed) {
-      incoming = feed.records.map((r, i) => normalizeRecord(r, i, 'supabase'));
+      const normalized = normalizeFeedRecords(feed.records);
+      incoming = normalized.records;
+      dataIssues.value = normalized.issues;
       mergeArtists(feed.artists);
       incoming = incoming.map(event => ({
         ...event,
@@ -316,7 +319,7 @@ export const useEventsStore = defineStore('events', () => {
     onSuccess: applyFeed,
     onError(e) {
       retryAt.value = e.status === 429 ? Number(e.retryAt) || Date.now() + 60000 : 0;
-      syncMessageKey.value = e.status === 429 ? 'syncCooldown'
+      syncMessageKey.value = e.name === 'FeedDataError' ? 'syncDataError' : e.status === 429 ? 'syncCooldown'
         : ['TimeoutError', 'AbortError'].includes(e.name) ? 'syncTimeout' : 'syncUnavailable';
       error.value = String(e.message || '读取失败。');
       status.value = preview.value ? 'demo-error' : records.value.length ? 'stale' : 'error';
@@ -401,7 +404,7 @@ export const useEventsStore = defineStore('events', () => {
   return {
     completionNow, refreshCompletionClock, isPending,
     searchArtists,ensureRecords,ensureArtists,catalogError,
-    retryAt, syncMessageKey, cancelSync,
+    retryAt, syncMessageKey, cancelSync, dataIssues,
     artistCatalog,
     typeCatalog,
     conditionCatalog,

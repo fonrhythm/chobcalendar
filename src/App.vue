@@ -252,6 +252,10 @@ onBeforeUnmount(() => {
         @profile="modal = 'profile'"
         @my-items="modal = 'my-items'" />
       <main class="main-content">
+        <div v-if="data.status === 'synced' && data.dataIssues.length" class="data-banner error-banner" role="status">
+          {{ lang.t.syncPartial }} ({{ data.dataIssues.length }})
+          <span v-if="account.admin">{{ data.dataIssues.map(issue => `${issue.id}: ${issue.message}`).join('; ') }}</span>
+        </div>
         <div v-if="data.preview" class="data-banner demo-banner" role="status">
           {{ lang.t.demoNote }}
           <button v-if="data.error" class="text-button" @click="data.sync({ force: true })">
