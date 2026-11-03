@@ -94,6 +94,6 @@ test('legacy plain text and an older formatted revision render current plain tex
     assert.doesNotMatch(web.descriptionHtml + web.noteHtml, /Old rules|Old note|<script>|<strong>|<em>/);
   }
   const raw = { ...base, note: '' };
-  assert.match(webDetail(normalizeRecord(raw)).noteHtml, /暂无备注/);
+  assert.doesNotMatch(webDetail(normalizeRecord(raw)).noteHtml, /暂无备注/);
   assert.match((await miniDetail(miniNormalizeRecord(raw))).noteHtml, /暂无备注/);
 });

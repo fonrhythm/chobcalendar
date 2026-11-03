@@ -78,9 +78,9 @@
   padding-block: 4px;
 }
 .detail-bottom-space {
-  height: 25px;
+  height: 0;
   flex: none;
-  background: white;
+  background: var(--bg);
   border-top: 1px solid #e8e5df;
 }
 .event-detail h3 {
@@ -919,6 +919,8 @@
 .detail-media {
   display: block !important;
 }
+.event-detail:has(.detail-media .poster-gallery) { padding-top: 0; }
+.event-modal { border-bottom-color: var(--surface, var(--bg)); }
 .detail-remarks {
   margin: 20px 0;
 }

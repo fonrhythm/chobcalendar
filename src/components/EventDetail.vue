@@ -18,11 +18,11 @@ const state = computed(() => eventState(props.item));
 const fieldClass = (field) => ({
   'unverified-field': props.item.pending_fields?.includes(field),
 });
-const attendees = computed(() => props.item.attendee_names || eventArtistDisplayName({ ...props.item, name: (props.item.artist_names?.length ? props.item.artist_names : (props.item.artist_ids || []).map(id => data.artistCatalog.find(a => a.id === id)?.name).filter(Boolean)).join(" / ") }, data.artistCatalog));
+const attendees = computed(() => (props.item.attendee_names || eventArtistDisplayName({ ...props.item, name: (props.item.artist_names?.length ? props.item.artist_names : (props.item.artist_ids || []).map(id => data.artistCatalog.find(a => a.id === id)?.name).filter(Boolean)).join(" / ") }, data.artistCatalog)).split(/\s+\/\s+/).filter(Boolean).sort((a,b) => a.localeCompare(b,'en',{sensitivity:'base',numeric:true})).join(' / '));
 const images = computed(() => imageUrls(props.item.images));
 const link = computed(() => safeUrl(props.item.link));
 const descriptionHtml = computed(() => richTextHtml(richTextForText(props.item.rich_text?.description, props.item.participation_rules)));
-const noteHtml = computed(() => richTextHtml(richTextForText(props.item.rich_text?.note, props.item.note || '暂无备注')));
+const noteHtml = computed(() => richTextHtml(richTextForText(props.item.rich_text?.note, props.item.note || '')));
 const linkHost = computed(() =>
   link.value ? new URL(link.value).hostname : '',
 );
@@ -100,7 +100,7 @@ const eventTasks = computed(() =>
                     ? lang.t.allDay
                     : ''),
               item.region,
-            ) || lang.t.tba
+            )
           }}
         </dd>
       </div>
@@ -139,11 +139,11 @@ const eventTasks = computed(() =>
       </div>
     </dl>
 
-    <section v-if="item.participation_rules" class="detail-remarks detail-rich-section">
+    <section v-if="item.participation_rules?.trim()" class="detail-remarks detail-rich-section">
       <h4>活动详情与参与规则</h4>
       <div class="detail-rich-content" v-html="descriptionHtml"></div>
     </section>
-    <section v-if="eventTasks.length" class="detail-remarks">
+    <section v-if="eventTasks.length" class="detail-remarks detail-rich-section">
       <h4>参与事项</h4>
       <article v-for="task in eventTasks" :key="task.id" class="detail-task">
         <strong>{{ task.activity }}</strong>
@@ -154,7 +154,7 @@ const eventTasks = computed(() =>
       </article>
     </section>
 
-    <aside class="detail-remarks detail-rich-section">
+    <aside v-if="item.note?.trim()" class="detail-remarks detail-rich-section">
       <h4>备注</h4>
       <div class="detail-rich-content" :class="fieldClass('note')" v-html="noteHtml"></div>
     </aside>
@@ -177,7 +177,7 @@ const eventTasks = computed(() =>
         :class="{ active: data.myItems.includes(item.id) }"
         @click="data.toggleMyItem(item.id)"
       >
-        {{ data.myItems.includes(item.id) ? '已加入我的事项' : '加入我的事项' }}
+        {{ data.myItems.includes(item.id) ? '已加入事项' : '加入事项' }}
       </button>
       <button
         class="pill"
@@ -192,6 +192,12 @@ const eventTasks = computed(() =>
   </div>
 </template>
 <style scoped>
+.event-detail .external-link { padding-block: 10px; }
+.detail-task { font-size: inherit; line-height: inherit; }
+.detail-task strong { font-weight: 500; }
+.detail-footer { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+.detail-footer .pill { min-width: 0; padding: 8px 5px; font-size: 12px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.detail-footer .pill svg { width: 16px; height: 16px; flex: none; }
 .detail-rich-section {
   font-size: calc(1em - 3px);
   line-height: 1.7;
