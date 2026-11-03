@@ -138,6 +138,7 @@ const eventTasks = computed(() =>
         <dd>{{ item.participation_label || item.participation_condition }}</dd>
       </div>
     </dl>
+    <p v-if="item.kind === 'event'" class="spectator-status">围观情况：{{ ({allowed:'可围观',not_allowed:'不可围观',unknown:'待确认'})[item.spectator_status] || '待确认' }}</p>
 
     <section v-if="item.participation_rules?.trim()" class="detail-remarks detail-rich-section">
       <h4>活动详情与参与规则</h4>

@@ -99,6 +99,7 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     artist_ids: Array.isArray(raw.artist_ids) ? raw.artist_ids : [],
     artist_names: Array.isArray(raw.artist_names) ? raw.artist_names : [],
     participation_condition: String(raw.participation_condition || ''),
+    spectator_status: ['allowed','not_allowed'].includes(raw.spectator_status || raw.field_states?.spectator_status) ? (raw.spectator_status || raw.field_states.spectator_status) : 'unknown',
     participation_label: String(raw.participation_label || ''),
     participation_rules: String(raw.participation_rules || ''),
     rich_text: {
