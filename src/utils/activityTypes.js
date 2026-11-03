@@ -14,8 +14,9 @@ export function activityCategory(value) {
   const v = String(value || '')
     .trim()
     .toLowerCase();
+  if (v === 'consumer_commercial' || v === '消费型商务') return 'meet';
   if (v === 'brand') return 'interaction';
-  if (/消费型商务/.test(v)) return 'consumer_commercial';
+  if (/消费型商务/.test(v)) return 'meet';
   if (ACTIVITY_TYPES.some((t) => t.id === v)) return v;
   if (/时装周|fashion\s*week/.test(v)) return 'fashion';
   if (/发布会|记者会|新闻发布|press.?conference/.test(v)) return 'press';

@@ -270,7 +270,7 @@ export const useEventsStore = defineStore('events', () => {
         name: eventDisplayName(event, feed.artists),
       }));
       typeCatalog.value = feed.types;
-      conditionCatalog.value = (feed.conditions || []).filter(condition => !/仅(?:获得|限)资格者/.test(condition.name || ''));
+      conditionCatalog.value = (feed.conditions || []).map(condition => condition.code === 'qualified_only' ? {...condition,name:'仅限获得资格者'} : condition);
       announcements.value = feed.announcements;
     } else incoming = feed.records;
     const baseline = Object.keys(previousVersions).length > 0;

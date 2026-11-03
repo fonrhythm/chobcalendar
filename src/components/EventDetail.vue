@@ -133,9 +133,9 @@ const eventTasks = computed(() =>
           {{ item.contact }} <span>{{ item.contact_method }}</span>
         </dd>
       </div>
-      <div v-if="(item.participation_label || item.participation_condition) && !/仅(?:获得|限)资格者/.test(item.participation_label || '')">
+      <div v-if="(item.participation_label || item.participation_condition)">
         <dt>参与方式</dt>
-        <dd>{{ item.participation_label || item.participation_condition }}</dd>
+        <dd>{{ item.participation_condition === 'qualified_only' ? '仅限获得资格者' : item.participation_label || item.participation_condition }}</dd>
       </div>
     </dl>
     <p v-if="item.kind === 'event' && ['allowed','not_allowed'].includes(item.spectator_status)" class="spectator-status">围观情况：{{ ({allowed:'可围观',not_allowed:'不可围观',unknown:'待确认'})[item.spectator_status] || '待确认' }}</p>
