@@ -5,7 +5,6 @@ export const ACTIVITY_TYPES = [
   { id: 'press', name: '发布会/记者会' },
   { id: 'fashion', name: '时装周' },
   { id: 'interaction', name: '站台活动' },
-  { id: 'consumer_commercial', name: '消费型商务' },
   { id: 'awards', name: '颁奖红毯' },
   { id: 'broadcast', name: '线上直播' },
   { id: 'other', name: '其他' },
