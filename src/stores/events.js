@@ -1,3 +1,4 @@
+import {matchesScheduleRegion} from '../utils/scheduleRegion.js';
 import { matchesArtistTypes, normalizeSearch } from '../utils/artistFilters';
 import { compareDisplayOrder } from '../utils/displayOrder';
 import { activityCategory } from '../utils/activityTypes';
@@ -59,7 +60,7 @@ export const useEventsStore = defineStore('events', () => {
   } catch {}
   const view = useViewStore(),
     inRegion = computed(() =>
-      records.value.filter((r) => r.region === view.currentRegion),
+      records.value.filter((r) => import.meta.env.DEV ? matchesScheduleRegion(r,view.scheduleRegion) : r.region === view.currentRegion),
     );
   const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>

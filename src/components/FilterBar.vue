@@ -6,6 +6,7 @@ import { useEventsStore } from '../stores/events';
 import { useLanguageStore } from '../stores/language';
 import { REGION_COLORS } from '../utils/config';
 import Icon from './Icon.vue';
+const unifiedSchedule = import.meta.env.DEV;
 const emit = defineEmits(['favorites', 'profile', 'my-items']),
   view = useViewStore(),
   data = useEventsStore(),
@@ -68,6 +69,9 @@ function toggleFilter(key, value, all, checked) {
         >
           {{ lang.t.week }}
         </button>
+      </div>
+      <div v-if="unifiedSchedule" class="segmented" aria-label="活动地区筛选">
+        <button v-for="(label,id) in {all:'全部地区',thailand:'泰国',oversea:'海外'}" :key="id" :class="{active:view.scheduleRegion===id}" :aria-pressed="view.scheduleRegion===id" @click="view.scheduleRegion=id">{{label}}</button>
       </div>
       <div class="dropdowns">
         <details class="filter-menu">

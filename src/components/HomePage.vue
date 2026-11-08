@@ -1,4 +1,5 @@
 <script setup>
+const unifiedNavigation = import.meta.env.DEV;
 import { computed } from 'vue';
 import { useLanguageStore } from '../stores/language';
 import { useThemeStore } from '../stores/theme';
@@ -33,7 +34,7 @@ const copy = computed(
       },
     })[lang.currentLanguage],
 );
-defineEmits(['region', 'about', 'tutorial', 'account']);
+defineEmits(['region', 'drama', 'about', 'tutorial', 'account']);
 </script>
 <template>
   <main class="home-page">
@@ -74,7 +75,11 @@ defineEmits(['region', 'about', 'tutorial', 'account']);
       <span>CALENDAR</span>
     </div>
     <div class="home-divider"></div>
-    <nav class="home-links">
+    <nav v-if="unifiedNavigation" class="home-links">
+      <button @click="$emit('region','schedule')"><strong>Schedule</strong><small>艺人行程</small><span>⟶</span></button>
+      <button @click="$emit('drama')"><strong>Drama</strong><small>追剧日历</small><span>⟶</span></button>
+      <button @click="$emit('about')"><strong>About</strong><small>{{copy.about}}</small><span>⟶</span></button>
+    </nav><nav v-else class="home-links">
       <button
         v-for="(label, key) in copy.regions"
         :key="key"

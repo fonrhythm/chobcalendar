@@ -1,9 +1,12 @@
 <script setup>
 import {defineAsyncComponent} from 'vue';
+import {legacyScheduleFilter} from './utils/scheduleRegion.js';
 const DramaDisplay = import.meta.env.DEV ? defineAsyncComponent(()=>import('./drama/DramaPreview.vue')) : null;
 const dramaPreviewEnabled = import.meta.env.DEV;
 const dramaVisible = ref(dramaPreviewEnabled && location.hash === '#drama');
-function openDrama(){dramaVisible.value=true;home.value=false;location.hash='drama';}
+function openDrama(){modal.value='';dramaVisible.value=true;home.value=false;location.hash='drama';}
+function openSchedule(){modal.value='';dramaVisible.value=false;home.value=false;location.hash='schedule';}
+function applyHash(){if(!dramaPreviewEnabled)return;const hash=location.hash.slice(1);if(hash==='drama')openDrama();else if(hash==='home'||!hash)showHome();else if(hash==='schedule')openSchedule();else if(['china','thailand','oversea'].includes(hash)){view.scheduleRegion=legacyScheduleFilter(hash);openSchedule();}}
 
 import { compareDisplayOrder } from './utils/displayOrder';
 import AccountPanel from './components/AccountPanel.vue';
@@ -43,6 +46,7 @@ const entryForm = ref(null),
   home = ref(!location.hash || location.hash === '#home'),
   fromDay = ref(false);
 function enterRegion(region) {
+  if(dramaPreviewEnabled){view.scheduleRegion=legacyScheduleFilter(region);openSchedule();return;}
   dramaVisible.value=false;
   home.value = false;
   location.hash = region;
@@ -173,6 +177,8 @@ function closeMenus(e) {
   });
 }
 onMounted(() => {
+  applyHash();
+  window.addEventListener('hashchange',applyHash);
   account.initialize();
   theme.initTheme();
   data.initialize();
@@ -181,6 +187,7 @@ onMounted(() => {
   document.addEventListener('click', closeMenus);
 });
 onBeforeUnmount(() => {
+  window.removeEventListener('hashchange',applyHash);
   data.cancelSync();
   clearInterval(timer);
   document.removeEventListener('visibilitychange', onVisible);
@@ -196,6 +203,7 @@ onBeforeUnmount(() => {
     <HomePage
       v-if="home"
       @region="enterRegion"
+      @drama="openDrama"
       @about="modal = 'about'"
       @tutorial="modal = 'tutorial'"
       @account="
@@ -204,7 +212,9 @@ onBeforeUnmount(() => {
       "
     /><template v-else
       ><header class="site-header">
-        <nav class="site-nav" aria-label="Main navigation">
+        <nav v-if="dramaPreviewEnabled" class="site-nav" aria-label="Main navigation">
+          <button @click="showHome">CHOB</button><span>›</span><button :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button :class="{active:dramaVisible}" @click="openDrama">Drama</button><span>›</span><button @click="modal='about'">About</button>
+        </nav><nav v-else class="site-nav" aria-label="Main navigation">
           <button @click="showHome">CHOB</button><span>›</span
           ><button
             :class="{ active: view.currentRegion === 'china' }"
@@ -226,8 +236,8 @@ onBeforeUnmount(() => {
           ><span v-if="dramaPreviewEnabled">›</span><button v-if="dramaPreviewEnabled" @click="openDrama">DRAMA</button><span>›</span><button @click="modal = 'about'">ABOUT</button>
         </nav>
       </header>
-      <DramaDisplay v-if="dramaVisible" embedded />
-      <template v-else>
+      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded /></KeepAlive>
+      <template v-if="!dramaVisible">
       <section class="month-heading">
         <button
           class="icon-button"
@@ -398,7 +408,7 @@ onBeforeUnmount(() => {
       SomenStjerne
     </footer>
     <button
-      v-if="!home"
+      v-if="!home && !dramaVisible"
       class="floating-add"
       :aria-label="lang.t.add"
       @click="modal = 'entry'"

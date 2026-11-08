@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { dateKey, addDays, parseDate } from '../utils/dates';
 export const useViewStore = defineStore('view', () => {
+  const scheduleRegion = ref('all');
   const currentRegion = ref('thailand'),
     viewMode = ref('calendar'),
     selectedDate = ref(dateKey(new Date())),
@@ -48,6 +49,7 @@ export const useViewStore = defineStore('view', () => {
     taskStart.value = selectedDate.value;
   }
   function resetFilters() {
+    scheduleRegion.value = 'all';
     query.value = '';
     companies.value = [];
     categories.value = [];
@@ -57,6 +59,7 @@ export const useViewStore = defineStore('view', () => {
   }
   return {
     currentRegion,
+    scheduleRegion,
     viewMode,
     selectedDate,
     month,
