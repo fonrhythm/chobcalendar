@@ -1,4 +1,5 @@
 <script setup>
+defineProps({designC:Boolean});
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { ACTIVITY_TYPES, activityCategory } from '../utils/activityTypes';
 import { visibleEventCount, calendarAction } from '../utils/calendarDisplay';
@@ -59,8 +60,8 @@ function label(day) {
 }
 </script>
 <template>
-  <Announcements ticker @open="emit('open', $event)" />
-  <section class="stats" :aria-label="lang.t.monthCount">
+  <Announcements v-if="!designC" ticker @open="emit('open', $event)" />
+  <section v-if="!designC" class="stats" :aria-label="lang.t.monthCount">
     <div v-for="s in stats" :key="s.type">
       <strong>{{ s.count }}</strong
       ><span>{{ s.name }}</span>

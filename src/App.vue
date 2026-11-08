@@ -1,4 +1,6 @@
 <script setup>
+import CalendarMonthBar from './components/CalendarMonthBar.vue';
+const scheduleFilters=ref(null);
 import {supabase} from './api/supabase';
 import {readPrivateDrama} from './drama/cloudReader.js';
 const cloudDramaPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('dramaSource')==='cloud';
@@ -226,7 +228,7 @@ onBeforeUnmount(() => {
       ><header class="site-header">
         <nav v-if="dramaPreviewEnabled" class="site-nav" aria-label="Main navigation">
           <button @click="showHome">CHOB</button><span>›</span><button :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button :class="{active:dramaVisible}" @click="openDrama">Drama</button><button v-if="cloudDramaPreview" @click="modal='profile'">管理员登录</button><span>›</span><button @click="modal='about'">About</button>
-        </nav><nav v-else class="site-nav" aria-label="Main navigation">
+        <div v-if="!dramaVisible" class="c-nav-tools"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button><span><i></i>{{data.status==='synced'?'已同步':data.status==='demo'?'演示数据':'未连接'}}</span></div></nav><nav v-else class="site-nav" aria-label="Main navigation">
           <button @click="showHome">CHOB</button><span>›</span
           ><button
             :class="{ active: view.currentRegion === 'china' }"
@@ -250,9 +252,8 @@ onBeforeUnmount(() => {
       </header>
       <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" :load-snapshot="cloudDramaPreview?loadCloudDrama:null" /></KeepAlive>
       <template v-if="!dramaVisible">
-      <div class="schedule-heading-container" :class="{'schedule-heading-row':dramaPreviewEnabled}">
-      
-      <section class="month-heading">
+<div v-if="dramaPreviewEnabled" class="c-schedule-hero"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /><div class="c-mobile-actions"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button></div><nav class="c-section-tabs"><button :class="{active:view.viewMode!=='task'}" @click="view.viewMode='calendar'">日历</button><button :class="{active:view.viewMode==='task'}" @click="view.viewMode='task';view.taskStart=view.selectedDate">事项</button></nav></div>
+      <div class="c-schedule-card" :class="{'is-c-design':dramaPreviewEnabled}"><CalendarMonthBar v-if="dramaPreviewEnabled" :month="view.month" :title="monthTitle" :english="englishMonth" @previous="view.shiftMonth(-1)" @next="view.shiftMonth(1)" @today="view.today()"><div class="c-desktop-view"><button :class="{active:view.viewMode==='calendar'}" @click="view.viewMode='calendar'">月</button><button :class="{active:view.viewMode==='week'}" @click="view.viewMode='week'">周</button></div></CalendarMonthBar><section v-else class="month-heading">
         <button
           class="icon-button"
           :aria-label="lang.t.monthPrev"
@@ -281,8 +282,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </section>
-      <div v-if="dramaPreviewEnabled" class="schedule-intro"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /></div></div>
-      <FilterBar
+      <FilterBar ref="scheduleFilters" :design-c="dramaPreviewEnabled"
         @favorites="showFavorites"
         @profile="modal = 'profile'"
         @my-items="modal = 'my-items'" />
@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <template v-else
-          ><CalendarView
+          ><CalendarView :design-c="dramaPreviewEnabled"
             v-if="view.viewMode === 'calendar'"
             @day="openDay"
             @open="open" /><WeekView
@@ -417,7 +417,7 @@ onBeforeUnmount(() => {
             aria-label="欢迎合作联系"
             ><Icon name="handshake"
           /></span>
-        </div></main></template></template>
+        </div></main></div></template></template>
     <BaseModal v-if="linkedActivity" :title="linkedActivity.name" @close="linkedActivity=null"><p>{{linkedActivity.date}} {{linkedActivity.time}}</p><p>{{linkedActivity.venue}}</p><p>Press Tour / 观影活动 · 隔离测试</p><button @click="linkedActivity=null;openDrama()">查看关联 Drama</button></BaseModal>
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by
@@ -545,4 +545,6 @@ onBeforeUnmount(() => {
 .calendar-design-preview{--bg:#fff;background:#fff}.calendar-design-preview .site-nav{max-width:none;margin:0}.calendar-design-preview :deep(.home-page){background:#fff}:global(html:has(.calendar-design-preview)),:global(body:has(.calendar-design-preview)){background:#fff}
 .calendar-design-preview .month-heading{min-height:0;padding-top:4px;padding-bottom:14px}.calendar-design-preview .month-title h1{font-size:clamp(41px,calc(7vw - 3px),87px);font-weight:400}.calendar-design-preview .month-title h1 small{font-size:29px}@media(max-width:700px){.calendar-design-preview .month-title h1 small{font-size:23px}}
 .schedule-heading-container{display:contents}.calendar-design-preview .schedule-heading-row{display:grid;grid-template-columns:minmax(520px,1.2fr) minmax(320px,1fr);align-items:center;gap:24px;padding:32px 42px 26px;border-bottom:1px solid var(--border)}.calendar-design-preview .schedule-heading-row .schedule-intro{padding:0}.calendar-design-preview .schedule-heading-row .month-heading{padding:0;border:0;background:transparent;gap:18px;min-width:0}.calendar-design-preview .month-title h1{letter-spacing:2px;white-space:nowrap}.calendar-design-preview .schedule-heading-row .month-heading-right{gap:22px}.calendar-design-preview .schedule-heading-row .year{margin-bottom:5px}@media(max-width:1000px){.calendar-design-preview .schedule-heading-row{grid-template-columns:1fr;padding:24px 30px 18px;gap:22px}.calendar-design-preview .schedule-heading-row .month-heading{width:100%}}@media(max-width:700px){.calendar-design-preview .schedule-heading-row{padding:24px 12px 16px;gap:18px}.calendar-design-preview .month-title h1{letter-spacing:1px}.calendar-design-preview .schedule-heading-row .month-heading{gap:12px}.calendar-design-preview .schedule-heading-row .month-heading-right{gap:12px}}
+.c-schedule-card{display:contents}.calendar-design-preview .c-schedule-hero{position:relative;width:calc(100% - 64px);max-width:1184px;margin:0 auto;padding:56px 0 32px;box-sizing:border-box}.c-section-tabs{position:absolute;right:0;bottom:32px;display:flex;gap:28px}.c-section-tabs button,.c-desktop-view button{border:0;background:none;color:#74816f;padding:6px 0;font-size:14px;cursor:pointer}.c-section-tabs .active,.c-desktop-view .active{color:#27372d;border-bottom:2px solid #607d5a}.c-desktop-view{display:flex;gap:16px}.calendar-design-preview .c-schedule-card.is-c-design{display:block;max-width:1184px;width:calc(100% - 64px);margin:0 auto 48px;background:white;border:1px solid #e6e9e1;border-radius:9px;overflow:clip}.calendar-design-preview .c-schedule-card>.main-content{max-width:none;width:100%;padding:0;margin:0}.calendar-design-preview .c-schedule-card :deep(.filter-wrap){border:0;border-bottom:1px solid #eceee7;background:white}.calendar-design-preview .c-schedule-card :deep(.filter-bar){padding:10px 30px;min-height:54px;max-width:none;gap:24px;justify-content:flex-start;flex-wrap:wrap}.calendar-design-preview .c-schedule-card :deep(.segmented){background:none;border:0;padding:0;gap:24px;border-radius:0;box-shadow:none}.calendar-design-preview .c-schedule-card :deep(.segmented button){background:none;border:0;border-radius:0;padding:5px 0;color:#778273;box-shadow:none;font-size:13px}.calendar-design-preview .c-schedule-card :deep(.segmented button.active){background:none;color:#2c3930;border-bottom:2px solid #607d5a}.calendar-design-preview .c-schedule-card :deep(.dropdowns){margin-left:0;border-left:1px solid #d6ddce;padding-left:24px}.calendar-design-preview .c-schedule-card :deep(.month-grid){margin:0;border:0;border-radius:0;box-shadow:none}.calendar-design-preview .c-schedule-card :deep(.weekday){background:white;color:#758170;font-size:12px;font-weight:400;padding:12px 0}.calendar-design-preview .c-schedule-card :deep(.day-cell){background:white;border-color:#edf0e8}.calendar-design-preview .site-nav{height:55px;max-width:1260px;margin:auto;padding:0 38px;gap:16px}.c-nav-tools{margin-left:auto;display:flex;gap:20px;align-items:center}.c-nav-tools button,.c-mobile-actions button{border:0;background:none;padding:0;color:#26362e;cursor:pointer}.c-nav-tools svg,.c-mobile-actions svg{width:19px;height:19px}.c-nav-tools span{font-size:12px;color:#87917f;display:flex;align-items:center;gap:7px}.c-nav-tools i{width:6px;height:6px;background:#9aa68f;border-radius:50%}.c-mobile-actions{display:none}@media(max-width:700px){.calendar-design-preview .site-nav{padding:0 20px;gap:12px;height:55px}.calendar-design-preview .site-nav button{font-size:12px;letter-spacing:1px}.c-nav-tools{display:none}.calendar-design-preview .c-schedule-hero{width:100%;padding:28px 20px 54px}.c-section-tabs{left:20px;right:auto;bottom:8px;gap:30px}.c-mobile-actions{position:absolute;right:22px;top:28px;display:flex;gap:24px}.calendar-design-preview .c-schedule-card.is-c-design{width:calc(100% - 32px);margin-bottom:32px}.calendar-design-preview .c-schedule-card :deep(.filter-bar){padding:10px 16px;gap:10px 20px}.calendar-design-preview .c-schedule-card :deep(.dropdowns){width:100%;border:0;padding-left:0;gap:22px}.calendar-design-preview .c-schedule-card :deep(.segmented){gap:20px}.calendar-design-preview .c-schedule-card :deep(.day-cell){min-height:90px}}
+.calendar-design-preview .c-schedule-card :deep(.c-week-switch){display:none}@media(max-width:700px){.calendar-design-preview .c-schedule-card :deep(.c-week-switch){display:flex}.calendar-design-preview .c-schedule-card :deep(.c-week-switch){border-right:1px solid #d6ddce;padding-right:20px}}
 </style>

@@ -1,4 +1,6 @@
 <script setup>
+defineProps({designC:Boolean});
+defineExpose({toggleSearch:()=>{searchOpen.value=!searchOpen.value;}});
 import { ACTIVITY_TYPES } from '../utils/activityTypes';
 import { computed, ref } from 'vue';
 import { useViewStore } from '../stores/view';
@@ -35,7 +37,7 @@ function toggleFilter(key, value, all, checked) {
 <template>
   <div class="filter-wrap">
     <div class="filter-bar">
-      <div class="segmented">
+      <div v-if="!designC" class="segmented">
         <button
           :class="{ active: view.viewMode !== 'task' }"
           :aria-pressed="view.viewMode !== 'task'"
@@ -55,7 +57,7 @@ function toggleFilter(key, value, all, checked) {
           {{ lang.t.task }}
         </button>
       </div>
-      <div v-if="view.viewMode !== 'task'" class="segmented">
+      <div v-if="view.viewMode !== 'task'" class="segmented c-week-switch">
         <button
           :class="{ active: view.viewMode === 'calendar' }"
           :aria-pressed="view.viewMode === 'calendar'"
@@ -189,7 +191,7 @@ function toggleFilter(key, value, all, checked) {
           </div>
         </details>
       </div>
-      <div class="filter-actions">
+      <div v-if="!designC" class="filter-actions">
         <button
           class="icon-button"
           :aria-label="lang.t.search"
