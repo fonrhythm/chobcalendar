@@ -539,6 +539,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.schedule-intro{width:100%;max-width:none;margin:0;padding:40px 42px 22px;background:#fff;text-align:left}@media(max-width:700px){.schedule-intro{padding:20px 12px}}
+.schedule-intro{width:100%;max-width:none;margin:0;padding:40px 42px 6px;background:#fff;text-align:left}@media(max-width:700px){.schedule-intro{padding:20px 12px 6px}}
 .calendar-design-preview{--bg:#fff;background:#fff}.calendar-design-preview .site-nav{max-width:none;margin:0}.calendar-design-preview :deep(.home-page){background:#fff}:global(html:has(.calendar-design-preview)),:global(body:has(.calendar-design-preview)){background:#fff}
+.calendar-design-preview .month-heading{min-height:0;padding-top:4px;padding-bottom:14px}.calendar-design-preview .month-title h1{font-size:clamp(41px,calc(7vw - 3px),87px);font-weight:400}.calendar-design-preview .month-title h1 small{font-size:29px}@media(max-width:700px){.calendar-design-preview .month-title h1 small{font-size:23px}}
 </style>

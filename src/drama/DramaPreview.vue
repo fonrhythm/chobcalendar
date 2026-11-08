@@ -54,5 +54,6 @@ function shiftMonth(n){const d=new Date(month.value+'-01T00:00:00Z');d.setUTCMon
 @media(max-width:700px){.calendar{min-width:0;grid-template-columns:repeat(7,minmax(0,1fr))}.weekday{font-size:11px;padding:8px 2px}.day{min-height:90px;padding:4px 2px}.chip{font-size:10px;line-height:1.5;padding:5px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.drama-month-heading{gap:6px}.drama-month-heading h2{font-size:38px}.drama-month-heading small{font-size:20px;margin-left:8px}.drama-month-heading .arrow{padding:6px;font-size:28px}.drama-month-heading .today{font-size:12px;padding:5px 9px}.toolbar{flex-wrap:wrap}}
 .shell>main{max-width:none;margin:0;padding-left:42px;padding-right:42px;text-align:left}@media(max-width:700px){.shell>main{padding-left:12px;padding-right:12px}}
 .shell{background:#f1f5ed;min-height:calc(100dvh - 48px)}.shell>main{background:#f1f5ed}
+.drama-month-heading h2{font-size:clamp(41px,calc(7vw - 3px),87px);font-weight:400}.drama-month-heading small{font-size:29px}@media(max-width:700px){.drama-month-heading h2{font-size:35px}.drama-month-heading small{font-size:17px}}
 </style>
 
