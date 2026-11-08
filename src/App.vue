@@ -250,6 +250,7 @@ onBeforeUnmount(() => {
       </header>
       <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" :load-snapshot="cloudDramaPreview?loadCloudDrama:null" /></KeepAlive>
       <template v-if="!dramaVisible">
+      <div class="schedule-heading-container" :class="{'schedule-heading-row':dramaPreviewEnabled}">
       <div v-if="dramaPreviewEnabled" class="schedule-intro"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /></div>
       <section class="month-heading">
         <button
@@ -279,7 +280,7 @@ onBeforeUnmount(() => {
             <Icon name="right" />
           </button>
         </div>
-      </section>
+      </section></div>
       <FilterBar
         @favorites="showFavorites"
         @profile="modal = 'profile'"
@@ -542,4 +543,5 @@ onBeforeUnmount(() => {
 .schedule-intro{width:100%;max-width:none;margin:0;padding:40px 42px 6px;background:#fff;text-align:left}@media(max-width:700px){.schedule-intro{padding:20px 12px 6px}}
 .calendar-design-preview{--bg:#fff;background:#fff}.calendar-design-preview .site-nav{max-width:none;margin:0}.calendar-design-preview :deep(.home-page){background:#fff}:global(html:has(.calendar-design-preview)),:global(body:has(.calendar-design-preview)){background:#fff}
 .calendar-design-preview .month-heading{min-height:0;padding-top:4px;padding-bottom:14px}.calendar-design-preview .month-title h1{font-size:clamp(41px,calc(7vw - 3px),87px);font-weight:400}.calendar-design-preview .month-title h1 small{font-size:29px}@media(max-width:700px){.calendar-design-preview .month-title h1 small{font-size:23px}}
+.schedule-heading-container{display:contents}.calendar-design-preview .schedule-heading-row{display:grid;grid-template-columns:minmax(320px,1fr) minmax(520px,1.2fr);align-items:center;gap:24px;padding:32px 42px 26px;border-bottom:1px solid var(--border)}.calendar-design-preview .schedule-heading-row .schedule-intro{padding:0}.calendar-design-preview .schedule-heading-row .month-heading{padding:0;border:0;background:transparent;gap:18px;min-width:0}.calendar-design-preview .month-title h1{letter-spacing:2px;white-space:nowrap}.calendar-design-preview .schedule-heading-row .month-heading-right{gap:22px}.calendar-design-preview .schedule-heading-row .year{margin-bottom:5px}@media(max-width:1000px){.calendar-design-preview .schedule-heading-row{grid-template-columns:1fr;padding:24px 30px 18px;gap:22px}.calendar-design-preview .schedule-heading-row .month-heading{width:100%}}@media(max-width:700px){.calendar-design-preview .schedule-heading-row{padding:24px 12px 16px;gap:18px}.calendar-design-preview .month-title h1{letter-spacing:1px}.calendar-design-preview .schedule-heading-row .month-heading{gap:12px}.calendar-design-preview .schedule-heading-row .month-heading-right{gap:12px}}
 </style>

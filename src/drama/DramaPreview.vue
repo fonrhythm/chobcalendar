@@ -55,5 +55,6 @@ function shiftMonth(n){const d=new Date(month.value+'-01T00:00:00Z');d.setUTCMon
 .shell>main{max-width:none;margin:0;padding-left:42px;padding-right:42px;text-align:left}@media(max-width:700px){.shell>main{padding-left:12px;padding-right:12px}}
 .shell{background:#f1f5ed;min-height:calc(100dvh - 48px)}.shell>main{background:#f1f5ed}
 .drama-month-heading h2{font-size:clamp(41px,calc(7vw - 3px),87px);font-weight:400}.drama-month-heading small{font-size:29px}@media(max-width:700px){.drama-month-heading h2{font-size:35px}.drama-month-heading small{font-size:17px}}
+.drama-month-heading h2{letter-spacing:2px}@media(max-width:700px){.drama-month-heading h2{letter-spacing:1px}}
 </style>
 
