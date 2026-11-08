@@ -9,10 +9,11 @@ import {generateSchedule,dramaTitle,announcementsForEpisode} from './schedule.js
 const submissionOpen=ref(false);
 const key='chob-drama-private-v1';
 let saved;try{saved=JSON.parse(localStorage.getItem(key));}catch{}
-const db=ref(saved?.dramas && saved?.platforms && saved?.events && saved?.changes && saved?.artists?saved:structuredClone(initialData));
+const props=defineProps({embedded:Boolean,scheduleArtists:{type:Array,default:()=>[]},loadSnapshot:{type:Function,default:null}});
+const db=ref(props.loadSnapshot?{dramas:[],changes:[],events:[],platforms:[],artists:[]}:saved?.dramas && saved?.platforms && saved?.events && saved?.changes && saved?.artists?saved:structuredClone(initialData));
 const storageError=ref('');
-let polling;async function refresh(){try{const response=await fetch('/__drama_test_data');if(!response.ok)throw Error('测试数据读取失败');db.value=await response.json();storageError.value='';}catch(e){storageError.value=e.message;}}onMounted(()=>{refresh();polling=setInterval(refresh,2000);});onBeforeUnmount(()=>clearInterval(polling));
-defineProps({embedded:Boolean,scheduleArtists:{type:Array,default:()=>[]}});
+let polling;async function refresh(){try{if(props.loadSnapshot){db.value=await props.loadSnapshot();}else{const response=await fetch('/__drama_test_data');if(!response.ok)throw Error('测试数据读取失败');db.value=await response.json();}storageError.value='';}catch(e){storageError.value=e.message;}}onMounted(()=>{refresh();polling=setInterval(refresh,props.loadSnapshot?30000:2000);});onBeforeUnmount(()=>clearInterval(polling));
+
 
 const tab=ref('calendar'),month=ref('2026-11'),search=ref(''),selected=ref(null),error=ref(''),notice=ref(''),eventSelected=ref(null),unused=ref(null);
 
@@ -34,7 +35,7 @@ function shiftMonth(n){const d=new Date(month.value+'-01T00:00:00Z');d.setUTCMon
 <div class="shell"><header v-if="!embedded"><a class="brand" href="#">CHOB<span>CALENDAR</span></a><span class="private">私人测试 · 隔离数据</span></header>
 <main><CalendarSectionHeading word="Drama" chinese="追剧日历" eyebrow="STORIES, ONE DAY AT A TIME" description="把每一次相遇，放进日历。" />
 <nav><button v-for="(label,id) in {calendar:'播出月历',library:'剧集库'}" :class="{active:tab===id}" @click="tab=id">{{label}}</button></nav>
-<p v-if="storageError" role="alert">{{storageError}}</p><p v-if="notice" role="status">{{notice}}</p>
+<p v-if="loadSnapshot" class="muted">管理员私有数据库预览 · 未公开发布 <button @click="refresh">刷新资料</button></p><p v-if="storageError" role="alert">{{storageError}}</p><p v-if="notice" role="status">{{notice}}</p>
 <section v-if="tab==='calendar'"><div class="drama-month-heading"><button class="arrow" aria-label="上个月" @click="shiftMonth(-1)">‹</button><div><span class="year">{{month.slice(0,4)}}</span><h2>{{chineseMonths[Number(month.slice(5))-1]}}<small>{{englishMonths[Number(month.slice(5))-1]}}</small></h2></div><button class="today" @click="month=new Date().toISOString().slice(0,7)">今天</button><button class="arrow" aria-label="下个月" @click="shiftMonth(1)">›</button></div><div class="calendar"><b v-for="w in ['日','一','二','三','四','五','六']" class="weekday">{{w}}</b><div v-for="(day,index) in days" :key="day||index" class="day" :class="{blank:!day}"><span class="day-number">{{day?Number(day.slice(-2)):''}}</span><template v-if="day"><button v-for="s in slots.filter(s=>s.date===day)" :key="s.id" class="chip" :class="{changed:s.status==='changed'}" @click="open(drama(s.dramaId),s)"><span :class="{strike:s.status==='changed'}">{{title(drama(s.dramaId))}} · EP.{{s.episode}}</span><span v-if="s.status==='changed'"> · 剧集变动</span></button></template></div></div></section>
 <section v-if="tab==='library'"><div class="toolbar"><input v-model="search" placeholder="搜索剧名、类型" aria-label="搜索剧集"><span>{{filtered.length}} 部剧集</span></div><div class="cards"><article v-for="d in filtered" :key="d.id" class="card"><button class="card-main" @click="open(d)"><img v-if="safe(d.poster)" :src="safe(d.poster)" alt="剧集海报"><div v-else class="poster">CHOB<br>DRAMA</div><div><span class="badge">{{status(d)}}</span><h2>{{title(d)}}</h2><p>{{d.titleEn}}</p><p class="muted">{{d.types.join(' · ')}}</p><p>{{d.cast.map(c=>c.name).join('、')||'Cast 待公布'}}</p></div></button></article></div><p v-if="!filtered.length">暂无匹配剧集</p></section>
 

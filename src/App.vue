@@ -1,4 +1,8 @@
 <script setup>
+import {supabase} from './api/supabase';
+import {readPrivateDrama} from './drama/cloudReader.js';
+const cloudDramaPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('dramaSource')==='cloud';
+const loadCloudDrama=()=>readPrivateDrama(supabase);
 import CalendarSectionHeading from './components/CalendarSectionHeading.vue';
 import {defineAsyncComponent} from 'vue';
 import {legacyScheduleFilter} from './utils/scheduleRegion.js';
@@ -167,7 +171,7 @@ function openDay(value) {
 }
 let timer, dramaSyncTimer;
 const linkedActivity=ref(null);
-async function syncDramaActivities(){if(!dramaPreviewEnabled)return;try{const response=await fetch('/__drama_test_data');if(!response.ok)return;const test=await response.json();data.dramaPreviewEvents=test.events.map((event,index)=>({...normalizeRecord({id:'drama-test:'+event.id,name:event.name,date:event.date,time:event.time,region:event.region||'thailand',kind:'event',type:'press',activity_type:'press',venue:event.location||'',artist_ids:event.artistIds||[],note:'Drama 隔离测试活动'},index,'demo'),dramaPreview:true,dramaId:event.dramaId}));}catch{ /* Keep the last isolated snapshot if the test service is unavailable. */ }}
+async function syncDramaActivities(){if(!dramaPreviewEnabled)return;try{let test;if(cloudDramaPreview){test=await loadCloudDrama();}else{const response=await fetch('/__drama_test_data');if(!response.ok)return;test=await response.json();}data.dramaPreviewEvents=test.events.map((event,index)=>({...normalizeRecord({id:'drama-test:'+event.id,name:event.name,date:event.date,time:event.time,region:event.region||'thailand',kind:'event',type:'press',activity_type:'press',venue:event.location||'',artist_ids:event.artistIds||[],note:'Drama 隔离测试活动'},index,'demo'),dramaPreview:true,dramaId:event.dramaId}));}catch{ /* Keep the last isolated snapshot if the test service is unavailable. */ }}
 
 watch(()=>view.month,()=>data.sync());
 function onVisible() {
@@ -183,7 +187,7 @@ function closeMenus(e) {
 }
 onMounted(() => {
   syncDramaActivities();
-  if(dramaPreviewEnabled)dramaSyncTimer=setInterval(syncDramaActivities,2000);
+  if(dramaPreviewEnabled)dramaSyncTimer=setInterval(syncDramaActivities,cloudDramaPreview?30000:2000);
   applyHash();
   window.addEventListener('hashchange',applyHash);
   account.initialize();
@@ -221,7 +225,7 @@ onBeforeUnmount(() => {
     /><template v-else
       ><header class="site-header">
         <nav v-if="dramaPreviewEnabled" class="site-nav" aria-label="Main navigation">
-          <button @click="showHome">CHOB</button><span>›</span><button :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button :class="{active:dramaVisible}" @click="openDrama">Drama</button><span>›</span><button @click="modal='about'">About</button>
+          <button @click="showHome">CHOB</button><span>›</span><button :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button :class="{active:dramaVisible}" @click="openDrama">Drama</button><button v-if="cloudDramaPreview" @click="modal='profile'">管理员登录</button><span>›</span><button @click="modal='about'">About</button>
         </nav><nav v-else class="site-nav" aria-label="Main navigation">
           <button @click="showHome">CHOB</button><span>›</span
           ><button
@@ -244,7 +248,7 @@ onBeforeUnmount(() => {
           ><span v-if="dramaPreviewEnabled">›</span><button v-if="dramaPreviewEnabled" @click="openDrama">DRAMA</button><span>›</span><button @click="modal = 'about'">ABOUT</button>
         </nav>
       </header>
-      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" /></KeepAlive>
+      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" :load-snapshot="cloudDramaPreview?loadCloudDrama:null" /></KeepAlive>
       <template v-if="!dramaVisible">
       <div v-if="dramaPreviewEnabled" class="schedule-intro"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /></div>
       <section class="month-heading">
