@@ -209,7 +209,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="site"
-    :class="{ 'is-home': home }"
+    :class="{ 'is-home': home, 'calendar-design-preview':dramaPreviewEnabled }"
     :data-region="view.currentRegion"
   >
     <HomePage
@@ -539,5 +539,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.schedule-intro{max-width:1280px;margin:auto;padding:40px 30px 22px;background:#faf9f6}@media(max-width:700px){.schedule-intro{padding:20px 12px}}
+.schedule-intro{width:100%;max-width:none;margin:0;padding:40px 42px 22px;background:#fff;text-align:left}@media(max-width:700px){.schedule-intro{padding:20px 12px}}
+.calendar-design-preview{--bg:#fff;background:#fff}.calendar-design-preview .site-nav{max-width:none;margin:0}.calendar-design-preview :deep(.home-page){background:#fff}:global(html:has(.calendar-design-preview)),:global(body:has(.calendar-design-preview)){background:#fff}
 </style>
