@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {productionCompanyOptions} from '../src/drama/companies.js';
+test('production companies reuse artist companies and preserve stored choices',()=>{assert.deepEqual(productionCompanyOptions([{company:'GMMTV / One31'},{company:' gmmtv '},{company:''},{company:'Archived',deleted_at:'today'}]),['GMMTV','One31']);assert.deepEqual(productionCompanyOptions([],'Previous'),['Previous']);});

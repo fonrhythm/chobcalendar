@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
           ><span v-if="dramaPreviewEnabled">›</span><button v-if="dramaPreviewEnabled" @click="openDrama">DRAMA</button><span>›</span><button @click="modal = 'about'">ABOUT</button>
         </nav>
       </header>
-      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded /></KeepAlive>
+      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" /></KeepAlive>
       <template v-if="!dramaVisible">
       <section v-if="dramaPreviewEnabled" class="schedule-intro"><p class="schedule-eyebrow">EVERY MOMENT, A LITTLE CLOSER</p><h1><span class="schedule-wordmark"><span>S</span>chedule</span><em>艺人行程</em></h1><p>把每一次见面，放进日历。</p></section>
       <section class="month-heading">
