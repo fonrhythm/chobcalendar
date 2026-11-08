@@ -10,3 +10,5 @@ test('invalid dates and incomplete platform rules fail',()=>{assert.throws(()=>g
 
 test('weekly days and dated changes support Thu/Fri then Thu/Sun',()=>{const rows=generateSchedule(drama,{...rule,premiere:'2026-11-05',weekdays:[4,5],totalEpisodes:6,episodesPerRelease:1,phases:[{from:'2026-11-12',weekdays:[4,0]}]});assert.deepEqual(rows.map(r=>r.date),['2026-11-05','2026-11-06','2026-11-12','2026-11-15','2026-11-19','2026-11-22']);});
 test('weekly validation rejects empty days, mismatched premiere and invalid phases',()=>{assert.throws(()=>generateSchedule(drama,{...rule,weekdays:[]}));assert.throws(()=>generateSchedule(drama,{...rule,weekdays:[4]}));assert.throws(()=>generateSchedule(drama,{...rule,weekdays:[5],phases:[{from:'2026-12-26',weekdays:[]}]}));});
+
+test('weekday changes can take effect on the premiere day',()=>{const rows=generateSchedule(drama,{...rule,premiere:'2026-11-05',totalEpisodes:3,episodesPerRelease:1,weekdays:[5],phases:[{from:'2026-11-05',weekdays:[4,0]}]});assert.deepEqual(rows.map(r=>r.date),['2026-11-05','2026-11-08','2026-11-12']);});
