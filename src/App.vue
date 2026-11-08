@@ -1,4 +1,5 @@
 <script setup>
+import CalendarSectionHeading from './components/CalendarSectionHeading.vue';
 import {defineAsyncComponent} from 'vue';
 import {legacyScheduleFilter} from './utils/scheduleRegion.js';
 const DramaDisplay = import.meta.env.DEV ? defineAsyncComponent(()=>import('./drama/DramaPreview.vue')) : null;
@@ -245,7 +246,7 @@ onBeforeUnmount(() => {
       </header>
       <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" /></KeepAlive>
       <template v-if="!dramaVisible">
-      <section v-if="dramaPreviewEnabled" class="schedule-intro"><p class="schedule-eyebrow">EVERY MOMENT, A LITTLE CLOSER</p><h1><span class="schedule-wordmark"><span>S</span>chedule</span><em>艺人行程</em></h1><p>把每一次见面，放进日历。</p></section>
+      <div v-if="dramaPreviewEnabled" class="schedule-intro"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /></div>
       <section class="month-heading">
         <button
           class="icon-button"
@@ -534,5 +535,5 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.schedule-intro{padding:40px max(42px,calc((100vw - 1176px)/2)) 22px;background:#faf9f6;color:#89957d}.schedule-eyebrow{font-size:11px;letter-spacing:3px;margin:0 0 16px}.schedule-intro h1{display:flex;align-items:baseline;gap:24px;margin:8px 0 18px}.schedule-wordmark{color:#000;font:400 44px Georgia,'Times New Roman',serif;letter-spacing:-2px}.schedule-wordmark>span{font-family:'Edwardian Script ITC','Monotype Corsiva','Brush Script MT',cursive;font-size:1.7em;font-style:italic;line-height:.65;margin-right:-.12em}.schedule-intro em{font:normal 21px system-ui}.schedule-intro>p:last-child{font-size:15px;margin:0;color:#7d857d}@media(max-width:700px){.schedule-intro{padding:30px 24px 20px}.schedule-wordmark{font-size:34px}.schedule-intro h1{gap:16px}.schedule-intro em{font-size:18px}}
+.schedule-intro{max-width:1280px;margin:auto;padding:40px 30px 22px;background:#faf9f6}@media(max-width:700px){.schedule-intro{padding:20px 12px}}
 </style>

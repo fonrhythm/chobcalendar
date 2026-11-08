@@ -1,4 +1,5 @@
 <script setup>
+import CalendarSectionHeading from '../components/CalendarSectionHeading.vue';
 import {resolvePlatformLogo,matchedPlatform} from './platforms.js';
 const platformLogo=p=>resolvePlatformLogo(p,import.meta.env.BASE_URL);
 import {ref,computed,onMounted,onBeforeUnmount} from 'vue';
@@ -31,7 +32,7 @@ function shiftMonth(n){const d=new Date(month.value+'-01T00:00:00Z');d.setUTCMon
 </script>
 <template>
 <div class="shell"><header v-if="!embedded"><a class="brand" href="#">CHOB<span>CALENDAR</span></a><span class="private">私人测试 · 隔离数据</span></header>
-<main><div class="heading"><div><p class="eyebrow">STORIES, ONE DAY AT A TIME</p><h1><span class="drama-wordmark"><span>D</span>rama</span> <em>追剧日历</em></h1><p class="muted">把每一次相遇，放进日历。</p></div></div>
+<main><CalendarSectionHeading word="Drama" chinese="追剧日历" eyebrow="STORIES, ONE DAY AT A TIME" description="把每一次相遇，放进日历。" />
 <nav><button v-for="(label,id) in {calendar:'播出月历',library:'剧集库'}" :class="{active:tab===id}" @click="tab=id">{{label}}</button></nav>
 <p v-if="storageError" role="alert">{{storageError}}</p><p v-if="notice" role="status">{{notice}}</p>
 <section v-if="tab==='calendar'"><div class="drama-month-heading"><button class="arrow" aria-label="上个月" @click="shiftMonth(-1)">‹</button><div><span class="year">{{month.slice(0,4)}}</span><h2>{{chineseMonths[Number(month.slice(5))-1]}}<small>{{englishMonths[Number(month.slice(5))-1]}}</small></h2></div><button class="today" @click="month=new Date().toISOString().slice(0,7)">今天</button><button class="arrow" aria-label="下个月" @click="shiftMonth(1)">›</button></div><div class="calendar"><b v-for="w in ['日','一','二','三','四','五','六']" class="weekday">{{w}}</b><div v-for="(day,index) in days" :key="day||index" class="day" :class="{blank:!day}"><span class="day-number">{{day?Number(day.slice(-2)):''}}</span><template v-if="day"><button v-for="s in slots.filter(s=>s.date===day)" :key="s.id" class="chip" :class="{changed:s.status==='changed'}" @click="open(drama(s.dramaId),s)"><span :class="{strike:s.status==='changed'}">{{title(drama(s.dramaId))}} · EP.{{s.episode}}</span><span v-if="s.status==='changed'"> · 剧集变动</span></button></template></div></div></section>
