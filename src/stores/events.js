@@ -19,6 +19,7 @@ import { sourceRule } from '../utils/sources';
 import { companyOptions, matchesCompany } from '../utils/companyFilter';
 import { isPendingItem } from '../utils/taskCompletion';
 export const useEventsStore = defineStore('events', () => {
+  const dramaPreviewEvents = ref([]);
   const artistCatalog = ref([]),
     typeCatalog = ref([]),
     conditionCatalog = ref([]),
@@ -60,7 +61,7 @@ export const useEventsStore = defineStore('events', () => {
   } catch {}
   const view = useViewStore(),
     inRegion = computed(() =>
-      records.value.filter((r) => import.meta.env.DEV ? matchesScheduleRegion(r,view.scheduleRegion) : r.region === view.currentRegion),
+      (import.meta.env.DEV ? [...records.value,...dramaPreviewEvents.value] : records.value).filter((r) => import.meta.env.DEV ? matchesScheduleRegion(r,view.scheduleRegion) : r.region === view.currentRegion),
     );
   const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>
@@ -403,6 +404,7 @@ export const useEventsStore = defineStore('events', () => {
     sync();
   }
   return {
+    dramaPreviewEvents,
     completionNow, refreshCompletionClock, isPending,
     searchArtists,ensureRecords,ensureArtists,catalogError,
     retryAt, syncMessageKey, cancelSync, dataIssues,

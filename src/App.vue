@@ -21,7 +21,7 @@ import { useViewStore } from './stores/view';
 import { useEventsStore } from './stores/events';
 import { useLanguageStore } from './stores/language';
 import { parseDate } from './utils/dates';
-import { safeUrl } from './utils/records';
+import { safeUrl, normalizeRecord } from './utils/records';
 import Icon from './components/Icon.vue';
 import { getEventCategoryColor } from './utils/config';
 import FilterBar from './components/FilterBar.vue';
@@ -131,6 +131,7 @@ const modalTitle = computed(() =>
 let openRevision=0;
 async function open(itemValue) {
   if(!itemValue?.id)return;
+  if(itemValue.dramaPreview){linkedActivity.value=itemValue;return;}
   const revision=++openRevision;
   try{await data.ensureRecords([itemValue.kind==='task'?itemValue.event_id:itemValue.id]);itemValue=data.records.find(r=>r.id===itemValue.id)||itemValue}catch(e){data.personalError=e.message;return}
   if(revision!==openRevision)return;
@@ -163,7 +164,10 @@ function openDay(value) {
   day.value = value;
   modal.value = 'day';
 }
-let timer;
+let timer, dramaSyncTimer;
+const linkedActivity=ref(null);
+async function syncDramaActivities(){if(!dramaPreviewEnabled)return;try{const response=await fetch('/__drama_test_data');if(!response.ok)return;const test=await response.json();data.dramaPreviewEvents=test.events.map((event,index)=>({...normalizeRecord({id:'drama-test:'+event.id,name:event.name,date:event.date,time:event.time,region:event.region||'thailand',kind:'event',type:'press',activity_type:'press',venue:event.location||'',artist_ids:event.artistIds||[],note:'Drama 隔离测试活动'},index,'demo'),dramaPreview:true,dramaId:event.dramaId}));}catch{ /* Keep the last isolated snapshot if the test service is unavailable. */ }}
+
 watch(()=>view.month,()=>data.sync());
 function onVisible() {
   if (!document.hidden) {
@@ -177,6 +181,8 @@ function closeMenus(e) {
   });
 }
 onMounted(() => {
+  syncDramaActivities();
+  if(dramaPreviewEnabled)dramaSyncTimer=setInterval(syncDramaActivities,2000);
   applyHash();
   window.addEventListener('hashchange',applyHash);
   account.initialize();
@@ -190,6 +196,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('hashchange',applyHash);
   data.cancelSync();
   clearInterval(timer);
+  clearInterval(dramaSyncTimer);
   document.removeEventListener('visibilitychange', onVisible);
   document.removeEventListener('click', closeMenus);
 });
@@ -403,6 +410,7 @@ onBeforeUnmount(() => {
             ><Icon name="handshake"
           /></span>
         </div></main></template></template>
+    <BaseModal v-if="linkedActivity" :title="linkedActivity.name" @close="linkedActivity=null"><p>{{linkedActivity.date}} {{linkedActivity.time}}</p><p>{{linkedActivity.venue}}</p><p>Press Tour / 观影活动 · 隔离测试</p><button @click="linkedActivity=null;openDrama()">查看关联 Drama</button></BaseModal>
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by
       SomenStjerne
