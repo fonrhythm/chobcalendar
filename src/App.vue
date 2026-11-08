@@ -192,7 +192,7 @@ onMounted(() => {
   window.addEventListener('hashchange',applyHash);
   account.initialize();
   theme.initTheme();
-  data.initialize();
+  if(dramaPreviewEnabled&&!cloudDramaPreview&&new URLSearchParams(location.search).get('demo')==='1')data.showDemo();else data.initialize();
   timer = setInterval(onVisible, 60 * 1000);
   document.addEventListener('visibilitychange', onVisible);
   document.addEventListener('click', closeMenus);
