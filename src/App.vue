@@ -1,4 +1,10 @@
 <script setup>
+import {defineAsyncComponent} from 'vue';
+const DramaDisplay = import.meta.env.DEV ? defineAsyncComponent(()=>import('./drama/DramaPreview.vue')) : null;
+const dramaPreviewEnabled = import.meta.env.DEV;
+const dramaVisible = ref(dramaPreviewEnabled && location.hash === '#drama');
+function openDrama(){dramaVisible.value=true;home.value=false;location.hash='drama';}
+
 import { compareDisplayOrder } from './utils/displayOrder';
 import AccountPanel from './components/AccountPanel.vue';
 import CorrectionForm from './components/CorrectionForm.vue';
@@ -37,11 +43,13 @@ const entryForm = ref(null),
   home = ref(!location.hash || location.hash === '#home'),
   fromDay = ref(false);
 function enterRegion(region) {
+  dramaVisible.value=false;
   home.value = false;
   location.hash = region;
   view.setRegion(region);
 }
 function showHome() {
+  dramaVisible.value=false;
   home.value = true;
   location.hash = 'home';
 }
@@ -215,9 +223,11 @@ onBeforeUnmount(() => {
             @click="enterRegion('oversea')"
           >
             OVERSEA</button
-          ><span>›</span><button @click="modal = 'about'">ABOUT</button>
+          ><span v-if="dramaPreviewEnabled">›</span><button v-if="dramaPreviewEnabled" @click="openDrama">DRAMA</button><span>›</span><button @click="modal = 'about'">ABOUT</button>
         </nav>
       </header>
+      <DramaDisplay v-if="dramaVisible" embedded />
+      <template v-else>
       <section class="month-heading">
         <button
           class="icon-button"
@@ -382,8 +392,7 @@ onBeforeUnmount(() => {
             aria-label="欢迎合作联系"
             ><Icon name="handshake"
           /></span>
-        </div></main
-    ></template>
+        </div></main></template></template>
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by
       SomenStjerne
