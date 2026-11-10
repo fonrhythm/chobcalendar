@@ -1317,3 +1317,10 @@
   .message-links { font-size: 9px; gap: 5px; flex-wrap: nowrap; justify-content: space-between; white-space: nowrap; }
   .message-links > * { min-width: 0; }
 }
+
+@media (min-width: 721px) {
+  .modal.event-modal {
+    width: 61.75vw;
+    max-width: 559px;
+  }
+}
