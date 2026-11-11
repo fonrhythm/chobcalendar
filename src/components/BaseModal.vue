@@ -91,6 +91,7 @@ onBeforeUnmount(() => {
           </button>
         </header>
         <div class="modal-content"><slot /></div>
+        <p v-if="subtitle" class="day-scroll-hint">可以上下滑动查看本日行程</p>
         <div v-if="accent" class="detail-bottom-space" aria-hidden="true"></div>
       </section></div
   ></Teleport>

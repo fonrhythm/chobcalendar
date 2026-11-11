@@ -324,13 +324,11 @@ onBeforeUnmount(() => {
           >
             <Icon name="plus" />{{ lang.t.add }}</button
           ><button class="pill" @click="correctFromFooter">我要纠错</button
+          ><button class="pill" @click="modal = 'tutorial'">使用教程</button
           ><button class="pill about-button" @click="modal = 'about'">
             ABOUT
           </button>
         </div>
-        <button class="tutorial-link" @click="modal = 'tutorial'">
-          使用教程
-        </button>
 
         <div class="social-footer">
           <a
