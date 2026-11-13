@@ -147,7 +147,7 @@ if (props.editing) {
     activity: e.title,
     date: e.date,
     time: e.attributes?.time_text || e.time || '',
-    region: e.attributes?.region || '',
+    region: ['china','中国','oversea','overseas','海外'].includes(e.attributes?.region)?'oversea':['thailand','thai','泰国'].includes(e.attributes?.region)?'thailand':'',
     city: e.location_region || '',
     venue: e.location || '',
     company: e.company || '',
@@ -291,9 +291,8 @@ defineExpose({ requestClose });
         >{{ lang.t.region }} <em>*</em
         ><select v-model="form.region" required>
           <option value="">{{ lang.t.choose }}</option>
-          <option value="thailand">THAILAND</option>
-          <option value="china">CHINA</option>
-          <option value="oversea">OVERSEA</option>
+          <option value="thailand">{{ lang.currentLanguage==='zh'?'泰国':lang.currentLanguage==='th'?'ประเทศไทย':'Thailand' }}</option>
+          <option value="oversea">{{ lang.currentLanguage==='zh'?'海外':lang.currentLanguage==='th'?'ต่างประเทศ':'Overseas' }}</option>
         </select></label
       >
       <label
