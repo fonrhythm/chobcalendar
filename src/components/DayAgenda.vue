@@ -1,4 +1,5 @@
 <script setup>
+import {matchesScheduleRegion} from '../utils/scheduleRegion.js';
 import { usesOutline } from '../utils/artistSelection';
 import { activityLabel } from '../utils/activityTypes';
 import { eventState } from '../utils/eventState';
@@ -14,12 +15,12 @@ const props = defineProps({ day: String });
 const emit = defineEmits(['open']);
 const data = useEventsStore(),
   lang = useLanguageStore(),
-  selected = ref('all');
+  selected = ref('all'),region = ref('all');
 const past = computed(() => props.day < dateKey(new Date()));
 const rows = computed(() => data.onDate(props.day));
 const visible = computed(() =>
   rows.value.filter(
-    (r) => selected.value === 'all' || attendance(r.city) === selected.value,
+    (r) => matchesScheduleRegion(r,region.value) && (selected.value === 'all' || attendance(r.city) === selected.value),
   ),
 );
 </script>
@@ -37,6 +38,9 @@ const visible = computed(() =>
     >
       {{ lang.t[type] }}
     </button>
+  </div>
+  <div class="activity-tabs day-tabs day-region-tabs" role="group" :aria-label="lang.t.region||'地区'">
+    <button v-for="area in ['all','thailand','oversea']" :key="area" :class="{active:region===area}" :aria-pressed="region===area" @click="region=area">{{area==='all'?lang.t.all:({zh:{thailand:'泰国',oversea:'海外'},en:{thailand:'Thailand',oversea:'Overseas'},th:{thailand:'ไทย',oversea:'ต่างประเทศ'}})[lang.currentLanguage][area]}}</button>
   </div>
   <div class="day-capsules">
     <button

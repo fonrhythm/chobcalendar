@@ -1327,3 +1327,7 @@
 
 /* Keep the full navigation reachable when localized labels exceed a narrow viewport. */
 @media(max-width:700px){.site-nav{justify-content:flex-start;overflow-x:auto;max-width:100%;min-width:0;box-sizing:border-box;scrollbar-width:none}.site-nav::-webkit-scrollbar{display:none}.site-nav>*{flex-shrink:0}}
+
+/* All-day lists share the detail dialog width on desktop. */
+@media(min-width:721px){.modal.day-modal,.modal.drama-day-modal{width:min(559px,calc(100vw - 32px));max-width:559px}}
+.day-region-tabs{margin-top:-6px;margin-bottom:18px;flex-wrap:wrap;gap:8px}.day-region-tabs button{font-size:13px;padding:7px 18px}

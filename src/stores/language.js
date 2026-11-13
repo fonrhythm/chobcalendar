@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 const messages = {
   zh: {
-    dayScrollHint: '可以上下滑动查看本日行程',
+    dayScrollHint: '上下滑动查看本日全部行程',
     scheduleTotal: '共{n}项日程',
     eventTotal: '共{n}个活动',
     dateLabel: '日期',
