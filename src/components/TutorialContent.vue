@@ -1,5 +1,11 @@
+<script setup>
+import {ref,computed} from 'vue';import {useLanguageStore} from '../stores/language';import {tours,tourCopy} from '../onboarding/config.js';
+const props=defineProps({interactive:Boolean,initialModule:{type:String,default:'schedule'},guideState:{type:Object,default:()=>({modules:{},learned:[]})}});const emit=defineEmits(['replay']);const language=useLanguageStore(),chosen=ref(props.initialModule);
+const copy=computed(()=>({zh:{title:'使用教程',intro:'两套日历各有独立教程，随时可以重新查看。已学过的共通步骤可选择跳过。',replay:'重新播放遮罩教程',completed:'已完成',skipped:'已跳过',new:'尚未学习'},en:{title:'User guide',intro:'Each calendar has its own guide. Replay anytime, and optionally skip shared topics already learned.',replay:'Replay guided tour',completed:'Completed',skipped:'Skipped',new:'Not started'},th:{title:'คู่มือการใช้งาน',intro:'แต่ละปฏิทินมีคู่มือแยกกัน เปิดดูใหม่ได้ทุกเมื่อและเลือกข้ามเนื้อหาร่วมที่เรียนแล้วได้',replay:'เริ่มคู่มือแบบไฮไลต์อีกครั้ง',completed:'เรียนแล้ว',skipped:'ข้ามแล้ว',new:'ยังไม่เริ่ม'}})[language.currentLanguage]);
+</script>
 <template>
-  <article class="tutorial-content">
+  <article v-if="interactive" class="guide-hub"><h3>{{copy.title}}</h3><p>{{copy.intro}}</p><nav><button v-for="module in ['schedule','drama']" :key="module" :aria-pressed="chosen===module" :class="{active:chosen===module}" @click="chosen=module">{{module==='schedule'?'Schedule':'Drama'}}<small>{{copy[guideState.modules[module]?.status||'new']}}</small></button></nav><button class="guide-replay" @click="emit('replay',chosen)">{{chosen==='schedule'?'Schedule':'Drama'}} · {{copy.replay}}</button><ol><li v-for="step in tours[chosen]" :key="step.id"><h4>{{tourCopy(step.title,language.currentLanguage)}}</h4><p>{{tourCopy(step.body,language.currentLanguage)}}</p></li></ol></article>
+  <article v-else class="tutorial-content">
     <h3>查看活动</h3>
     <p>
       从主页选择 CHINA、THAILAND 或
@@ -35,3 +41,5 @@
     </p>
   </article>
 </template>
+
+<style scoped>.guide-hub{font-size:13px;line-height:1.7}.guide-hub>h3{font-size:20px;margin-top:0}.guide-hub nav{display:flex;gap:12px;margin:20px 0}.guide-hub nav button{flex:1;padding:10px 14px;border:1px solid #8DA6C144;background:transparent;color:inherit;border-radius:8px;font:inherit;cursor:pointer}.guide-hub nav button.active{border-color:#6F9DD4;background:#6F9DD418}.guide-hub small{display:block;font-size:10px;opacity:.65}.guide-replay{background:#587DAA;color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;cursor:pointer}.guide-hub ol{padding-left:22px;margin-top:24px}.guide-hub li{padding:0 0 10px 4px}.guide-hub h4{font-size:14px;margin:14px 0 6px}.guide-hub li p{margin:0;opacity:.8}</style>

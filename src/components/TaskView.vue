@@ -90,7 +90,7 @@ function open(item) {
               <span class="task-entry-name">{{ item.name }}</span>
               <span class="task-entry-detail"><span>{{ item.activity }}</span><time>{{ (item.end_date || item.date).slice(5) }}</time></span>
             </button>
-            <a v-if="item.action_url" class="task-action" :href="item.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+            <a v-if="item.action_url" class="task-action" :href="item.action_url" target="_blank" rel="noopener noreferrer">操作链接</a>
           </div>
           <p
             v-if="!rows.some((r) => taskCategory(r.task_type) === type.value)"

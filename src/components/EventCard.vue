@@ -68,6 +68,6 @@ const lang = useLanguageStore();
         <i></i><span>{{ range.end }}</span>
       </div>
     </div>
-    <Icon class="card-arrow" name="arrow" />
+    
   </button>
 </template>

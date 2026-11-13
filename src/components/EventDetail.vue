@@ -149,9 +149,9 @@ const eventTasks = computed(() =>
       <article v-for="task in eventTasks" :key="task.id" class="detail-task">
         <strong>{{ task.activity }}</strong>
         <span v-if="task.completion.closed"> · {{ task.completionLabel }}</span>
-        <a v-if="task.result_url" :href="task.result_url" target="_blank" rel="noopener noreferrer">查看公示名单 ↗</a>
+        <a v-if="task.result_url" :href="task.result_url" target="_blank" rel="noopener noreferrer">查看公示名单</a>
         <p v-if="task.steps" style="white-space: pre-wrap">{{ task.steps }}</p>
-        <a v-if="task.action_url && !task.completion.closed" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接 ↗</a>
+        <a v-if="task.action_url && !task.completion.closed" :href="task.action_url" target="_blank" rel="noopener noreferrer">操作链接</a>
       </article>
     </section>
 
@@ -168,8 +168,7 @@ const eventTasks = computed(() =>
       rel="noopener noreferrer"
       ><span
         >{{ lang.t.link }}<small>{{ linkHost }}</small></span
-      ><Icon name="arrow"
-    /></a>
+      ></a>
     <p v-if="data.personalError" role="alert">{{ data.personalError }}</p>
     <div class="detail-footer">
       <button class="pill" @click="emit('correct', item)">我要纠错</button

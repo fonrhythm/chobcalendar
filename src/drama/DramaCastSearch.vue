@@ -1,0 +1,19 @@
+<script setup>
+import {useDramaI18n} from './useDramaI18n.js';const {language,tr}=useDramaI18n();
+import {computed,ref,watch,useId,onMounted,onBeforeUnmount} from 'vue';
+import {normalizeSearch} from '../utils/artistFilters';
+const displayArtistName=a=>a?.en_name||a?.name||a?.zh_name||'';
+function searchArtist(a,q){const query=normalizeSearch(q);return !query||normalizeSearch([a.name,a.en_name,a.zh_name,a.th_name,a.company,...(a.aliases||[])].filter(Boolean).join(' ')).includes(query);}
+const props=defineProps({modelValue:String,artists:{type:Array,default:()=>[]},fallbackName:String});const emit=defineEmits(['select']);
+const query=ref(''),open=ref(false),active=ref(0),root=ref(null),listId=useId();
+const selected=computed(()=>props.artists.find(a=>a.id===props.modelValue));
+const results=computed(()=>props.artists.filter(a=>!a.deleted_at&&searchArtist(a,query.value)).slice(0,40));
+watch(query,()=>active.value=0);
+function choose(artist){emit('select',artist);query.value='';open.value=false;}
+function keyboard(e){if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();open.value=true;active.value=Math.max(0,Math.min(results.value.length-1,active.value+(e.key==='ArrowDown'?1:-1)));}else if(e.key==='Enter'){e.preventDefault();if(open.value&&results.value[active.value])choose(results.value[active.value]);}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();open.value=false;}}
+function outside(e){if(!root.value?.contains(e.target))open.value=false;}
+onMounted(()=>document.addEventListener('pointerdown',outside));onBeforeUnmount(()=>document.removeEventListener('pointerdown',outside));
+</script>
+<template><div ref="root" class="cast-search"><div v-if="modelValue" class="selected-artist"><span>{{displayArtistName(selected)||fallbackName||tr('已关联艺人')}}<small v-if="selected?.company"> · {{selected.company}}</small></span><button type="button" @click="emit('select',null)" :aria-label="tr('清除所选艺人')">×</button></div><input v-model="query" role="combobox" :aria-label="tr('搜索卡司艺人')" :aria-expanded="open" :aria-controls="listId" aria-autocomplete="list" :aria-activedescendant="open&&results.length?listId+'-'+active:undefined" :placeholder="tr('输入中文、英文或别名匹配艺人')" @focus="open=true" @input="open=true" @keydown="keyboard"><ul v-if="open" :id="listId" role="listbox"><li v-for="(artist,i) in results" :key="artist.id" :id="listId+'-'+i" role="option" :aria-selected="active===i"><button type="button" :class="{highlight:i===active}" @click="choose(artist)"><strong>{{displayArtistName(artist)}}</strong><span v-if="artist.name!==displayArtistName(artist)"> {{artist.name}}</span><small>{{artist.company||tr('未填写公司')}}</small></button></li><li v-if="!results.length" class="empty">{{tr('没有匹配的艺人，请换个名字搜索')}}</li></ul></div></template>
+<style scoped>.cast-search{width:100%;min-width:0}.cast-search input{box-sizing:border-box;width:100%;padding:11px;border:1px solid #D8E0E9;border-radius:7px;background:white;font:14px system-ui}.selected-artist{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;margin-bottom:8px;background:#EDF3FB;border-radius:7px;font-size:14px;color:#42658D}.selected-artist small{color:#71849B}.selected-artist button{border:0;background:none;font-size:20px;cursor:pointer}.cast-search ul{list-style:none;margin:6px 0 12px;padding:5px;border:1px solid #D8E0E9;border-radius:8px;background:white;max-height:230px;overflow:auto}.cast-search li>button{width:100%;text-align:left;border:0;background:white;border-radius:5px;padding:10px;font:14px system-ui;cursor:pointer;color:#303b35}.cast-search li>button:hover,.cast-search li>button.highlight{background:#EDF3FB}.cast-search small{display:block;font-size:11px;color:#87907e;margin-top:3px}.empty{padding:12px;font-size:13px;color:#87907e}
+</style>

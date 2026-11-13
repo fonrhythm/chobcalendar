@@ -1,17 +1,30 @@
 <script setup>
+import SocialFooter from "./components/SocialFooter.vue";
+import {tourPreviewEvents,linkedSeriesForEvent} from './drama/tourLinks.js';
+import {dramaText} from './drama/i18n.js';
+import GuidedTour from './onboarding/GuidedTour.vue';
+import {readTourState,finishTour,learnTourStep,shouldOfferTour,writeTourState} from './onboarding/state.js';
+import PersonalCalendar from './drama/PersonalCalendar.vue';
+const privateDramaSnapshot=ref(null),privateDramaError=ref('');let dramaSyncRevision=0;
+function openPersonalRow(row){if(row.channel==='drama'){focusDramaId.value=row.seriesId;openDrama();}else open(row);}
+
 import {ACTIVITY_TYPES,activityCategory} from './utils/activityTypes';
 const scheduleSummary=computed(()=>ACTIVITY_TYPES.filter(({id})=>!['awards','press','fashion'].includes(id)).map(({id,name})=>({id,name,count:data.monthEvents.filter(e=>activityCategory(e.activity_type!=='other'?e.activity_type:e.type)===id).length})));
 import CalendarMonthBar from './components/CalendarMonthBar.vue';
-const scheduleFilters=ref(null);
+const scheduleFilters=ref(null),focusDramaId=ref('');
+function showDramaDay(date){view.month=date.slice(0,7);view.selectedDate=date;view.viewMode='calendar';openSchedule();}
+function returnToDrama(){focusDramaId.value=linkedActivity.value.dramaId;linkedActivity.value=null;openDrama();}
 import {supabase} from './api/supabase';
-import {readPrivateDrama} from './drama/cloudReader.js';
+import {readPrivateDrama,readPublicDrama} from './drama/cloudReader.js';
 const cloudDramaPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('dramaSource')==='cloud';
-const loadCloudDrama=()=>readPrivateDrama(supabase);
+const dramaPublicEnabled=import.meta.env.VITE_DRAMA_PUBLIC==='true';
+const loadCloudDrama=()=>dramaPublicEnabled?readPublicDrama(supabase):readPrivateDrama(supabase);
 import CalendarSectionHeading from './components/CalendarSectionHeading.vue';
 import {defineAsyncComponent} from 'vue';
 import {legacyScheduleFilter} from './utils/scheduleRegion.js';
-const DramaDisplay = import.meta.env.DEV ? defineAsyncComponent(()=>import('./drama/DramaPreview.vue')) : null;
-const dramaPreviewEnabled = import.meta.env.DEV;
+const DramaDisplay = (import.meta.env.DEV||dramaPublicEnabled) ? defineAsyncComponent(()=>import('./drama/DramaPreview.vue')) : null;
+const dramaPreviewEnabled = import.meta.env.DEV||dramaPublicEnabled;
+const scheduleDesign=false;
 const dramaVisible = ref(dramaPreviewEnabled && location.hash === '#drama');
 function openDrama(){modal.value='';dramaVisible.value=true;home.value=false;location.hash='drama';}
 function openSchedule(){modal.value='';dramaVisible.value=false;home.value=false;location.hash='schedule';}
@@ -25,7 +38,7 @@ import { useAccountStore } from './stores/account';
 import HomePage from './components/HomePage.vue';
 import TutorialContent from './components/TutorialContent.vue';
 import { aboutParagraphs } from './data/about';
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useViewStore } from './stores/view';
 import { useEventsStore } from './stores/events';
 import { useLanguageStore } from './stores/language';
@@ -46,6 +59,7 @@ const account = useAccountStore(),
   editingEntry = ref(null),
   accountMode = ref('login');
 const theme = useThemeStore();
+const dramaLabel=text=>dramaText(lang.currentLanguage,text);
 const view = useViewStore(),
   data = useEventsStore(),
   lang = useLanguageStore();
@@ -120,12 +134,13 @@ const englishMonth = computed(() =>
   ),
 );
 const modalTitle = computed(() =>
-  ['tutorial', 'profile', 'my-items', 'correction'].includes(modal.value)
+  ['tutorial', 'profile', 'my-items', 'personal-calendar', 'correction'].includes(modal.value)
     ? {
         correction: '我要纠错',
         tutorial: '使用教程',
         profile: '个人资料',
         'my-items': '我的事项',
+        'personal-calendar': dramaLabel('个人日历'),
       }[modal.value]
     : modal.value === 'event'
       ? lang.t.detail
@@ -173,10 +188,22 @@ function openDay(value) {
   day.value = value;
   modal.value = 'day';
 }
+const guideDemo=import.meta.env.DEV&&new URLSearchParams(location.search).get('guideDemo')==='1';
+const guideStorage=guideDemo?{getItem:()=>null,setItem:()=>{}}:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)};
+const guideState=ref(readTourState(guideStorage)),guideModule=ref(''),guideManual=ref(false),guidePersistError=ref(''),dramaGuide=ref(null);
+function persistGuide(){if(!writeTourState(guideStorage,guideState.value))guidePersistError.value=({zh:'浏览器未能记住教程状态，本次仍可正常使用。',en:'This browser could not remember the guide status. The guide still works.',th:'เบราว์เซอร์ไม่สามารถจำสถานะคู่มือได้ แต่ยังใช้คู่มือได้ตามปกติ'})[lang.currentLanguage];}
+function completeGuide(status){guideState.value=finishTour(guideState.value,guideModule.value,status);persistGuide();guideModule.value='';}
+function learnGuide(key){guideState.value=learnTourStep(guideState.value,key);persistGuide();}
+function replayGuide(module){guideManual.value=true;guideModule.value=module;modal.value='';if(module==='drama')openDrama();else openSchedule();}
+async function prepareGuide(step){if(dramaVisible.value){await nextTick();dramaGuide.value?.prepareTutorial(step.id);}}
+watch([home,dramaVisible,modal,guideModule],async()=>{if(!dramaPreviewEnabled||home.value||modal.value||guideModule.value||focusDramaId.value)return;const module=dramaVisible.value?'drama':'schedule';if(shouldOfferTour(location.href,module,guideState.value)){await nextTick();if(!home.value&&!modal.value&&!guideModule.value&&!guideState.value.modules[module]){guideManual.value=false;guideModule.value=module;}}},{immediate:true,flush:'post'});
 let timer, dramaSyncTimer;
 const linkedActivity=ref(null);
-async function syncDramaActivities(){if(!dramaPreviewEnabled)return;try{let test;if(cloudDramaPreview){test=await loadCloudDrama();}else{const response=await fetch('/__drama_test_data');if(!response.ok)return;test=await response.json();}data.dramaPreviewEvents=test.events.map((event,index)=>({...normalizeRecord({id:'drama-test:'+event.id,name:event.name,date:event.date,time:event.time,region:event.region||'thailand',kind:'event',type:'press',activity_type:'press',venue:event.location||'',artist_ids:event.artistIds||[],note:'Drama 隔离测试活动'},index,'demo'),dramaPreview:true,dramaId:event.dramaId}));}catch{ /* Keep the last isolated snapshot if the test service is unavailable. */ }}
+const eventDramaLinks=computed(()=>linkedSeriesForEvent(privateDramaSnapshot.value?.events||[],item.value?.id).map(id=>privateDramaSnapshot.value.dramas.find(d=>d.id===id)).filter(Boolean));
+function openLinkedDrama(id){focusDramaId.value=id;openDrama();}
+async function syncDramaActivities(){if(!dramaPreviewEnabled)return;const revision=++dramaSyncRevision;try{let test;if(cloudDramaPreview||dramaPublicEnabled){test=await loadCloudDrama();}else{const response=await fetch('/__drama_test_data');if(!response.ok)return;test=await response.json();}if(revision!==dramaSyncRevision)return;privateDramaSnapshot.value=test;privateDramaError.value='';data.dramaPreviewEvents=tourPreviewEvents(test.events);}catch(e){if(revision!==dramaSyncRevision)return;privateDramaError.value=e.message;if(cloudDramaPreview){privateDramaSnapshot.value=null;data.dramaPreviewEvents=[];}}}
 
+watch(()=>account.user?.id,()=>{if(cloudDramaPreview){++dramaSyncRevision;privateDramaSnapshot.value=null;data.dramaPreviewEvents=[];syncDramaActivities();}});
 watch(()=>view.month,()=>data.sync());
 function onVisible() {
   if (!document.hidden) {
@@ -185,18 +212,18 @@ function onVisible() {
   }
 }
 function closeMenus(e) {
-  document.querySelectorAll('.filter-menu[open]').forEach((el) => {
+  document.querySelectorAll('.filter-menu[open],.drama-filter-menu[open]').forEach((el) => {
     if (!el.contains(e.target)) el.removeAttribute('open');
   });
 }
 onMounted(() => {
   syncDramaActivities();
-  if(dramaPreviewEnabled)dramaSyncTimer=setInterval(syncDramaActivities,cloudDramaPreview?30000:2000);
+  if(dramaPreviewEnabled)dramaSyncTimer=setInterval(syncDramaActivities,(cloudDramaPreview||dramaPublicEnabled)?30000:2000);
   applyHash();
   window.addEventListener('hashchange',applyHash);
   account.initialize();
   theme.initTheme();
-  if(dramaPreviewEnabled&&!cloudDramaPreview&&new URLSearchParams(location.search).get('demo')==='1')data.showDemo();else data.initialize();
+  if(import.meta.env.DEV&&!dramaPublicEnabled&&!cloudDramaPreview&&new URLSearchParams(location.search).get('demo')==='1')data.showDemo();else data.initialize();
   timer = setInterval(onVisible, 60 * 1000);
   document.addEventListener('visibilitychange', onVisible);
   document.addEventListener('click', closeMenus);
@@ -213,7 +240,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="site"
-    :class="{ 'is-home': home, 'calendar-design-preview':dramaPreviewEnabled }"
+    :class="{ 'is-home': home, 'calendar-design-preview':scheduleDesign }"
     :data-region="view.currentRegion"
   >
     <HomePage
@@ -229,8 +256,8 @@ onBeforeUnmount(() => {
     /><template v-else
       ><header class="site-header">
         <nav v-if="dramaPreviewEnabled" class="site-nav" aria-label="Main navigation">
-          <button @click="showHome">CHOB</button><span>›</span><button :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button :class="{active:dramaVisible}" @click="openDrama">Drama</button><button v-if="cloudDramaPreview" @click="modal='profile'">管理员登录</button><span>›</span><button @click="modal='about'">About</button>
-        <div v-if="!dramaVisible" class="c-nav-tools"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button><span><i></i>{{data.status==='synced'?'已同步':data.status==='demo'?'演示数据':'未连接'}}</span></div></nav><nav v-else class="site-nav" aria-label="Main navigation">
+          <button @click="showHome">CHOB</button><span>›</span><button data-tour="schedule-nav" :class="{active:!dramaVisible}" @click="openSchedule">Schedule</button><span>›</span><button data-tour="drama-nav" :class="{active:dramaVisible}" @click="openDrama">Drama</button><button v-if="cloudDramaPreview" @click="modal='profile'">管理员登录</button><span>›</span><button @click="modal='about'">About</button><button data-tour="personal-calendar" @click="modal='personal-calendar'">{{dramaLabel('个人日历')}}</button><button @click="modal='tutorial'">{{({zh:'使用教程',en:'User guide',th:'คู่มือการใช้งาน'})[lang.currentLanguage]}}</button>
+        <div v-if="scheduleDesign&&!dramaVisible" class="c-nav-tools"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button><span><i></i>{{data.status==='synced'?'已同步':data.status==='demo'?'演示数据':'未连接'}}</span></div></nav><nav v-else class="site-nav" aria-label="Main navigation">
           <button @click="showHome">CHOB</button><span>›</span
           ><button
             :class="{ active: view.currentRegion === 'china' }"
@@ -252,10 +279,10 @@ onBeforeUnmount(() => {
           ><span v-if="dramaPreviewEnabled">›</span><button v-if="dramaPreviewEnabled" @click="openDrama">DRAMA</button><span>›</span><button @click="modal = 'about'">ABOUT</button>
         </nav>
       </header>
-      <KeepAlive><DramaDisplay v-if="dramaVisible" embedded :schedule-artists="data.artistCatalog" :load-snapshot="cloudDramaPreview?loadCloudDrama:null" /></KeepAlive>
+      <KeepAlive><DramaDisplay ref="dramaGuide" v-if="dramaVisible" :focus-drama-id="focusDramaId" @focused="focusDramaId=''" @schedule="showDramaDay" @tutorial="modal='tutorial'" @about="modal='about'" embedded :schedule-artists="data.artistCatalog" :public-mode="dramaPublicEnabled" :load-snapshot="(cloudDramaPreview||dramaPublicEnabled)?loadCloudDrama:null" /></KeepAlive>
       <template v-if="!dramaVisible">
-<div v-if="dramaPreviewEnabled" class="c-schedule-hero"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /><div class="c-mobile-actions"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button></div><nav class="c-section-tabs"><button :class="{active:view.viewMode!=='task'}" @click="view.viewMode='calendar'">日历</button><button :class="{active:view.viewMode==='task'}" @click="view.viewMode='task';view.taskStart=view.selectedDate">事项</button></nav></div>
-      <div class="c-schedule-card" :class="{'is-c-design':dramaPreviewEnabled}"><CalendarMonthBar v-if="dramaPreviewEnabled" :month="view.month" :title="monthTitle" :english="englishMonth" @previous="view.shiftMonth(-1)" @next="view.shiftMonth(1)" @today="view.today()"><div class="c-desktop-view"><button :class="{active:view.viewMode==='calendar'}" @click="view.viewMode='calendar'">月</button><button :class="{active:view.viewMode==='week'}" @click="view.viewMode='week'">周</button></div></CalendarMonthBar><section v-if="dramaPreviewEnabled" class="c-schedule-summary" aria-label="本月行程统计"><div v-for="stat in scheduleSummary" :key="stat.id"><strong>{{stat.count}}</strong><span>{{stat.name}}</span></div></section><section v-if="!dramaPreviewEnabled" class="month-heading">
+<div v-if="scheduleDesign" class="c-schedule-hero"><CalendarSectionHeading word="Schedule" chinese="艺人行程" eyebrow="EVERY MOMENT, A LITTLE CLOSER" description="把每一次见面，放进日历。" /><div class="c-mobile-actions"><button aria-label="搜索" @click="scheduleFilters?.toggleSearch()"><Icon name="search" /></button><button aria-label="个人菜单" @click="modal='profile'"><Icon name="user" /></button></div><nav class="c-section-tabs"><button :class="{active:view.viewMode!=='task'}" @click="view.viewMode='calendar'">日历</button><button :class="{active:view.viewMode==='task'}" @click="view.viewMode='task';view.taskStart=view.selectedDate">事项</button></nav></div>
+      <div class="c-schedule-card" :class="{'is-c-design':scheduleDesign}"><CalendarMonthBar v-if="scheduleDesign" :month="view.month" :title="monthTitle" :english="englishMonth" @previous="view.shiftMonth(-1)" @next="view.shiftMonth(1)" @today="view.today()"><div class="c-desktop-view"><button :class="{active:view.viewMode==='calendar'}" @click="view.viewMode='calendar'">月</button><button :class="{active:view.viewMode==='week'}" @click="view.viewMode='week'">周</button></div></CalendarMonthBar><section v-if="scheduleDesign" class="c-schedule-summary" aria-label="本月行程统计"><div v-for="stat in scheduleSummary" :key="stat.id"><strong>{{stat.count}}</strong><span>{{stat.name}}</span></div></section><section v-if="!scheduleDesign" class="month-heading">
         <button
           class="icon-button"
           :aria-label="lang.t.monthPrev"
@@ -284,11 +311,11 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </section>
-      <FilterBar ref="scheduleFilters" :design-c="dramaPreviewEnabled"
+      <FilterBar 
         @favorites="showFavorites"
         @profile="modal = 'profile'"
         @my-items="modal = 'my-items'" />
-      <main class="main-content">
+      <main class="main-content" data-tour="schedule-content">
         <div v-if="data.status === 'synced' && data.dataIssues.length" class="data-banner error-banner" role="status">
           {{ lang.t.syncPartial }} ({{ data.dataIssues.length }})
           <span v-if="account.admin">{{ data.dataIssues.map(issue => `${issue.id}: ${issue.message}`).join('; ') }}</span>
@@ -335,7 +362,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <template v-else
-          ><CalendarView :design-c="dramaPreviewEnabled"
+          ><CalendarView 
             v-if="view.viewMode === 'calendar'"
             @day="openDay"
             @open="open" /><WeekView
@@ -343,7 +370,7 @@ onBeforeUnmount(() => {
             @open="open" /><TaskView v-else @open="open"
         /></template>
         <Announcements @open="open" />
-        <div class="bottom-actions">
+        <div class="bottom-actions" data-tour="schedule-contribute">
           <a
             v-if="entryUrl"
             class="pill"
@@ -361,66 +388,15 @@ onBeforeUnmount(() => {
           >
             <Icon name="plus" />{{ lang.t.add }}</button
           ><button class="pill" @click="correctFromFooter">我要纠错</button
+          ><button class="pill" @click="modal = 'tutorial'">使用教程</button
           ><button class="pill about-button" @click="modal = 'about'">
             ABOUT
           </button>
         </div>
-        <button class="tutorial-link" @click="modal = 'tutorial'">
-          使用教程
-        </button>
 
-        <div class="social-footer">
-          <a
-            href="https://xhslink.cn/m/6daqAMGfZbo"
-            class="icon-button"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="小红书: SomenStjerne"
-            aria-label="小红书: SomenStjerne"
-            ><Icon name="heart"
-          /></a>
-          <a
-            href="https://x.com/ChobCalendar"
-            class="icon-button"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="X: ChobCalendar"
-            aria-label="X: ChobCalendar"
-            ><Icon name="brandX"
-          /></a>
-          <a
-            href="https://www.threads.com/@chobcalendar"
-            class="icon-button"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Threads: chobcalendar"
-            aria-label="Threads: chobcalendar"
-            ><Icon name="chat"
-          /></a>
-          <a
-            href="https://www.instagram.com/chobcalendar/"
-            class="icon-button"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Instagram: chobcalendar"
-            aria-label="Instagram: chobcalendar"
-            ><Icon name="camera"
-          /></a>
-          <a
-            href="mailto:chobcalendar@gmail.com"
-            class="icon-button"
-            title="chobcalendar@gmail.com"
-            aria-label="Email"
-            ><Icon name="mail"
-          /></a>
-          <span
-            class="icon-button"
-            title="欢迎合作联系"
-            aria-label="欢迎合作联系"
-            ><Icon name="handshake"
-          /></span>
-        </div></main></div></template></template>
-    <BaseModal v-if="linkedActivity" :title="linkedActivity.name" @close="linkedActivity=null"><p>{{linkedActivity.date}} {{linkedActivity.time}}</p><p>{{linkedActivity.venue}}</p><p>Press Tour / 观影活动 · 隔离测试</p><button @click="linkedActivity=null;openDrama()">查看关联 Drama</button></BaseModal>
+
+        <SocialFooter /></main></div></template></template>
+    <BaseModal v-if="linkedActivity" :title="linkedActivity.name" @close="linkedActivity=null"><p>{{linkedActivity.date}} {{linkedActivity.time}}</p><p>{{linkedActivity.venue}}</p><a v-for="image in linkedActivity.images" :href="image" target="_blank" rel="noopener noreferrer"><img :src="image" alt="活动图片" style="width:100%;height:auto"></a><p>Press Tour / 观影活动 · 隔离测试</p><button @click="returnToDrama">查看关联 Drama</button></BaseModal>
     <footer class="copyright">
       Copyright © {{ new Date().getFullYear() }} — All rights reserved by
       SomenStjerne
@@ -439,6 +415,7 @@ onBeforeUnmount(() => {
       :form="modal === 'entry'"
       :wide="modal === 'day'"
       :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
+      :scroll-hint="modal === 'day' ? lang.t.dayScrollHint : undefined"
       :accent="
         modal === 'event' && item
           ? getEventCategoryColor(item, data.artistCatalog).bg
@@ -446,12 +423,7 @@ onBeforeUnmount(() => {
       "
       @close="closeModal"
     >
-      <EventDetail
-        v-if="modal === 'event'"
-        :item="item"
-        @open="open"
-        @correct="correctEvent"
-      />
+      <template v-if="modal === 'event'"><EventDetail :item="item" @open="open" @correct="correctEvent"/><div v-if="eventDramaLinks.length" class="event-drama-links"><button v-for="drama in eventDramaLinks" :key="drama.id" class="pill" @click="openLinkedDrama(drama.id)">查看关联剧集 · {{drama.titleZh||drama.titleEn||drama.titleTh}}</button></div></template>
       <DayAgenda
         v-else-if="modal === 'day'"
         :key="day"
@@ -479,8 +451,8 @@ onBeforeUnmount(() => {
         ref="entryForm"
         @close="modal = ''"
       />
-      <TutorialContent v-else-if="modal === 'tutorial'" />
-      <section v-else-if="modal === 'my-items'">
+      <TutorialContent v-else-if="modal === 'tutorial'" :interactive="dramaPreviewEnabled" :initial-module="dramaVisible?'drama':'schedule'" :guide-state="guideState" @replay="replayGuide" />
+      <PersonalCalendar v-else-if="modal==='personal-calendar'" :snapshot="privateDramaSnapshot" :load-error="privateDramaError" @open="openPersonalRow"/><section v-else-if="modal === 'my-items'">
         <button
           v-for="row in myRows"
           :key="row.id"
@@ -539,6 +511,8 @@ onBeforeUnmount(() => {
           /></a></div
       ></template>
     </BaseModal>
+    <GuidedTour v-if="guideModule" :module="guideModule" :state="guideState" :manual="guideManual" @finish="completeGuide" @learn="learnGuide" @prepare="prepareGuide"/>
+    <p v-if="guidePersistError" role="alert" class="guide-storage-notice">{{guidePersistError}} <button @click="guidePersistError=''">{{lang.t.close}}</button></p>
   </div>
 </template>
 
@@ -552,3 +526,7 @@ onBeforeUnmount(() => {
 .calendar-design-preview :deep(.weekday.sunday){color:#a45a5a}.calendar-design-preview :deep(.weekday.saturday){color:#587b9c}
 .c-schedule-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:white;border-bottom:1px solid #e6e9e1}.c-schedule-summary>div{text-align:center;padding:12px 6px;border-right:1px solid #eef0ea;border-bottom:1px solid #eef0ea;display:flex;align-items:center;justify-content:center;gap:12px}.c-schedule-summary strong{font-size:24px;line-height:1.2;font-weight:400;color:#26352b}.c-schedule-summary span{font-size:12px;color:#859080}@media(max-width:700px){.c-schedule-summary>div{flex-direction:column;gap:4px;padding:10px 4px}.c-schedule-summary strong{font-size:20px}.c-schedule-summary span{font-size:10px}}
 </style>
+
+
+
+<style>.guide-storage-notice{position:fixed;bottom:12px;left:12px;z-index:1900;max-width:calc(100vw - 24px);box-sizing:border-box;padding:10px 14px;border:1px solid #91B2D9;border-radius:8px;background:#EFF5FD;color:#304C70;font:12px/1.5 system-ui}.guide-storage-notice button{margin-left:10px;background:transparent;border:0;color:inherit;text-decoration:underline;cursor:pointer}</style>

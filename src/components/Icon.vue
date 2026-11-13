@@ -19,7 +19,7 @@ const paths = {
   close: 'm6 6 12 12 M6 18 18 6',
   plus: 'M12 5v14 M5 12h14',
   mail: 'M3 5h18v14H3z M3 5l9 8 9-8',
-  arrow: 'M6 18 18 6 M6 6h12v12',
+
   calendar: 'M4 5h16v16H4z M4 10h16 M8 2v6 M16 2v6',
 };
 </script>

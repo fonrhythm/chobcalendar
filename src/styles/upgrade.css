@@ -1317,3 +1317,13 @@
   .message-links { font-size: 9px; gap: 5px; flex-wrap: nowrap; justify-content: space-between; white-space: nowrap; }
   .message-links > * { min-width: 0; }
 }
+
+/* Synced from the other window's approved Schedule polish; Drama remains independently scoped. */
+@media (min-width:721px){.modal.event-modal{width:61.75vw;max-width:559px}}
+.day-modal .modal-content{border-bottom:0;min-height:0}
+.day-scroll-hint{margin:0;padding:8px 16px 12px;text-align:center;color:var(--sub,var(--muted));opacity:.7;font-size:11px;flex:none}
+.event-detail h3{font-size:25px}
+@media(max-width:720px){.day-modal{overflow:hidden}.event-detail h3{font-size:25px}.bottom-actions{flex-wrap:wrap;gap:8px}.bottom-actions .pill{padding-inline:12px;font-size:12px}}
+
+/* Keep the full navigation reachable when localized labels exceed a narrow viewport. */
+@media(max-width:700px){.site-nav{justify-content:flex-start;overflow-x:auto;max-width:100%;min-width:0;box-sizing:border-box;scrollbar-width:none}.site-nav::-webkit-scrollbar{display:none}.site-nav>*{flex-shrink:0}}

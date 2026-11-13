@@ -1,6 +1,5 @@
 <script setup>
-defineProps({designC:Boolean});
-defineExpose({toggleSearch:()=>{searchOpen.value=!searchOpen.value;}});
+import {toggleSentinelFilter} from '../utils/filterSelection.js';
 import { ACTIVITY_TYPES } from '../utils/activityTypes';
 import { computed, ref } from 'vue';
 import { useViewStore } from '../stores/view';
@@ -8,7 +7,6 @@ import { useEventsStore } from '../stores/events';
 import { useLanguageStore } from '../stores/language';
 import { REGION_COLORS } from '../utils/config';
 import Icon from './Icon.vue';
-const unifiedSchedule = import.meta.env.DEV;
 const emit = defineEmits(['favorites', 'profile', 'my-items']),
   view = useViewStore(),
   data = useEventsStore(),
@@ -24,20 +22,15 @@ const state = computed(
     lang.t[data.retryAt > 0 ? 'syncWaiting' : data.status === 'demo-error' ? 'demo' : data.status] ||
     lang.t.unconfigured,
 );
-function toggleFilter(key, value, all, checked) {
-  const values = new Set(
-    view[key].length ? view[key].filter((x) => x !== '__none__') : all,
-  );
-  if (checked) values.add(value);
-  else values.delete(value);
-  view[key] =
-    values.size === all.length ? [] : values.size ? [...values] : ['__none__'];
+function toggleFilter(key,value,all,event){
+ view[key]=toggleSentinelFilter(view[key],value,all);
+ event.target.checked=!view[key].length||view[key].includes(value);
 }
 </script>
 <template>
-  <div class="filter-wrap">
+  <div class="filter-wrap" data-tour="schedule-filters">
     <div class="filter-bar">
-      <div v-if="!designC" class="segmented">
+      <div class="segmented">
         <button
           :class="{ active: view.viewMode !== 'task' }"
           :aria-pressed="view.viewMode !== 'task'"
@@ -57,7 +50,7 @@ function toggleFilter(key, value, all, checked) {
           {{ lang.t.task }}
         </button>
       </div>
-      <div v-if="view.viewMode !== 'task'" class="segmented c-week-switch">
+      <div v-if="view.viewMode !== 'task'" class="segmented">
         <button
           :class="{ active: view.viewMode === 'calendar' }"
           :aria-pressed="view.viewMode === 'calendar'"
@@ -71,9 +64,6 @@ function toggleFilter(key, value, all, checked) {
         >
           {{ lang.t.week }}
         </button>
-      </div>
-      <div v-if="unifiedSchedule" class="segmented" aria-label="活动地区筛选">
-        <button v-for="(label,id) in {all:'全部地区',thailand:'泰国',oversea:'海外'}" :key="id" :class="{active:view.scheduleRegion===id}" :aria-pressed="view.scheduleRegion===id" @click="view.scheduleRegion=id">{{label}}</button>
       </div>
       <div class="dropdowns">
         <details class="filter-menu">
@@ -110,7 +100,7 @@ function toggleFilter(key, value, all, checked) {
                     'companies',
                     company,
                     data.companies,
-                    $event.target.checked,
+                    $event,
                   )
                 "
               />{{ company }}</label
@@ -147,7 +137,7 @@ function toggleFilter(key, value, all, checked) {
                   !view.categories.length || view.categories.includes(cat)
                 "
                 @change="
-                  toggleFilter('categories', cat, cats, $event.target.checked)
+                  toggleFilter('categories', cat, cats, $event)
                 "
               />{{ lang.t[cat] }}</label
             >
@@ -183,7 +173,7 @@ function toggleFilter(key, value, all, checked) {
                     'activityTypes',
                     type.id,
                     ACTIVITY_TYPES.map((t) => t.id),
-                    $event.target.checked,
+                    $event,
                   )
                 "
               />{{ type.name }}</label
@@ -191,7 +181,7 @@ function toggleFilter(key, value, all, checked) {
           </div>
         </details>
       </div>
-      <div v-if="!designC" class="filter-actions">
+      <div class="filter-actions">
         <button
           class="icon-button"
           :aria-label="lang.t.search"

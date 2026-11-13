@@ -15,11 +15,13 @@ const copy = computed(
           thailand: '泰国行程',
           oversea: '海外行程',
         },
+        schedule:'艺人行程',drama:'追剧日历',
         about: '联系我',
         tutorial: '使用教程',
       },
       en: {
         regions: { china: 'China', thailand: 'Thailand', oversea: 'Overseas' },
+        schedule:'Artist schedule',drama:'Drama calendar',
         about: 'About this project',
         tutorial: 'User guide',
       },
@@ -29,6 +31,7 @@ const copy = computed(
           thailand: 'ตารางงานในไทย',
           oversea: 'ตารางงานต่างประเทศ',
         },
+        schedule:'ตารางงานศิลปิน',drama:'ปฏิทินซีรีส์',
         about: 'เกี่ยวกับเรา',
         tutorial: 'คู่มือการใช้งาน',
       },
@@ -76,8 +79,8 @@ defineEmits(['region', 'drama', 'about', 'tutorial', 'account']);
     </div>
     <div class="home-divider"></div>
     <nav v-if="unifiedNavigation" class="home-links">
-      <button @click="$emit('region','schedule')"><strong>Schedule</strong><small>艺人行程</small><span>⟶</span></button>
-      <button @click="$emit('drama')"><strong>Drama</strong><small>追剧日历</small><span>⟶</span></button>
+      <button @click="$emit('region','schedule')"><strong>Schedule</strong><small>{{copy.schedule}}</small><span>⟶</span></button>
+      <button @click="$emit('drama')"><strong>Drama</strong><small>{{copy.drama}}</small><span>⟶</span></button>
       <button @click="$emit('about')"><strong>About</strong><small>{{copy.about}}</small><span>⟶</span></button>
     </nav><nav v-else class="home-links">
       <button

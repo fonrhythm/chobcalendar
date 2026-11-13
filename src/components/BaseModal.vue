@@ -2,18 +2,23 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useLanguageStore } from '../stores/language';
 import Icon from './Icon.vue';
+import {trapModalTab} from '../utils/modalFocus.js';
+import {lockModalScroll} from '../utils/modalScrollLock.js';
 defineProps({
   title: String,
+  accessibleTitle: String,
+  panelClass: String,
   wide: Boolean,
   accent: String,
   subtitle: String,
+  scrollHint: String,
   gallery: Boolean,
   form: Boolean,
 });
 const emit = defineEmits(['close']),
   panel = ref(null),
   lang = useLanguageStore();
-let previous, oldOverflow;
+let previous, releaseScroll;
 function key(e) {
   if (panel.value !== [...document.querySelectorAll('[role="dialog"]')].at(-1))
     return;
@@ -21,39 +26,17 @@ function key(e) {
     e.preventDefault();
     emit('close');
   }
-  if (e.key === 'Tab') {
-    const nodes = [
-      ...panel.value.querySelectorAll(
-        'button,a[href],input,select,textarea,[tabindex="0"]',
-      ),
-    ].filter((el) => !el.disabled && el.getClientRects().length);
-    if (!nodes.length) {
-      e.preventDefault();
-      return;
-    }
-    if (
-      e.shiftKey &&
-      (document.activeElement === nodes[0] ||
-        document.activeElement === panel.value)
-    ) {
-      e.preventDefault();
-      nodes.at(-1).focus();
-    } else if (!e.shiftKey && document.activeElement === nodes.at(-1)) {
-      e.preventDefault();
-      nodes[0].focus();
-    }
-  }
+  trapModalTab(e,panel.value);
 }
 onMounted(async () => {
   previous = document.activeElement;
-  oldOverflow = document.body.style.overflow;
-  document.body.style.overflow = 'hidden';
+  releaseScroll=lockModalScroll();
   await nextTick();
   panel.value.focus();
   document.addEventListener('keydown', key);
 });
 onBeforeUnmount(() => {
-  document.body.style.overflow = oldOverflow;
+  releaseScroll?.();
   document.removeEventListener('keydown', key);
   previous?.focus();
 });
@@ -64,17 +47,17 @@ onBeforeUnmount(() => {
       <section
         ref="panel"
         class="modal"
-        :class="{
+        :class="[panelClass, {
           wide,
           'event-modal': accent,
           'gallery-modal': gallery,
           'day-modal': subtitle,
           'form-modal': form,
-        }"
+        }]"
         :style="accent ? { '--detail-accent': accent } : undefined"
         role="dialog"
         aria-modal="true"
-        :aria-label="title"
+        :aria-label="accessibleTitle||title"
         tabindex="-1"
       >
         <header class="modal-header">
@@ -91,6 +74,7 @@ onBeforeUnmount(() => {
           </button>
         </header>
         <div class="modal-content"><slot /></div>
+        <p v-if="scrollHint" class="day-scroll-hint">{{scrollHint}}</p>
         <div v-if="accent" class="detail-bottom-space" aria-hidden="true"></div>
       </section></div
   ></Teleport>

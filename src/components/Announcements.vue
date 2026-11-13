@@ -118,7 +118,7 @@ function xEmbed(url) {
           :href="safeUrl(n.source_url)"
           target="_blank"
           rel="noopener noreferrer"
-          >消息来源 ↗</a
+          >消息来源</a
         ><button
           v-if="xEmbed(n.source_url)"
           class="text-button"
