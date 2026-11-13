@@ -94,7 +94,7 @@ function compactEpisodeLabel(slot){return finalEpisode(slot)?'Final':'EP.'+slot.
 function specialEpisode(slot){return slot.episode===1||slot.episode===Number(drama(slot.dramaId)?.rules.find(r=>r.id===slot.ruleId)?.totalEpisodes);}
 function slotClick(slot){if(calendarMode.value==='week'){open(drama(slot.dramaId),slot);return;}if(calendarAction(slots.value.filter(s=>s.date===slot.date).length,compactViewport.value)==='day')showDay(slot.date);else open(drama(slot.dramaId),slot);}
 const compactViewport=ref(false);let viewportMedia;function updateViewport(){compactViewport.value=viewportMedia.matches;}onMounted(()=>{viewportMedia=window.matchMedia('(max-width:700px)');updateViewport();viewportMedia.addEventListener('change',updateViewport);});onBeforeUnmount(()=>viewportMedia?.removeEventListener('change',updateViewport));
-function limit(day){if(calendarMode.value==='week')return slots.value.filter(s=>s.date===day).length;return Math.min(3,slots.value.filter(s=>s.date===day).length);}
+function limit(day){if(calendarMode.value==='week')return slots.value.filter(s=>s.date===day).length;return Math.min(compactViewport.value?2:3,slots.value.filter(s=>s.date===day).length);}
 function exclusiveFilter(event){const current=event.currentTarget.closest('details'),wasOpen=current.open;document.querySelectorAll('.drama-filter-menu[open]').forEach(menu=>menu.open=false);current.open=!wasOpen;}
 function toggleChoice(target,value,options,event){const current=target==='company'?companyFilter:typeFilter;current.value=toggleSentinelFilter(current.value,value,options);event.target.checked=!current.value.length||current.value.includes(value);}
 function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor.value=key;selectedCalendarDate.value=key;}
@@ -200,10 +200,31 @@ function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor
 <style>
 /* Compact mobile month rhythm, matching Schedule without changing week/day views. */
 @media(max-width:700px){
-.shell .calendar:not(.week-calendar) .day{min-height:101px;padding:4px 3px}
+.shell .calendar:not(.week-calendar) .day{min-height:73px;padding:3px}
 .shell .calendar:not(.week-calendar) .day .chip{min-height:16px;padding:0 3px;margin:2px 0;line-height:12px}
 .shell .calendar:not(.week-calendar) .day .chip.episode-special{padding:0 2px}
 .shell .calendar:not(.week-calendar) .day-number{margin-bottom:3px}
 .shell .calendar:not(.week-calendar) .drama-more{padding:1px 0!important;line-height:1.35}
+}
+</style>
+
+<style>
+/* Drama-only presentation: a portable initial and compact footer controls. */
+.shell .drama-footer-actions{gap:13px;padding-bottom:22px}
+.shell .drama-footer-actions button{padding:8px 20px;min-height:32px;font-size:12px;gap:7px}
+.shell .drama-footer-actions svg{width:13px;height:13px}
+@media(max-width:700px){
+.shell .calendar-section-heading h1{margin-top:16px;margin-bottom:16px}
+.shell .calendar-section-heading .section-wordmark{font-size:40px;letter-spacing:-1px;white-space:nowrap}
+.shell .calendar-section-heading .section-wordmark>span{display:inline-block;vertical-align:-.04em;font-size:0;position:relative;color:inherit;width:54px;height:46px;margin-left:-3px;margin-right:-22px}
+.shell .calendar-section-heading .section-wordmark>span::before{content:'';position:absolute;inset:-10px 0 0;background:currentColor;mask:url('/drama-initial.svg') center/contain no-repeat;-webkit-mask:url('/drama-initial.svg') center/contain no-repeat}
+.shell .calendar:not(.week-calendar) .day-number{line-height:14px;margin-bottom:2px}
+.shell .calendar:not(.week-calendar) .day .chip{margin:1px 0}
+.shell .calendar:not(.week-calendar) .drama-more{font-size:8px!important;line-height:11px;padding:0!important}
+.shell .week-calendar .day .chip{display:flex!important;align-items:center;min-height:26px;padding:4px 6px;font-size:12px!important;line-height:16px;margin:4px 0}
+.shell .week-calendar .day .chip.episode-special{padding:2px 4px}
+.shell .week-calendar .day .drama-chip-type{font-size:10px;line-height:14px}
+.shell .drama-footer-actions{gap:7px;padding-bottom:17px}
+.shell .drama-footer-actions button{padding:7px 12px;min-height:30px;font-size:11px;gap:6px}
 }
 </style>
