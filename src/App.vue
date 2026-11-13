@@ -17,7 +17,7 @@ function returnToDrama(){focusDramaId.value=linkedActivity.value.dramaId;linkedA
 import {supabase} from './api/supabase';
 import {readPrivateDrama,readPublicDrama} from './drama/cloudReader.js';
 const cloudDramaPreview=import.meta.env.DEV && new URLSearchParams(location.search).get('dramaSource')==='cloud';
-const dramaPublicEnabled=import.meta.env.VITE_DRAMA_PUBLIC==='true';
+const dramaPublicEnabled=import.meta.env.VITE_DRAMA_PUBLIC==='true'||(import.meta.env.PROD&&import.meta.env.VITE_DRAMA_PUBLIC!=='false');
 const loadCloudDrama=()=>dramaPublicEnabled?readPublicDrama(supabase):readPrivateDrama(supabase);
 import CalendarSectionHeading from './components/CalendarSectionHeading.vue';
 import {defineAsyncComponent} from 'vue';
