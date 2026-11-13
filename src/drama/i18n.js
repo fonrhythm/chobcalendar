@@ -1,5 +1,6 @@
 // Display labels only: stored category and status values stay unchanged.
 export const dramaMessages={
+ "每页{n}部":{"en":"{n} per page","th":"หน้าละ {n} เรื่อง"},
  "我要纠错":{"en":"Report a correction","th":"แจ้งแก้ไขข้อมูล"},
  "使用教程":{"en":"User guide","th":"คู่มือการใช้งาน"},
  "选择剧集":{"en":"Choose a drama","th":"เลือกซีรีส์"},

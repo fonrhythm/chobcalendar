@@ -1,8 +1,13 @@
 <script setup>
 defineProps({word:String,chinese:String,eyebrow:String,description:String});
 </script>
-<template><section class="calendar-section-heading"><p class="section-eyebrow">{{eyebrow}}</p><h1><span class="section-wordmark"><span>{{word.slice(0,1)}}</span>{{word.slice(1)}}</span><em>{{chinese}}</em></h1><p class="section-description">{{description}}</p></section></template>
+<template><section class="calendar-section-heading"><p class="section-eyebrow">{{eyebrow}}</p><h1><span v-if="word==='Drama'" class="section-wordmark drama-wordmark" role="img" aria-label="Drama"></span><span v-else class="section-wordmark"><span>{{word.slice(0,1)}}</span>{{word.slice(1)}}</span><em>{{chinese}}</em></h1><p class="section-description">{{description}}</p></section></template>
 <style scoped>
 .calendar-section-heading{font:15px/1.6 system-ui,-apple-system,'Microsoft YaHei',sans-serif;color:#303b35;padding:0;margin:0;text-align:left}.calendar-section-heading .section-eyebrow{font-size:11px;line-height:1.6;letter-spacing:3px;color:#86927d;margin:0 0 14px}.calendar-section-heading h1{display:flex;align-items:baseline;gap:18px;font-size:44px;line-height:1.2;margin:8px 0 14px;font-weight:400}.calendar-section-heading .section-wordmark{font:400 44px/1.2 Georgia,'Times New Roman',serif;letter-spacing:-2px;color:#000}.calendar-section-heading .section-wordmark>span{font-family:'Edwardian Script ITC','Monotype Corsiva','Brush Script MT',cursive;font-size:1.7em;font-style:italic;font-weight:400;line-height:.65;margin-right:-.12em}.calendar-section-heading em{font:normal 21px/1.6 system-ui;color:#89957d;margin:0}.calendar-section-heading .section-description{font-size:15px;line-height:1.6;color:#7d857d;margin:0}@media(max-width:700px){.calendar-section-heading h1{font-size:30px;gap:14px}.calendar-section-heading .section-wordmark{font-size:30px}.calendar-section-heading em{font-size:17px}}
 .calendar-section-heading .section-wordmark{font-size:64px}.calendar-section-heading em{font-size:20px;letter-spacing:4px}.calendar-section-heading .section-description{font-size:14px;color:#74816f}@media(max-width:700px){.calendar-section-heading .section-wordmark{font-size:34px}.calendar-section-heading em{font-size:14px;letter-spacing:2px}.calendar-section-heading .section-eyebrow{font-size:9px;letter-spacing:3px}.calendar-section-heading .section-description{font-size:12px}.calendar-section-heading h1{gap:12px;margin:8px 0 12px}}
+</style>
+
+<style scoped>
+.calendar-section-heading .drama-wordmark{display:inline-block;flex:none;width:218px;height:75px;background:currentColor;mask:url('/drama-wordmark.svg') center/contain no-repeat;-webkit-mask:url('/drama-wordmark.svg') center/contain no-repeat}
+@media(max-width:700px){.calendar-section-heading .drama-wordmark{width:160px;height:55px}.calendar-section-heading h1:has(.drama-wordmark){align-items:center}}
 </style>
