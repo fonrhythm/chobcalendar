@@ -183,7 +183,9 @@ watch(
     }
   },
 );
+const dayAgendaState=ref(null),dayAgendaCount=ref(0);
 function openDay(value) {
+  dayAgendaState.value=null;dayAgendaCount.value=0;
   data.markDateRead(value);
   day.value = value;
   modal.value = 'day';
@@ -414,8 +416,8 @@ onBeforeUnmount(() => {
       :title="modalTitle"
       :form="modal === 'entry'"
       :wide="modal === 'day'"
-      :subtitle="modal === 'day' ? lang.t.dayActivities : undefined"
-      :scroll-hint="modal === 'day' ? lang.t.dayScrollHint : undefined"
+      :subtitle="modal === 'day' ? lang.t.dayActivities+' · '+lang.t.scheduleTotal.replace('{n}',dayAgendaCount) : undefined"
+      
       :accent="
         modal === 'event' && item
           ? getEventCategoryColor(item, data.artistCatalog).bg
@@ -427,7 +429,7 @@ onBeforeUnmount(() => {
       <DayAgenda
         v-else-if="modal === 'day'"
         :key="day"
-        :day="day"
+        :day="day" :state="dayAgendaState" @state="dayAgendaState=$event" @count="dayAgendaCount=$event"
         @open="open"
       />
       <template v-else-if="modal === 'favorites'"
