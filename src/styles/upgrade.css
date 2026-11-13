@@ -1342,5 +1342,5 @@
 .day-modal:has(.agenda-filters) .day-capsules{padding:2px 0 0;scrollbar-width:thin}
 @media(max-width:420px){.day-modal:has(.agenda-filters) .modal-header{padding:18px 16px}.day-modal .modal-content:has(.agenda-filters){padding:18px 16px 14px}.day-modal:has(.agenda-filters) .modal-header h2{font-size:23px}}
 
-.filter-wrap .filter-dropdown>button,.filter-wrap .filter-dropdown>summary{font-size:14px}.filter-wrap .filter-options label,.filter-wrap .filter-options label span{font-size:12px!important;line-height:1.5}.filter-wrap .filter-options button{font-size:11px!important}
-.filter-wrap .filter-menu>summary{font-size:14px!important}.filter-wrap .filter-options input[type=checkbox]{width:15px;height:15px;min-width:15px}
+.filter-wrap .filter-dropdown>button,.filter-wrap .filter-dropdown>summary{font-size:12px}.filter-wrap .filter-options label,.filter-wrap .filter-options label span{font-size:12px!important;line-height:1.5}.filter-wrap .filter-options button{font-size:11px!important}
+.filter-wrap .filter-menu>summary{font-size:12px!important}.filter-wrap .filter-options input[type=checkbox]{width:15px;height:15px;min-width:15px}

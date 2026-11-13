@@ -141,7 +141,7 @@ function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor
 .chip{container-type:inline-size}.episode-label-compact{display:none}.chip>span:first-child,.week-calendar .chip>span:first-child{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;-webkit-line-clamp:unset}.chip .drama-chip-type{flex:none}.episode-label-full{white-space:nowrap}@container(max-width:190px){.episode-label-full{display:none}.episode-label-compact{display:inline}}
 
 /* Compact Drama calendar; leave Schedule and detail layouts unchanged. */
-.c-drama-card .weekday{font-size:11px;padding:10px 0}.c-drama-card .day-number{font-size:12px;line-height:16px}.c-drama-card .chip{font-size:11px;line-height:14px;min-height:22px;padding:2px 5px;margin:2px 0;gap:4px}.c-drama-card .chip .drama-chip-type{font-size:9px;line-height:12px;padding:1px 5px}.c-drama-card .chip.episode-special{padding:0 3px}.c-drama-card .drama-more{font-size:10px;line-height:14px;padding:1px 0}.c-drama-card .drama-filter-menu summary{font-size:11px}.c-drama-card .drama-view-switch button{font-size:12px}.c-drama-card .drama-stats strong{font-size:26px}.c-drama-card .drama-stats span{font-size:11px}
+.c-drama-card .weekday{font-size:11px;padding:10px 0}.c-drama-card .day-number{font-size:12px;line-height:16px}.c-drama-card .chip{font-size:11px;line-height:14px;min-height:20px;padding:1px 5px;margin:2px 0;gap:4px}.c-drama-card .chip .drama-chip-type{font-size:9px;line-height:12px;padding:1px 5px}.c-drama-card .chip.episode-special{padding:0 3px}.c-drama-card .drama-more{font-size:10px;line-height:14px;padding:1px 0}.c-drama-card .drama-filter-menu summary{font-size:11px}.c-drama-card .drama-view-switch button{font-size:12px}.c-drama-card .drama-stats strong{font-size:26px}.c-drama-card .drama-stats span{font-size:11px}
 @media(min-width:701px){.calendar:not(.week-calendar) .day{min-height:103px;padding:5px 6px}.week-calendar .day{min-height:136px;padding:8px 6px}}
 </style>
 
@@ -190,8 +190,8 @@ function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor
 </style>
 
 <style>
-/* Keep filter menus smaller than their triggers across both Drama views. */
-.shell .drama-filter-row .drama-filter-menu>summary{font-size:14px!important;line-height:1.5}
+/* Use the same compact type size for filter titles and options. */
+.shell .drama-filter-row .drama-filter-menu>summary{font-size:12px!important;line-height:1.5}
 .shell .drama-filter-row .drama-filter-options label,.shell .drama-filter-row .drama-filter-options label span{font-size:12px!important;line-height:1.5}
 .shell .drama-filter-row .drama-filter-options button{font-size:11px!important}
 @media(max-width:700px){.shell .calendar:not(.week-calendar) .day .chip{display:flex!important;align-items:center;gap:2px;width:100%;min-width:0;min-height:19px;padding:2px 3px;margin:3px 0;font-size:9px!important;line-height:13px;border-radius:3px}.shell .calendar:not(.week-calendar) .chip>span:first-child{display:block;min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shell .calendar:not(.week-calendar) .drama-chip-type{font-size:8px!important;padding:0 2px;flex:none}.shell .calendar:not(.week-calendar) .episode-label-full{display:none}.shell .calendar:not(.week-calendar) .episode-label-compact{display:inline}.shell .calendar:not(.week-calendar) .day{padding:5px 3px;min-height:112px}.shell .mobile-day-dot,.shell .mobile-drama-agenda{display:none!important}.shell .drama-more{font-size:9px!important;white-space:nowrap}.shell .drama-filter-options{font-size:12px!important}}
@@ -201,7 +201,7 @@ function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor
 /* Compact mobile month rhythm, matching Schedule without changing week/day views. */
 @media(max-width:700px){
 .shell .calendar:not(.week-calendar) .day{min-height:101px;padding:4px 3px}
-.shell .calendar:not(.week-calendar) .day .chip{min-height:17px;padding:1px 3px;margin:2px 0;line-height:13px}
+.shell .calendar:not(.week-calendar) .day .chip{min-height:16px;padding:0 3px;margin:2px 0;line-height:12px}
 .shell .calendar:not(.week-calendar) .day .chip.episode-special{padding:0 2px}
 .shell .calendar:not(.week-calendar) .day-number{margin-bottom:3px}
 .shell .calendar:not(.week-calendar) .drama-more{padding:1px 0!important;line-height:1.35}
