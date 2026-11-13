@@ -196,3 +196,14 @@ function today(){const key=platformToday();month.value=key.slice(0,7);weekAnchor
 .shell .drama-filter-row .drama-filter-options button{font-size:11px!important}
 @media(max-width:700px){.shell .calendar:not(.week-calendar) .day .chip{display:flex!important;align-items:center;gap:2px;width:100%;min-width:0;min-height:19px;padding:2px 3px;margin:3px 0;font-size:9px!important;line-height:13px;border-radius:3px}.shell .calendar:not(.week-calendar) .chip>span:first-child{display:block;min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shell .calendar:not(.week-calendar) .drama-chip-type{font-size:8px!important;padding:0 2px;flex:none}.shell .calendar:not(.week-calendar) .episode-label-full{display:none}.shell .calendar:not(.week-calendar) .episode-label-compact{display:inline}.shell .calendar:not(.week-calendar) .day{padding:5px 3px;min-height:112px}.shell .mobile-day-dot,.shell .mobile-drama-agenda{display:none!important}.shell .drama-more{font-size:9px!important;white-space:nowrap}.shell .drama-filter-options{font-size:12px!important}}
 </style>
+
+<style>
+/* Compact mobile month rhythm, matching Schedule without changing week/day views. */
+@media(max-width:700px){
+.shell .calendar:not(.week-calendar) .day{min-height:101px;padding:4px 3px}
+.shell .calendar:not(.week-calendar) .day .chip{min-height:17px;padding:1px 3px;margin:2px 0;line-height:13px}
+.shell .calendar:not(.week-calendar) .day .chip.episode-special{padding:0 2px}
+.shell .calendar:not(.week-calendar) .day-number{margin-bottom:3px}
+.shell .calendar:not(.week-calendar) .drama-more{padding:1px 0!important;line-height:1.35}
+}
+</style>

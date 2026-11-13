@@ -1,5 +1,5 @@
 <script setup>
-const unifiedNavigation = import.meta.env.DEV;
+
 import { computed } from 'vue';
 import { useLanguageStore } from '../stores/language';
 import { useThemeStore } from '../stores/theme';
@@ -78,23 +78,10 @@ defineEmits(['region', 'drama', 'about', 'tutorial', 'account']);
       <span>CALENDAR</span>
     </div>
     <div class="home-divider"></div>
-    <nav v-if="unifiedNavigation" class="home-links">
+    <nav class="home-links">
       <button @click="$emit('region','schedule')"><strong>Schedule</strong><small>{{copy.schedule}}</small><span>⟶</span></button>
       <button @click="$emit('drama')"><strong>Drama</strong><small>{{copy.drama}}</small><span>⟶</span></button>
       <button @click="$emit('about')"><strong>About</strong><small>{{copy.about}}</small><span>⟶</span></button>
-    </nav><nav v-else class="home-links">
-      <button
-        v-for="(label, key) in copy.regions"
-        :key="key"
-        @click="$emit('region', key)"
-      >
-        <strong>{{ key.toUpperCase() }} SCHEDULE</strong
-        ><small>{{ label }}</small
-        ><span>⟶</span></button
-      ><button @click="$emit('about')">
-        <strong>ABOUT</strong><small>{{ copy.about }}</small
-        ><span>⟶</span>
-      </button>
     </nav>
     <div class="home-account">
       <button @click="$emit('account', 'login')">LOGIN</button><span>｜</span
