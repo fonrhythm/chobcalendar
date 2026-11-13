@@ -16,6 +16,7 @@ const emit = defineEmits(['open']);
 const data = useEventsStore(),
   lang = useLanguageStore(),
   selected = ref('all'),region = ref('all');
+function regionLabel(area){if(area==='all')return lang.t.all;return ({zh:{thailand:'泰国',oversea:'海外'},en:{thailand:'Thailand',oversea:'Overseas'},th:{thailand:'ไทย',oversea:'ต่างประเทศ'}})[lang.currentLanguage][area];}
 const past = computed(() => props.day < dateKey(new Date()));
 const rows = computed(() => data.onDate(props.day));
 const visible = computed(() =>
@@ -40,7 +41,7 @@ const visible = computed(() =>
     </button>
   </div>
   <div class="activity-tabs day-tabs day-region-tabs" role="group" :aria-label="lang.t.region||'地区'">
-    <button v-for="area in ['all','thailand','oversea']" :key="area" :class="{active:region===area}" :aria-pressed="region===area" @click="region=area">{{area==='all'?lang.t.all:({zh:{thailand:'泰国',oversea:'海外'},en:{thailand:'Thailand',oversea:'Overseas'},th:{thailand:'ไทย',oversea:'ต่างประเทศ'}})[lang.currentLanguage][area]}}</button>
+    <button v-for="area in ['all','thailand','oversea']" :key="area" :class="{active:region===area}" :aria-pressed="region===area" @click="region=area">{{regionLabel(area)}}</button>
   </div>
   <div class="day-capsules">
     <button
