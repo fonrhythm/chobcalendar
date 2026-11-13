@@ -1,2 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {matchesScheduleRegion,legacyScheduleFilter} from '../src/utils/scheduleRegion.js';
 test('unified Schedule groups China with overseas and excludes Drama records',()=>{const records=[{id:'th',region:'thailand'},{id:'cn',region:'china'},{id:'os',region:'oversea'},{id:'drama',region:'drama'}];const ids=f=>records.filter(r=>matchesScheduleRegion(r,f)).map(r=>r.id);assert.deepEqual(ids('all'),['th','cn','os']);assert.deepEqual(ids('oversea'),['cn','os']);assert.deepEqual(ids('thailand'),['th']);assert.equal(legacyScheduleFilter('china'),'oversea');assert.equal(legacyScheduleFilter('schedule'),'all');});
+
+import {readFileSync} from 'node:fs';
+test('production Schedule uses unified region grouping before day filters',()=>{const source=readFileSync(new URL('../src/stores/events.js',import.meta.url),'utf8');assert.ok(source.includes('.filter((r) => matchesScheduleRegion(r,view.scheduleRegion))'));assert.ok(!source.includes('r.region === view.currentRegion'));});

@@ -61,7 +61,7 @@ export const useEventsStore = defineStore('events', () => {
   } catch {}
   const view = useViewStore(),
     inRegion = computed(() =>
-      (import.meta.env.DEV ? [...records.value,...dramaPreviewEvents.value] : records.value).filter((r) => import.meta.env.DEV ? matchesScheduleRegion(r,view.scheduleRegion) : r.region === view.currentRegion),
+      (import.meta.env.DEV ? [...records.value,...dramaPreviewEvents.value] : records.value).filter((r) => matchesScheduleRegion(r,view.scheduleRegion)),
     );
   const companies = computed(() => companyOptions(inRegion.value, artistCatalog.value));
   const filtered = computed(() =>
