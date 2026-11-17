@@ -119,6 +119,7 @@ export function normalizeRecord(raw, index = 0, source = 'sheet') {
     event_title: String(raw.event_title || raw.activity || raw.title || ''),
     postponed_to_date: String(raw.postponed_to_date || ''),
     original_date: String(raw.original_date || ''),
+    parent_event: raw.parent_event?.id ? {id:source+':'+raw.parent_event.id,title:raw.parent_event.title||''} : null,
     related_event_id: raw.related_event_id
       ? source + ':' + raw.related_event_id
       : '',

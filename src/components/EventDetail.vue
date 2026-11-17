@@ -14,6 +14,7 @@ const props = defineProps({ item: Object }),
   lang = useLanguageStore(),
   data = useEventsStore();
 const emit = defineEmits(['open', 'correct']);
+const seriesRows=computed(()=>{const root=props.item.parent_event?.id||props.item.id;return data.records.filter(r=>r.kind!=='task'&&(r.id===root||r.parent_event?.id===root)).sort((a,b)=>a.date.localeCompare(b.date)||String(a.time||'').localeCompare(String(b.time||'')));});
 const state = computed(() => eventState(props.item));
 const fieldClass = (field) => ({
   'unverified-field': props.item.pending_fields?.includes(field),
@@ -35,6 +36,7 @@ const eventTasks = computed(() =>
 </script>
 <template>
   <div class="event-detail">
+    <section v-if="seriesRows.length>1||item.parent_event" class="series-sessions"><h3>{{lang.currentLanguage==='zh'?'同系列场次':lang.currentLanguage==='th'?'รอบกิจกรรมเดียวกัน':'Other sessions'}}</h3><p v-if="item.parent_event">{{item.parent_event.title}}</p><div><button v-for="session in seriesRows" :key="session.id" class="pill" :aria-current="session.id===item.id?'true':undefined" @click="session.id!==item.id&&emit('open',session)">{{session.date}} · {{session.activity||session.name}}</button></div></section>
     <div class="detail-media">
       <div
         v-if="images.length"
@@ -220,3 +222,5 @@ const eventTasks = computed(() =>
   white-space: pre-wrap;
 }
 </style>
+
+<style scoped>.series-sessions{margin:0 0 18px}.series-sessions h3{font-size:14px;margin:0 0 8px}.series-sessions p{font-size:12px;color:var(--muted)}.series-sessions>div{display:flex;gap:8px;flex-wrap:wrap}.series-sessions .pill{font-size:12px;padding:6px 12px;max-width:100%;white-space:normal;text-align:left}.series-sessions [aria-current=true]{font-weight:600;border-color:currentColor}</style>
