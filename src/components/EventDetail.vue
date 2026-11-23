@@ -36,7 +36,6 @@ const eventTasks = computed(() =>
 </script>
 <template>
   <div class="event-detail">
-    <section v-if="seriesRows.length>1||item.parent_event" class="series-sessions"><h3>{{lang.currentLanguage==='zh'?'同系列场次':lang.currentLanguage==='th'?'รอบกิจกรรมเดียวกัน':'Other sessions'}}</h3><p v-if="item.parent_event">{{item.parent_event.title}}</p><div><button v-for="session in seriesRows" :key="session.id" class="pill" :aria-current="session.id===item.id?'true':undefined" @click="session.id!==item.id&&emit('open',session)">{{session.date}} · {{session.activity||session.name}}</button></div></section>
     <div class="detail-media">
       <div
         v-if="images.length"
@@ -88,6 +87,7 @@ const eventTasks = computed(() =>
           >
             查看关联日期 →
           </button>
+          <section v-if="seriesRows.length>1||item.parent_event" class="series-sessions"><h3>{{lang.currentLanguage==='zh'?'同系列场次':lang.currentLanguage==='th'?'รอบกิจกรรมเดียวกัน':'Other sessions'}}</h3><div><button v-for="session in seriesRows" :key="session.id" type="button" class="pill" :title="session.activity||session.name" :aria-current="session.id===item.id?'true':undefined" @click="session.id!==item.id&&emit('open',session)">{{session.date}}<small v-if="session.time">{{session.time}}</small></button></div></section>
         </dd>
       </div>
       <div>
@@ -223,4 +223,4 @@ const eventTasks = computed(() =>
 }
 </style>
 
-<style scoped>.series-sessions{margin:0 0 18px}.series-sessions h3{font-size:14px;margin:0 0 8px}.series-sessions p{font-size:12px;color:var(--muted)}.series-sessions>div{display:flex;gap:8px;flex-wrap:wrap}.series-sessions .pill{font-size:12px;padding:6px 12px;max-width:100%;white-space:normal;text-align:left}.series-sessions [aria-current=true]{font-weight:600;border-color:currentColor}</style>
+<style scoped>.series-sessions{margin:12px 0 4px}.series-sessions h3{font-size:14px;margin:0 0 8px}.series-sessions p{font-size:12px;color:var(--muted)}.series-sessions>div{display:flex;gap:8px;flex-wrap:wrap}.series-sessions .pill{font-size:12px;padding:6px 12px;max-width:100%;white-space:normal;text-align:left}.series-sessions .pill small{font-size:11px;opacity:.75;margin-left:6px}.series-sessions [aria-current=true]{font-weight:600;border-color:var(--accent,#6f9dd4);background:var(--accent,#6f9dd4);color:white}.series-sessions h3{font-size:12px;color:var(--muted);font-weight:500}</style>
