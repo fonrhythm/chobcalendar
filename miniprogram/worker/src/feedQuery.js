@@ -1,3 +1,4 @@
+import {feedRegion} from './region.js';
 const DAY=86400000;
 export function date(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;const n=Date.parse(value+'T00:00:00Z');return Number.isFinite(n)&&new Date(n).toISOString().slice(0,10)===value?n:null}
 export function parseQuery(args,now=new Date()){
@@ -38,5 +39,5 @@ export function projectFeed(feed,q){
  }
  const keys=q.mode==='ids'?[...summaryKeys,'sources','changes','field_states','venue_entity','parent_event','companies','last_verified_at']:summaryKeys;
  const recordIds=new Set(rows.flatMap(r=>[r.id,r.event_id]));
- return {...metadata,records:rows.map(r=>pick(r,keys)),artists:linkedArtists(feed,rows),announcements:(feed.announcements||[]).filter(a=>!a.event_id||recordIds.has(a.event_id)).slice(0,20),...(q.mode==='range'?{window:{start:q.start,end:q.end},next_page:hasMore?q.page+1:null}:{})};
+ return {...metadata,records:rows.map(r=>pick({...r,region:feedRegion(r.region)},keys)),artists:linkedArtists(feed,rows),announcements:(feed.announcements||[]).filter(a=>!a.event_id||recordIds.has(a.event_id)).slice(0,20),...(q.mode==='range'?{window:{start:q.start,end:q.end},next_page:hasMore?q.page+1:null}:{})};
 }
