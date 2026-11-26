@@ -20,3 +20,11 @@ test('one malformed row cannot discard other valid events; diagnostics retain th
   assert.throws(()=>normalizeFeedRecords([{...row,region:'unknown'}]), {name:'FeedDataError'});
   assert.deepEqual(normalizeFeedRecords([]),{records:[],issues:[]});
 });
+
+test('published country and territory labels map to overseas while malformed regions remain isolated',()=>{
+ for(const region of ['越南','菲律宾','巴西','中国香港','中国澳门','中国台湾','Vietnam','Philippines','Brazil','Hong Kong','Macau','Taiwan']) {
+  const record=normalizeRecord({...row,region});
+  assert.equal(record.region,'oversea');assert.equal(record.date,row.date);
+ }
+ assert.throws(()=>normalizeRecord({...row,region:'unknown'}),/invalid region/);
+});
